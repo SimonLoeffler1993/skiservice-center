@@ -12,6 +12,7 @@ export async function kundeTerminaAbfragen() {
             return null;
         }
         const data = await response.json();
+        // TODO: Validierung auf das richtige schema
         const parsedData = terminalSchema.safeParse(data);
         if (!parsedData.success) {
             console.error("Validierungsfehler:", parsedData.error);

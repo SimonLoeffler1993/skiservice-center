@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSaisonverleihContext } from "@/context/saisonverleih-context";
 import { Mountain } from "lucide-react";
+import MaterialEingabe from "./material/MaterialEingabe";
 
 export default function SkiSelectionStep() {
   const { kunde } = useSaisonverleihContext();
@@ -24,10 +25,7 @@ export default function SkiSelectionStep() {
               </p>
             </div>
             <div className="text-center py-12">
-              <Mountain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">
-                Ski-Auswahl Komponente wird hier implementiert...
-              </p>
+              <MaterialEingabe />
             </div>
           </div>
         ) : (
