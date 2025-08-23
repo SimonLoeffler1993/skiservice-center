@@ -10,7 +10,7 @@ export default function SaisonMaterialPreise() {
     
     return (
         <>
-            <Label htmlFor="Saisonverleih">Saisonverleih</Label>
+            <Label htmlFor="Saisonverleih" className="block text-sm font-medium text-gray-700 mb-1">Saisonverleih</Label>
             <Select onValueChange={(value) => console.log(value)}>
                 <SelectTrigger>
                     <SelectValue placeholder="Saisonverleih" />
@@ -18,7 +18,7 @@ export default function SaisonMaterialPreise() {
                 <SelectContent>
                     {preise.preise.map((preis) => (
                         <SelectItem key={preis.ID} value={preis.ID.toString()}>
-                            {preis.Bezeichnung}
+                            {preis.Bezeichnung} - {preis.Preis}€
                         </SelectItem>
                     ))}
                 </SelectContent>

@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from 'react';
 import SaisonMaterialPreise from './SaisonMaterialPreise';
+import SaisonMaterialSki from './SaisonMaterialSki';
 
 interface MaterialData {
     serviceGroesse: 'klein' | 'groß' | '';
@@ -92,7 +93,8 @@ export default function MaterialEingabe() {
 
                     {/* Ski Nummer */}
                     <div>
-                        <label htmlFor="skiNr" className="block text-sm font-medium text-gray-700 mb-1">
+                        <SaisonMaterialSki />
+                        {/* <label htmlFor="skiNr" className="block text-sm font-medium text-gray-700 mb-1">
                             Ski Nr.
                         </label>
                         <input
@@ -103,7 +105,7 @@ export default function MaterialEingabe() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Ski Nummer"
                             required
-                        />
+                        /> */}
                     </div>
 
                     {/* Interne Schuh Nummer */}
