@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+// Skischema
 const ArtSchema = z.object({
   Art: z.string(),
   ID: z.number(),
@@ -36,3 +37,30 @@ export type Art = z.infer<typeof ArtSchema>;
 export type Hersteller = z.infer<typeof HerstellerSchema>;
 export type Modell = z.infer<typeof ModellSchema>;
 export type Ski = z.infer<typeof SkiSchema>;
+
+
+// Schuhschema
+export const SchuhHerstellerSchema = z.object({
+  Name: z.string(),
+  ID: z.number(),
+});
+
+export const SchuhModellSchema = z.object({
+  Modell: z.string(),
+  Jugend: z.number(),
+  Hersteller_ID: z.number(),
+  ID: z.number(),
+  Hersteller: HerstellerSchema,
+});
+
+export const SchuhSchema = z.object({
+  Modell_ID: z.number(),
+  Groese: z.number(),
+  Saison: z.string(),
+  VK: z.number(),
+  EK: z.number(),
+  ID: z.number(),
+  Modell: SchuhModellSchema,
+});
+
+export type Schuh = z.infer<typeof SchuhSchema>;
