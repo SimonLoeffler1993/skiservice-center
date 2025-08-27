@@ -13,6 +13,7 @@ export default function SaisonverleihErstellen() {
 
   const { kunde } = useSaisonverleihContext();
 
+  
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -43,7 +44,7 @@ export default function SaisonverleihErstellen() {
           </TabsContent>
 
           <TabsContent value="ski" className="mt-6">
-            <SkiSelectionStep />
+              <SkiSelectionStep />
           </TabsContent>
 
           <TabsContent value="uebersicht" className="mt-6">

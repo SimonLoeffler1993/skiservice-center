@@ -1,9 +1,8 @@
-"use client"
-
-import { SaisonpreisContextProvider } from "@/context/saisonpreis-contex";
 import { SaisonverleihContextProvider } from "@/context/saisonverleih-context";
 import { SkikundenContextProvider } from "@/context/skikunden-context";
 import { getSaisonVerleihPreis } from "@/lib/saisonverleih";
+import { SaisonpreisContextProvider } from "@/context/saisonpreis-contex";
+
 
 export default function SaisonverleihErstellenLayout({ children }: { children: React.ReactNode }) {
   const saisonpreisePromise = getSaisonVerleihPreis();
@@ -15,5 +14,6 @@ export default function SaisonverleihErstellenLayout({ children }: { children: R
       </SaisonverleihContextProvider>
     </SkikundenContextProvider>
     </SaisonpreisContextProvider>
+
   );
 }
