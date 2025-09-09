@@ -4,6 +4,8 @@ import { Suspense, useState } from 'react';
 import SaisonMaterialPreise from './SaisonMaterialPreise';
 import SaisonMaterialSki from './SaisonMaterialSki';
 import SaisonMaterialSchuh from './SaisonMaterialSchuh';
+import SaisonMaterialStock from './SaisonMaterialStock';
+
 
 interface MaterialData {
     serviceGroesse: 'klein' | 'groß' | '';
@@ -124,6 +126,9 @@ export default function MaterialEingabe() {
                             placeholder="Schuh Nummer"
                             required
                         /> */}
+                    </div>
+                    <div>
+                        <SaisonMaterialStock />
                     </div>
 
                     {/* Name des Skifahrers */}
