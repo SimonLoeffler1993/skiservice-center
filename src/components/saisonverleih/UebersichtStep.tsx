@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList } from "lucide-react";
 import { useSaisonverleihContext } from "@/context/saisonverleih-context";
+import SaisonMaterialListe from "./material/SaisonMaterialListe";
 
 export default function UebersichtStep() {
   const { kunde } = useSaisonverleihContext();
@@ -27,6 +28,7 @@ export default function UebersichtStep() {
             </div>
             
             <div className="text-center py-12">
+              <SaisonMaterialListe showAktionSpalte={false} />
               <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">
                 Gesamt übersicht wird hier angezeigt...

@@ -4,6 +4,7 @@
 import { useSkikundenContext } from "@/context/skikunden-context";
 import { Kunde } from "@/types/skikundentypes";
 import React from "react";
+import { Material } from "@/types/materialtypes";
 
 type SaisonverleihContextProviderProps = {
     children: React.ReactNode;
@@ -12,14 +13,17 @@ type SaisonverleihContextProviderProps = {
 type SaisonverleihContextType = {
     kunde: Kunde | null;
     setKunde: (kunde: Kunde | null) => void;
+    materialList: Material[];
+    setMaterialList: (materialList: Material[]) => void;
 };
 
 const SaisonverleihContext = React.createContext<SaisonverleihContextType | undefined>(undefined);
 
 export const SaisonverleihContextProvider = ({ children }: SaisonverleihContextProviderProps) => {
     const { kunde, setKunde } = useSkikundenContext();
+    const [materialList, setMaterialList] = React.useState<Material[]>([]);
     return (
-        <SaisonverleihContext.Provider value={{ kunde, setKunde }}>
+        <SaisonverleihContext.Provider value={{ kunde, setKunde, materialList, setMaterialList }}>
             {children}
         </SaisonverleihContext.Provider>
     );

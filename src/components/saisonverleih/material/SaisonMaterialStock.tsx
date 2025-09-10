@@ -1,22 +1,38 @@
 "use client"
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-export default function SaisonMaterialStock() {
+
+interface SaisonMaterialStockProps {
+    value?: string;
+    onChange: (value: string) => void;
+    error?: string;
+}
+
+export default function SaisonMaterialStock({ value, onChange, error }: SaisonMaterialStockProps) {
     return (
-        <>
-            <Label htmlFor="Stock" className="block text-sm font-medium text-gray-700 mb-1">Stock</Label>
-            <Select onValueChange={(value) => console.log(value)}>
-                <SelectTrigger>
-                    <SelectValue placeholder="Stock" />
+        <div>
+            <Label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
+                Stock
+            </Label>
+            <Select 
+                value={value} 
+                onValueChange={onChange}
+            >
+                <SelectTrigger className={error ? 'border-red-500' : ''}>
+                    <SelectValue placeholder="Stock wählen..." />
                 </SelectTrigger>
                 <SelectContent>
-   
-                        <SelectItem value="Stock">
-                            Stock
-                        </SelectItem>
-     
+                    <SelectItem value="Stock">
+                        Stock
+                    </SelectItem>
+                    <SelectItem value="kein Stock">
+                        kein Stock
+                    </SelectItem>
                 </SelectContent>
             </Select>
-        </>
+            {error && (
+                <p className="mt-1 text-sm text-red-600">{error}</p>
+            )}
+        </div>
     );
 }

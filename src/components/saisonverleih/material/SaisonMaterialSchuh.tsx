@@ -1,30 +1,69 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useActionState, startTransition } from "react";
+import { useActionState, startTransition, useEffect } from "react";
 import { getSchuhNrCheck } from "@/lib/materialactions";
 import SaisonMaterialSchuhAnzeige from "./SaisonMaterialSchuhAnzeigen";
 
-export default function SaisonMaterialSchuh() {
-    const [schuhNr, setSchuhNr] = useState("");
+interface SaisonMaterialSchuhProps {
+    value: string;
+    onChange: (value: string) => void;
+    onCheck?: (isValid: boolean) => void;
+    error?: string;
+}
+
+export default function SaisonMaterialSchuh({ 
+    value, 
+    onChange, 
+    onCheck,
+    error 
+}: SaisonMaterialSchuhProps) {
     const [state, action, isPending] = useActionState(getSchuhNrCheck, null);
     
     const handleSchuhNrChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSchuhNr(e.target.value);
+        onChange(e.target.value);
     };
 
     function handleSchuhNrCheck() {
-        startTransition(() => action(schuhNr));
+        startTransition(() => action(value));
     }
+
+    // Notify parent about check result
+    useEffect(() => {
+        if (state) {
+            onCheck?.(state.success);
+        }
+    }, [state, onCheck]);
     
     return (
-        <>
-        <Label htmlFor="Schuh" className="block text-sm font-medium text-gray-700 mb-1">Schuh</Label>
-        <Input type="text" id="Schuh" value={schuhNr} onChange={handleSchuhNrChange} />
-        <Button type="button" className="mt-2" onClick={handleSchuhNrCheck}>Schuh Prüfen</Button>
-        {isPending && <p>Lädt...</p>}
-        {state?.success && <SaisonMaterialSchuhAnzeige  schuh={state.data!}/>}
-        {state?.error && <p>{state.error}</p>}
-        </>
-    )
+        <div>
+            <Label htmlFor="interneSchuhNummer" className="block text-sm font-medium text-gray-700 mb-1">
+                Schuh Nr.
+            </Label>
+            <div className="flex gap-2">
+                <Input 
+                    type="text" 
+                    id="interneSchuhNummer" 
+                    value={value} 
+                    onChange={handleSchuhNrChange}
+                    className={error ? 'border-red-500' : ''}
+                />
+                <Button 
+                    type="button" 
+                    onClick={handleSchuhNrCheck}
+                    disabled={isPending || !value.trim()}
+                >
+                    {isPending ? 'Prüfe...' : 'Prüfen'}
+                </Button>
+            </div>
+            {error && !isPending && (
+                <p className="mt-1 text-sm text-red-600">{error}</p>
+            )}
+            {isPending && <p className="mt-1 text-sm text-gray-500">Prüfe Schuh-Nummer...</p>}
+            {state?.success && <SaisonMaterialSchuhAnzeige schuh={state.data!} />}
+            {state?.error && !isPending && (
+                <p className="mt-1 text-sm text-red-600">{state.error}</p>
+            )}
+        </div>
+    );
 }

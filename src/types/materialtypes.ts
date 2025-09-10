@@ -64,3 +64,14 @@ export const SchuhSchema = z.object({
 });
 
 export type Schuh = z.infer<typeof SchuhSchema>;
+
+// Für MaterialEingabe
+export const MaterialSchema = z.object({
+    servicePreis: z.string().min(1, 'Bitte wählen Sie eine Service'),
+    skiNr: z.string().min(1, 'Ski-Nummer ist erforderlich'),
+    stock: z.string().min(1, 'Stock ist erforderlich'),
+    interneSchuhNummer: z.string().min(1, 'Schuh-Nummer ist erforderlich'),
+    skifahrerName: z.string().min(1, 'Name des Skifahrers ist erforderlich'),
+});
+
+export type Material = z.infer<typeof MaterialSchema>;
