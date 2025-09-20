@@ -24,11 +24,12 @@ export default function MaterialEingabe() {
         resolver: zodResolver(MaterialSchema),
         mode: 'onChange',
         defaultValues: {
-            servicePreis: '',
-            skiNr: '',
-            interneSchuhNummer: '',
-            skifahrerName: '',
-            stock: ''
+            Preis: 0,
+            skinr: '',
+            stockbez_ID: 0,
+            stocklaenge: 0,
+            schuhnr: '',
+            SkiFahrerName: '',
         }
     });
 
@@ -57,35 +58,35 @@ export default function MaterialEingabe() {
                         <div>
                             <Suspense fallback={<div>Lade Service-Optionen...</div>}>
                                 <SaisonMaterialPreise 
-                                    name="servicePreis"
-                                    error={errors.servicePreis?.message}
+                                    name="Preis"
+                                    error={errors.Preis?.message}
                                 />
                             </Suspense>
                         </div>
 
                         <div>
                             <SaisonMaterialSki 
-                                value={watch('skiNr')}
-                                onChange={(value) => setValue('skiNr', value)}
+                                value={watch('skinr')}
+                                onChange={(value) => setValue('skinr', value)}
                                 onCheck={setSkiValid}
-                                error={errors.skiNr?.message}
+                                error={errors.skinr?.message}
                             />
                         </div>
 
                         <div>
                             <SaisonMaterialSchuh 
-                                value={watch('interneSchuhNummer')}
-                                onChange={(value) => setValue('interneSchuhNummer', value)}
+                                value={watch('schuhnr')}
+                                onChange={(value) => setValue('schuhnr', value)}
                                 onCheck={setSchuhValid}
-                                error={errors.interneSchuhNummer?.message}
+                                error={errors.schuhnr?.message}
                             />
                         </div>
                         
                         <div>
                             <SaisonMaterialStock 
-                                value={watch('stock')}
-                                onChange={(value) => setValue('stock', value, { shouldValidate: true })}
-                                error={errors.stock?.message}
+                                value={watch('stockbez_ID')}
+                                onChange={(value) => setValue('stockbez_ID', Number(value))}
+                                error={errors.stockbez_ID?.message}
                             />
                         </div>
 
@@ -96,23 +97,22 @@ export default function MaterialEingabe() {
                             <input
                                 type="text"
                                 id="skifahrerName"
-                                {...register('skifahrerName')}
+                                {...register('SkiFahrerName')}
                                 className={`w-full px-3 py-2 border ${
-                                    errors.skifahrerName ? 'border-red-500' : 'border-gray-300'
+                                    errors.SkiFahrerName ? 'border-red-500' : 'border-gray-300'
                                 } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                                 placeholder="Name eingeben"
                             />
-                            {errors.skifahrerName && (
-                                <p className="mt-1 text-sm text-red-600">{errors.skifahrerName.message}</p>
+                            {errors.SkiFahrerName && (
+                                <p className="mt-1 text-sm text-red-600">{errors.SkiFahrerName.message}</p>
                             )}
                         </div>
 
                         <div className="flex items-end">
                             <button
                                 type="submit"
-                                disabled={!isFormValid || skiValid === false || schuhValid === false}
                                 className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
-                                    isFormValid && skiValid !== false && schuhValid !== false
+                                    isFormValid
                                         ? 'bg-blue-600 hover:bg-blue-700 text-white'
                                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}

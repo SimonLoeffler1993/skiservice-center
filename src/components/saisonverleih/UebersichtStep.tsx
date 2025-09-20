@@ -4,9 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList } from "lucide-react";
 import { useSaisonverleihContext } from "@/context/saisonverleih-context";
 import SaisonMaterialListe from "./material/SaisonMaterialListe";
+import UebersichtCecked from "./Uebersicht/UebersichtCecked";
+import { useState } from "react";
+import UebersichtBemerkung from "./Uebersicht/UebersichtBemerkung";
+import UebersichtSpeichern from "./Uebersicht/UebersichtSpeichern";
 
 export default function UebersichtStep() {
-  const { kunde } = useSaisonverleihContext();
+  const { kunde, datenVollstaendig } = useSaisonverleihContext();
+  const [checked, setChecked] = useState(false);
+
+
   return (
     <Card>
       <CardHeader>
@@ -29,10 +36,20 @@ export default function UebersichtStep() {
             
             <div className="text-center py-12">
               <SaisonMaterialListe showAktionSpalte={false} />
-              <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            </div>
+            <div>
+              <UebersichtBemerkung />
+            </div>
+            <div className="py-4">
+            <UebersichtCecked checked={checked} setChecked={setChecked} fertig={datenVollstaendig} />
+
+            {!datenVollstaendig ?(
               <p className="text-muted-foreground">
-                Gesamt übersicht wird hier angezeigt...
+                Daten sind nicht Vollständig ausgefüllt!
               </p>
+            ): null}
+              
+            <UebersichtSpeichern datenChecked={checked} />
             </div>
           </div>
         ) : (

@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface SaisonMaterialStockProps {
-    value?: string;
+    value?: number;
     onChange: (value: string) => void;
     error?: string;
 }
@@ -15,17 +15,17 @@ export default function SaisonMaterialStock({ value, onChange, error }: SaisonMa
                 Stock
             </Label>
             <Select 
-                value={value} 
+                value={value?.toString()}
                 onValueChange={onChange}
             >
                 <SelectTrigger className={error ? 'border-red-500' : ''}>
                     <SelectValue placeholder="Stock wählen..." />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="Stock">
+                    <SelectItem value="0">
                         Stock
                     </SelectItem>
-                    <SelectItem value="kein Stock">
+                    <SelectItem value="-1">
                         kein Stock
                     </SelectItem>
                 </SelectContent>

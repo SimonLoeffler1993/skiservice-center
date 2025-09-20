@@ -1,6 +1,6 @@
 import { SaisonverleihContextProvider } from "@/context/saisonverleih-context";
 import { SkikundenContextProvider } from "@/context/skikunden-context";
-import { getSaisonVerleihPreis } from "@/lib/saisonverleih";
+import { getSaisonVerleihPreis } from "@/lib/saisonverleihactions";
 import { SaisonpreisContextProvider } from "@/context/saisonpreis-contex";
 
 

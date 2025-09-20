@@ -16,6 +16,14 @@ export default function SaisonMaterialListe({ showAktionSpalte = true }: SaisonM
         setMaterialList(newList);
     };
 
+    if (materialList.length === 0) {
+        return (
+            <p className="text-center text-muted-foreground">
+                Noch kein Material ausgewählt.
+            </p>
+        );
+    }
+    // TODO: Zeilen Formatieren und Daten abrufen und für Details ansicht
     return (
         <div>
             <Table>
@@ -33,11 +41,11 @@ export default function SaisonMaterialListe({ showAktionSpalte = true }: SaisonM
                 <TableBody>
                     {materialList.map((material, index) => (
                         <TableRow key={index}>
-                            <TableCell className="text-center">{material.servicePreis}</TableCell>
-                            <TableCell className="text-center">{material.skiNr}</TableCell>
-                            <TableCell className="text-center">{material.interneSchuhNummer}</TableCell>
-                            <TableCell className="text-center">{material.stock}</TableCell>
-                            <TableCell className="text-center">{material.skifahrerName}</TableCell>
+                            <TableCell className="text-center">{material.Preis}</TableCell>
+                            <TableCell className="text-center">{material.skinr}</TableCell>
+                            <TableCell className="text-center">{material.schuhnr}</TableCell>
+                            <TableCell className="text-center">{material.stockbez_ID}</TableCell>
+                            <TableCell className="text-center">{material.SkiFahrerName}</TableCell>
                             {showAktionSpalte && (<TableCell className="text-center">
                                 <Button 
                                     variant="ghost" 
