@@ -12,6 +12,7 @@ import { MaterialSchema } from '@/types/materialtypes';
 import SaisonMaterialListe from './SaisonMaterialListe';
 import { useSaisonverleihContext } from '@/context/saisonverleih-context';
 
+// TODO: Teilweise auf Register umstellen
 
 type MaterialFormData = z.infer<typeof MaterialSchema>;
 
@@ -28,7 +29,7 @@ export default function MaterialEingabe() {
             skinr: '',
             stockbez_ID: 0,
             stocklaenge: 0,
-            schuhnr: '',
+            schuhnr: undefined,
             SkiFahrerName: '',
         }
     });
@@ -75,8 +76,8 @@ export default function MaterialEingabe() {
 
                         <div>
                             <SaisonMaterialSchuh 
-                                value={watch('schuhnr')}
-                                onChange={(value) => setValue('schuhnr', value)}
+                                value={watch('schuhnr') !== undefined ? String(watch('schuhnr')) : ''}
+                                onChange={(value) => setValue('schuhnr', value.trim() === '' ? undefined : Number(value), { shouldValidate: true })}
                                 onCheck={setSchuhValid}
                                 error={errors.schuhnr?.message}
                             />
@@ -88,6 +89,18 @@ export default function MaterialEingabe() {
                                 onChange={(value) => setValue('stockbez_ID', Number(value))}
                                 error={errors.stockbez_ID?.message}
                             />
+                            <input 
+                                type="number" 
+                                min="0" 
+                                max="180" 
+                                step="1" 
+                                placeholder="Stocklänge" 
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                                {...register('stocklaenge', { valueAsNumber: true })} 
+                            />
+                            {errors.stocklaenge && (
+                                <p className="mt-1 text-sm text-red-600">{errors.stocklaenge.message}</p>
+                            )}
                         </div>
 
                         <div>

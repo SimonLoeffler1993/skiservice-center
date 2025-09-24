@@ -1,6 +1,8 @@
 "use client"
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useSkimaterialContext } from "@/context/skimaterial-contex";
+import { use } from "react";
 
 interface SaisonMaterialStockProps {
     value?: number;
@@ -9,7 +11,11 @@ interface SaisonMaterialStockProps {
 }
 
 export default function SaisonMaterialStock({ value, onChange, error }: SaisonMaterialStockProps) {
+    const { skistoeckePromise} = useSkimaterialContext();
+    const skistoecke = use(skistoeckePromise);
+
     return (
+        <>
         <div>
             <Label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
                 Stock
@@ -22,9 +28,11 @@ export default function SaisonMaterialStock({ value, onChange, error }: SaisonMa
                     <SelectValue placeholder="Stock wählen..." />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="0">
-                        Stock
-                    </SelectItem>
+                    {skistoecke.map((stock) => (
+                        <SelectItem key={stock.ID} value={stock.ID.toString()}>
+                            {stock.Bezeichnung}
+                        </SelectItem>
+                    ))}
                     <SelectItem value="-1">
                         kein Stock
                     </SelectItem>
@@ -34,5 +42,6 @@ export default function SaisonMaterialStock({ value, onChange, error }: SaisonMa
                 <p className="mt-1 text-sm text-red-600">{error}</p>
             )}
         </div>
+        </>
     );
 }

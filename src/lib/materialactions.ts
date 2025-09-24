@@ -1,7 +1,7 @@
 "use server"
 
 import { config } from "@/lib/config";
-import { SkiArraySchema, SchuhSchema } from "@/types/materialtypes";
+import { SkiArraySchema, SchuhSchema, SkistockArraySchema, SkistockArray } from "@/types/materialtypes";
 
 export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
     const response = await fetch(`${config.backendUrl}/api/v1/material/ski/eigen?skinr=${skiNr}`);
@@ -45,4 +45,20 @@ export async function getSchuhNrCheck(previousState: unknown,schuhNr: string) {
     }
     
     return { success: true, error: null, data: parsedData.data };
+}
+
+export async function getSkiStoecke(): Promise<SkistockArray> {
+    const response = await fetch(`${config.backendUrl}/api/v1/material/stock/skistocke`);
+    if (!response.ok) {
+        console.error("Fehler beim Suchen:", response);
+        return [];
+    }
+    const data = await response.json();
+    const parsedData = SkistockArraySchema.safeParse(data);
+    if (!parsedData.success) {
+        console.error("Validierungsfehler:", parsedData.error);
+        return [];
+    }
+    // Ensure we always return the correct structure
+    return parsedData.data || [];
 }

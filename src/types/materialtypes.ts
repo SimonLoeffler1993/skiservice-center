@@ -71,8 +71,23 @@ export const MaterialSchema = z.object({
     skinr: z.string(),
     stockbez_ID: z.number(),
     stocklaenge: z.number(),
-    schuhnr: z.string(),
+    schuhnr: z.number().optional(),
     SkiFahrerName: z.string(),
 });
 
 export type Material = z.infer<typeof MaterialSchema>;
+
+// Für Skistock
+export const SkistockSchema = z.object({
+  ID: z.number(),
+  Bezeichnung: z.string()
+})
+
+// Einzeln
+export type Skistock = z.infer<typeof SkistockSchema>;
+
+// Mehrfach
+export const SkistockArraySchema = z.array(SkistockSchema);
+export type SkistockArray = z.infer<typeof SkistockArraySchema>;
+
+
