@@ -1,7 +1,7 @@
 "use server"
 
 import { config } from "./config";
-import { SaisonverleihPreise, SaisonVerleihCreate } from "@/types/saisonverleihtypes";
+import { SaisonverleihPreise, SaisonVerleihCreate, SaisonVerleihCreateResponse } from "@/types/saisonverleihtypes";
 
 export async function getSaisonVerleihPreis(): Promise<SaisonverleihPreise> {
     // TODO: Validierung auf das richtige schema
@@ -15,8 +15,8 @@ export async function getSaisonVerleihPreis(): Promise<SaisonverleihPreise> {
     return data || { preise: [] };
 }
 
-export async function createSaisonVerleih(previousState: unknown,saisonVerleih: SaisonVerleihCreate): Promise<SaisonVerleihCreate | null> {
-    console.log("Erstellen:", saisonVerleih);
+export async function createSaisonVerleih(previousState: unknown,saisonVerleih: SaisonVerleihCreate): Promise<SaisonVerleihCreateResponse | null> {
+    // console.log("Erstellen:", saisonVerleih);
     
     const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/neu`, {
         method: "POST",

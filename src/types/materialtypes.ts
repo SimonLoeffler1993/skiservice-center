@@ -77,6 +77,18 @@ export const MaterialSchema = z.object({
 
 export type Material = z.infer<typeof MaterialSchema>;
 
+export const MaterialReadSchema = z.object({
+    ID: z.number(),
+    skinr: z.string().optional(),
+    stockbez_ID: z.number().optional(),
+    stocklaenge: z.number().optional(),
+    schuhnr: z.number().optional(),
+    Preis: z.number(),
+    SkiFahrerName: z.string().optional(),
+})
+
+export type MaterialRead = z.infer<typeof MaterialReadSchema>;
+
 // Für Skistock
 export const SkistockSchema = z.object({
   ID: z.number(),

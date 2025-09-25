@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MaterialSchema } from "./materialtypes";
+import { MaterialSchema, MaterialReadSchema } from "./materialtypes";
 
 // --- SaisonVerleihPreis ---
 export const SkiSaisonverleihPreisSchema = z.object({
@@ -14,10 +14,10 @@ export const SkiSaisonverleihPreisSchema = z.object({
 
 export const SaisonverleihPreiseSchema = z.object({
     preise: z.array(SkiSaisonverleihPreisSchema),
-}) 
+})
 
 // Einzeln
-export type SaisonverleihPreis = z.infer<typeof SkiSaisonverleihPreisSchema>; 
+export type SaisonverleihPreis = z.infer<typeof SkiSaisonverleihPreisSchema>;
 // Mehrfach
 export type SaisonverleihPreise = z.infer<typeof SaisonverleihPreiseSchema>;
 
@@ -30,11 +30,30 @@ export type SaisonverleihPreise = z.infer<typeof SaisonverleihPreiseSchema>;
 //     Preis: z.number(),
 //     SkiFahrerName: z.string().optional(),
 //   });
-  
+
 //   export type SaisonVerleihMaterialCreate = z.infer<typeof SaisonVerleihMaterialCreateSchema>;
 
-  // --- SaisonVerleih ---
-  export const SaisonVerleihCreateSchema = z.object({
+// --- SaisonVerleih ---
+export const SaisonVerleihSchema = z.object({
+    ID: z.number().int(),
+    Kunde_ID: z.number().int(),
+    Ueberweisung: z.number().int().optional(),
+    Bezahlt: z.number().int().optional(),
+    Bezahlt_Am: z.string().datetime().optional(), // oder z.date()
+    Zurueck: z.number().int().optional(),
+    Zurueck_Am: z.string().datetime().optional(),
+    Bemerkung: z.string().optional(),
+    Saison_ID: z.number().int().optional(), //nur wen es abweicht von der aktuellen Saison
+    Abgerechnet: z.number().int().optional(),
+    Name: z.string(),
+    Start_Am: z.string().datetime().optional(),
+    QuittungID: z.number().int().optional(),
+    Material: z.array(MaterialReadSchema),
+})
+
+export type SaisonVerleih = z.infer<typeof SaisonVerleihSchema>;
+
+export const SaisonVerleihCreateSchema = z.object({
     Kunde_ID: z.number().int(),
     Ueberweisung: z.number().int().optional(),
     Bezahlt: z.number().int().optional(),
@@ -48,6 +67,14 @@ export type SaisonverleihPreise = z.infer<typeof SaisonverleihPreiseSchema>;
     Start_Am: z.string().datetime().optional(),
     QuittungID: z.number().int().optional(),
     Material: z.array(MaterialSchema),
-  });
+});
 
-  export type SaisonVerleihCreate = z.infer<typeof SaisonVerleihCreateSchema>;
+export type SaisonVerleihCreate = z.infer<typeof SaisonVerleihCreateSchema>;
+
+export const SaisonVerleihCreateResponseSchema = z.object({
+    success: z.boolean(),
+    message: z.string().optional(),
+    data: SaisonVerleihSchema.optional(),
+});
+
+export type SaisonVerleihCreateResponse = z.infer<typeof SaisonVerleihCreateResponseSchema>;
