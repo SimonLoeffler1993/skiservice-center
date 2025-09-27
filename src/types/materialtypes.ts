@@ -65,30 +65,6 @@ export const SchuhSchema = z.object({
 
 export type Schuh = z.infer<typeof SchuhSchema>;
 
-// Für MaterialEingabe
-export const MaterialSchema = z.object({
-    Preis: z.number().positive('Bitte wählen oder geben Sie einen Preis ein'),
-    skinr: z.string(),
-    stockbez_ID: z.number(),
-    stocklaenge: z.number(),
-    schuhnr: z.number().optional(),
-    SkiFahrerName: z.string(),
-});
-
-export type Material = z.infer<typeof MaterialSchema>;
-
-export const MaterialReadSchema = z.object({
-    ID: z.number(),
-    skinr: z.string().optional(),
-    stockbez_ID: z.number().optional(),
-    stocklaenge: z.number().optional(),
-    schuhnr: z.number().optional(),
-    Preis: z.number(),
-    SkiFahrerName: z.string().optional(),
-})
-
-export type MaterialRead = z.infer<typeof MaterialReadSchema>;
-
 // Für Skistock
 export const SkistockSchema = z.object({
   ID: z.number(),
@@ -102,4 +78,31 @@ export type Skistock = z.infer<typeof SkistockSchema>;
 export const SkistockArraySchema = z.array(SkistockSchema);
 export type SkistockArray = z.infer<typeof SkistockArraySchema>;
 
+// Für MaterialEingabe
+export const MaterialSchema = z.object({
+  Preis: z.number().positive('Bitte wählen oder geben Sie einen Preis ein'),
+  skinr: z.string(),
+  stockbez_ID: z.number(),
+  stocklaenge: z.number(),
+  schuhnr: z.number().optional(),
+  SkiFahrerName: z.string(),
+});
 
+export type Material = z.infer<typeof MaterialSchema>;
+
+
+// TODO Ski usw vertiefen
+export const MaterialReadSchema = z.object({
+  ID: z.number(),
+  skinr: z.string().optional().nullable(),
+  Ski: SkiSchema.optional().nullable(),
+  stockbez_ID: z.number().optional().nullable(),
+  stocklaenge: z.number().optional().nullable(),
+  Stock: SkistockSchema.optional().nullable(),
+  schuhnr: z.number().optional().nullable(),
+  Schuh: SchuhSchema.optional().nullable(),
+  Preis: z.number(),
+  SkiFahrerName: z.string().optional().nullable(),
+})
+
+export type MaterialRead = z.infer<typeof MaterialReadSchema>;

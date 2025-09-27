@@ -8,7 +8,12 @@ type SaisonpreisContextType ={
 }
 const SaisonpreisContext = createContext<SaisonpreisContextType | null>(null);
 
-export function SaisonpreisContextProvider({ children,  saisonpreisePromise }: { children: React.ReactNode, saisonpreisePromise: Promise<SaisonverleihPreise> }) {
+type SaisonpreisContextProviderType = {
+    children: React.ReactNode;
+    saisonpreisePromise: Promise<SaisonverleihPreise>;
+}
+
+export function SaisonpreisContextProvider({ children,  saisonpreisePromise }: SaisonpreisContextProviderType) {
     return (
         <SaisonpreisContext.Provider value={{ saisonpreisePromise }}>
             {children}
