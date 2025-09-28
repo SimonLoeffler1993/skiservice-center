@@ -41,7 +41,7 @@ export const SaisonVerleihSchema = z.object({
     Ueberweisung: z.number().int().optional().nullable(),
     Bezahlt: z.number().int().optional().nullable(),
     Bezahlt_Am: z.string().date().optional().nullable(), // oder z.date()
-    Zurueck: z.number().int().optional().nullable(),
+    Zurueck: z.boolean().optional().nullable(),
     Zurueck_Am: z.string().date().optional().nullable(),
     Bemerkung: z.string().optional(),
     Saison_ID: z.number().int(), //nur wen es abweicht von der aktuellen Saison
@@ -59,7 +59,7 @@ export const SaisonVerleihCreateSchema = z.object({
     Ueberweisung: z.number().int().optional(),
     Bezahlt: z.number().int().optional(),
     Bezahlt_Am: z.string().date().optional(), // oder z.date()
-    Zurueck: z.number().int().optional(),
+    Zurueck: z.boolean().optional(),
     Zurueck_Am: z.string().date().optional(),
     Bemerkung: z.string().optional(),
     Saison_ID: z.number().int().optional(), //nur wen es abweicht von der aktuellen Saison
@@ -85,3 +85,7 @@ export const SaisonverleihReadSchema = SaisonVerleihSchema.extend({
 });
 
 export type SaisonverleihRead = z.infer<typeof SaisonverleihReadSchema>;
+
+// Mehrfach für Übersicht
+export const SaisonverleihReadListSchema = z.array(SaisonverleihReadSchema);
+export type SaisonverleihReadList = z.infer<typeof SaisonverleihReadListSchema>;

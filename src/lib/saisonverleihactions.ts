@@ -1,7 +1,7 @@
 "use server"
 
 import { config } from "./config";
-import { SaisonverleihPreise, SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonverleihReadSchema, SaisonverleihRead } from "@/types/saisonverleihtypes";
+import { SaisonverleihPreise, SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList } from "@/types/saisonverleihtypes";
 
 export async function getSaisonVerleihPreis(): Promise<SaisonverleihPreise> {
     // TODO: Validierung auf das richtige schema
@@ -57,3 +57,28 @@ export async function getSaisonVerleihById(id: number | string): Promise<Saisonv
         return null;
     }
 }
+
+// SaisonVerleihliste laden
+export async function getSaisonVerleihList(): Promise<SaisonverleihReadList | null> {
+    try {
+        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/`, { cache: "no-store" });
+        if (!res.ok) {
+            console.error("Fehler beimLaden SaisonVerleih:", res.status, res.statusText);
+            return null;
+        }
+        const json = await res.json();
+ 
+        const candidate = json?.data ?? json;
+        const parsed = SaisonverleihReadListSchema.safeParse(candidate);
+        if (!parsed.success) {
+            console.error("Ungültige Antwortstruktur für SaisonVerleih", parsed.error.flatten());
+            return null;
+        }
+    
+        return parsed.data;
+    } catch (e) {
+        console.error("Unerwarteter Fehler beimLaden SaisonVerleih:", e);
+        return null;
+    }
+}
+
