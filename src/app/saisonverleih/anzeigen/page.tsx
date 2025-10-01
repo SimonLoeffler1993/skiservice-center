@@ -33,7 +33,7 @@ export default function SaisonVerleiAnzeige() {
     // TODO Menuleiste
     return (
         <section className="space-y-4">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-2">   
                 <div className="flex items-center gap-2">
                     <Snowflake className="h-5 w-5 text-muted-foreground" />
                     <h1 className="text-xl font-semibold">Saisonverleih</h1>
