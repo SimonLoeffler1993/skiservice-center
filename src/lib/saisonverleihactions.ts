@@ -1,11 +1,13 @@
 "use server"
 
+
+
 import { config } from "./config";
 import { SaisonverleihPreise, SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList } from "@/types/saisonverleihtypes";
 
 export async function getSaisonVerleihPreis(): Promise<SaisonverleihPreise> {
     // TODO: Validierung auf das richtige schema
-    const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/preise`);
+    const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/preise`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return { preise: [] };

@@ -5,7 +5,7 @@ import { config } from "./config";
 
 export async function kundeTerminaAbfragen() {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/event/terminals`);
+        const response = await fetch(`${config.backendUrl}/api/v1/event/terminals`, { cache: "no-store" });
         if (!response.ok) {
             console.error("Fehler beim Suchen:", response);
             // return "error";

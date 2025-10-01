@@ -9,7 +9,7 @@ export async function kundeSuchen(previousState: unknown,formdata: SkiSuchKunde)
         // const nachname = formdata.get("Nachname")?.toString() || "";
         const vorname = formdata.Vorname || "";
         const nachname = formdata.Nachname || "";
-        const response = await fetch(`${config.backendUrl}/api/v1/kunden/suchen?vorname=${vorname}&nachname=${nachname}`);
+        const response = await fetch(`${config.backendUrl}/api/v1/kunden/suchen?vorname=${vorname}&nachname=${nachname}`, { cache: "no-store" });
         if (!response.ok) {
             console.error("Fehler beim Suchen:", response);
             // return "error";

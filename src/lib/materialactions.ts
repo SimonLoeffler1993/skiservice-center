@@ -4,7 +4,7 @@ import { config } from "@/lib/config";
 import { SkiArraySchema, SchuhSchema, SkistockArraySchema, SkistockArray } from "@/types/materialtypes";
 
 export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/eigen?skinr=${skiNr}`);
+    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/eigen?skinr=${skiNr}`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return { success: false, error: "Fehler beim Suchen", data: null };
@@ -26,7 +26,7 @@ export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
 }
 
 export async function getSchuhNrCheck(previousState: unknown,schuhNr: string) {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen?schuhnr=${schuhNr}`);
+    const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen?schuhnr=${schuhNr}`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return { success: false, error: "Fehler beim Suchen", data: null };
@@ -48,7 +48,7 @@ export async function getSchuhNrCheck(previousState: unknown,schuhNr: string) {
 }
 
 export async function getSkiStoecke(): Promise<SkistockArray> {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/stock/skistocke`);
+    const response = await fetch(`${config.backendUrl}/api/v1/material/stock/skistocke`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return [];
