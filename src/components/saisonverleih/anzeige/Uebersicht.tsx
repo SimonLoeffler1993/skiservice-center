@@ -16,7 +16,7 @@ export default function SaisonVerleiAnzeigeUebersicht() {
     const { saisonverleihanzeigePromise } = useSaisonverleihanzeigeContext();
     const saisonverleihanzeige = use(saisonverleihanzeigePromise);
 
-    console.log(saisonverleihanzeige);
+    // console.log(saisonverleihanzeige);
 
     if (!saisonverleihanzeige || !saisonverleihanzeige.Kunde || !saisonverleihanzeige.Material) {
         return <div>Loading...</div>;

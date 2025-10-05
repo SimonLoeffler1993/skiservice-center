@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { getSaisonVerleihNamenEttiket } from "@/lib/saisonverleihactions";
 import { startTransition, useActionState } from "react";
+import { Tags } from 'lucide-react';
 
 type MaterialProps = {
   id: number;
@@ -18,7 +19,7 @@ export default function ButtonNamenEttiket({ id }: MaterialProps) {
   return (
     <div className="flex items-center gap-2">
       <Button variant="outline" onClick={handleNamenEttiketPrint} disabled={isPending}>
-        Namen Ettiket
+        <Tags /> Namen Ettiket
       </Button>
 
       {isPending && (
