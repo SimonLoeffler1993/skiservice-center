@@ -3,6 +3,7 @@
 import { useSaisonverleihlisteContext } from "@/context/saisonverleihliste-context";
 import { use } from "react";
 import SaisonverleihListeCard from "./SaisonverleihListeCard";
+import { Badge } from "@/components/ui/badge";
 
 export default function SaisonverleihListe() {
     const { saisonverleihlistePromise } = useSaisonverleihlisteContext();
@@ -13,10 +14,13 @@ export default function SaisonverleihListe() {
     }
     
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {saisonverleihliste.map((saisonverleih) => (
-                <SaisonverleihListeCard key={saisonverleih.ID} saisonverleih={saisonverleih} />
-            ))}
-        </div>
+        <>
+            <Badge variant="secondary">gefunden: {saisonverleihliste.length}</Badge>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {saisonverleihliste.map((saisonverleih) => (
+                    <SaisonverleihListeCard key={saisonverleih.ID} saisonverleih={saisonverleih} />
+                ))}
+            </div>
+        </>
     );
 }

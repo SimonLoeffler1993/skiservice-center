@@ -89,3 +89,10 @@ export type SaisonverleihRead = z.infer<typeof SaisonverleihReadSchema>;
 // Mehrfach für Übersicht
 export const SaisonverleihReadListSchema = z.array(SaisonverleihReadSchema);
 export type SaisonverleihReadList = z.infer<typeof SaisonverleihReadListSchema>;
+
+// Namen Ettiket Response
+export const SaisonVerleihNamenEttiketResponseSchema = z.object({
+    success: z.boolean(),
+    message: z.string().optional(),
+});
+export type SaisonVerleihNamenEttiketResponse = z.infer<typeof SaisonVerleihNamenEttiketResponseSchema>;

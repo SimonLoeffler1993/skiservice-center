@@ -3,7 +3,10 @@
 
 
 import { config } from "./config";
-import { SaisonverleihPreise, SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList } from "@/types/saisonverleihtypes";
+import { 
+    SaisonverleihPreise, SaisonVerleihCreate, SaisonVerleihCreateResponse, 
+    SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList, 
+    SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse } from "@/types/saisonverleihtypes";
 
 export async function getSaisonVerleihPreis(): Promise<SaisonverleihPreise> {
     // TODO: Validierung auf das richtige schema
@@ -80,6 +83,44 @@ export async function getSaisonVerleihList(): Promise<SaisonverleihReadList | nu
         return parsed.data;
     } catch (e) {
         console.error("Unerwarteter Fehler beimLaden SaisonVerleih:", e);
+        return null;
+    }
+}
+
+// PDF generieren
+export async function getSaisonVerleihPDF(previousState: unknown,id: number): Promise<Blob | null> {
+    try {
+        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/pdf/${id}`, { cache: "no-store" });
+        if (!res.ok) {
+            console.error("Fehler beimLaden SaisonVerleih:", id, res.status, res.statusText);
+            return null;
+        }
+        const blob = await res.blob();
+        return blob;
+    } catch (e) {
+        console.error("Unerwarteter Fehler beimLaden SaisonVerleih:", e);
+        return null;
+    }
+}
+
+// Namen Ettiket generieren
+export async function getSaisonVerleihNamenEttiket(previousState: unknown,id: number): Promise<SaisonVerleihNamenEttiketResponse | null> {
+    try {
+        const res = await fetch(`${config.backendUrl}/api/v1/ettiket/saisonfahrer/${id}`, { cache: "no-store" });
+        if (!res.ok) {
+            console.error("Fehler beimLaden Namen Ettiket:", id, res.status, res.statusText);
+            return null;
+        }
+        const json = await res.json();
+        const candidate = json?.data ?? json;
+        const parsed = SaisonVerleihNamenEttiketResponseSchema.safeParse(candidate);
+        if (!parsed.success) {
+            console.error("Ungültige Antwortstruktur für Namen Ettiket", parsed.error.flatten());
+            return null;
+        }
+        return parsed.data;
+    } catch (e) {
+        console.error("Unerwarteter Fehler beimLaden Namen Ettiket:", e);
         return null;
     }
 }

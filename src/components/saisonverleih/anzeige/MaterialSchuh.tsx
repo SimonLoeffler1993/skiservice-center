@@ -10,14 +10,14 @@ export default function SaisonVerleiAnzeigeMaterialSchuh({ material }: Props) {
 
     if (!material.Schuh) {
         return (
-            <div className="p-3 m-2 text-center text-muted-foreground">
+            <div className="border-t p-3 m-2 text-center text-muted-foreground">
                 <p>Kein Schuh ausgeliehen</p>
             </div>
         );
     }
 
     return (
-        <div className="rounded-md border p-3 m-2 mb-0">
+        <div className="border-t p-3 m-2 mb-0">
             <div className="text-sm font-medium mb-1">Schuh</div>
             <div className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="inline-flex items-center gap-1">

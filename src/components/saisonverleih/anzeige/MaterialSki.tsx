@@ -17,7 +17,7 @@ export default function SaisonVerleiAnzeigeMaterialSki({ material }: Props) {
     }
 
     return (
-        <div className="rounded-md border p-3 m-2 mb-0">
+        <div className="border-t p-3 m-2 mb-0">
             <div className="text-sm font-medium mb-1">Ski</div>
             <div className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="text-xs inline-flex items-center gap-1 font-semibold text-foreground">
@@ -37,8 +37,6 @@ export default function SaisonVerleiAnzeigeMaterialSki({ material }: Props) {
                     </span>
                 </span>
             </div>
-
-
         </div>
     );
 }
