@@ -4,7 +4,7 @@ import { useSaisonverleihlisteContext } from "@/context/saisonverleihliste-conte
 import { use } from "react";
 import SaisonverleihListeCard from "./SaisonverleihListeCard";
 import { Badge } from "@/components/ui/badge";
-import SaisonWechseler from "./SaisonWechseler";
+
 
 export default function SaisonverleihListe() {
     const { saisonverleihlistePromise } = useSaisonverleihlisteContext();
@@ -16,7 +16,7 @@ export default function SaisonverleihListe() {
     
     return (
         <>
-            <SaisonWechseler />
+            
             <Badge variant="secondary">gefunden: {saisonverleihliste.length}</Badge>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {saisonverleihliste.map((saisonverleih) => (

@@ -1,6 +1,9 @@
+"use client";
+
 import SaisonverleihListe from "@/components/saisonverleih/liste/SaisonverleihListe";
 import { Snowflake } from "lucide-react";
 import { Suspense } from "react";
+import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
 
 export default function SaisonVerleiAnzeige() {
     // TODO Menuleiste
@@ -12,6 +15,7 @@ export default function SaisonVerleiAnzeige() {
                     <h1 className="text-xl font-semibold">Saisonverleih</h1>
                 </div>
             </div>
+            <SaisonWechseler />
             <Suspense fallback={<p>Saisonverleihliste wird zusammen gekruschelt...</p>}>
                 <SaisonverleihListe />
             </Suspense>

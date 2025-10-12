@@ -64,9 +64,14 @@ export async function getSaisonVerleihById(id: number | string): Promise<Saisonv
 }
 
 // SaisonVerleihliste laden
-export async function getSaisonVerleihList(): Promise<SaisonverleihReadList | null> {
+export async function getSaisonVerleihList(saisonID?: number): Promise<SaisonverleihReadList | null> {
+
+    let url = `${config.backendUrl}/api/v1/saisonverleih/`;
+    if (saisonID) {
+        url = `${config.backendUrl}/api/v1/saisonverleih/?saisonID=${saisonID}`;
+    }
     try {
-        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/`, { cache: "no-store" });
+        const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) {
             console.error("Fehler beimLaden SaisonVerleih:", res.status, res.statusText);
             return null;

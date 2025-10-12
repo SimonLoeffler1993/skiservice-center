@@ -1,10 +1,12 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 import { SaisonverleihReadList } from "@/types/saisonverleihtypes";
+import { getSaisonVerleihList } from "@/lib/saisonverleihactions";
 
 type SaisonverleihlisteContextType = {
     saisonverleihlistePromise: Promise<SaisonverleihReadList | null>;
+    refreshSaisonverleihlistePromise: (saisonID: number) => void;
 }
 
 type SaisonverleihlisteContextProviderType = {
@@ -15,8 +17,14 @@ type SaisonverleihlisteContextProviderType = {
 const SaisonverleihlisteContext = createContext<SaisonverleihlisteContextType | null>(null);
 
 export function SaisonverleihlisteContextProvider({ children, saisonverleihlistePromise }: SaisonverleihlisteContextProviderType) {
+    const [statefulPromise, setStatefulPromise] = useState<Promise<SaisonverleihReadList | null>>(saisonverleihlistePromise);
+
+    function refreshSaisonverleihlistePromise(saisonID: number) {
+        setStatefulPromise(getSaisonVerleihList(saisonID));
+    }
+
     return (
-        <SaisonverleihlisteContext.Provider value={{saisonverleihlistePromise}}>
+        <SaisonverleihlisteContext.Provider value={{ saisonverleihlistePromise: statefulPromise, refreshSaisonverleihlistePromise }}>
             {children}
         </SaisonverleihlisteContext.Provider>
     );

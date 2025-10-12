@@ -15,6 +15,7 @@ type SaisonverleihanzeigeContextProviderType = {
 const SaisonverleihanzeigeContext = createContext<SaisonverleihanzeigeContextType | null>(null);
 
 export function SaisonverleihanzeigeContextProvider({ children, saisonverleihanzeigePromise }: SaisonverleihanzeigeContextProviderType) {
+
     return (
         <SaisonverleihanzeigeContext.Provider value={{saisonverleihanzeigePromise}}>
             {children}
