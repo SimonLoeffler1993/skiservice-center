@@ -2,7 +2,7 @@ import { NavigationMenu, NavigationMenuLink, NavigationMenuList, NavigationMenuI
 
 export default function MenueLeiste() {
     return (
-        <NavigationMenu>
+        <NavigationMenu viewport={false}>
             <NavigationMenuList>
                 <NavigationMenuItem>
                     <NavigationMenuTrigger>Saisonverleih</NavigationMenuTrigger>
@@ -11,6 +11,12 @@ export default function MenueLeiste() {
                         <NavigationMenuLink href="/saisonverleih/erstellen">Neu</NavigationMenuLink>
                     </NavigationMenuContent>
                 </NavigationMenuItem>   
+                <NavigationMenuItem>
+                    <NavigationMenuTrigger>Material</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                        <NavigationMenuLink href="/material">Übersicht</NavigationMenuLink>
+                    </NavigationMenuContent>
+                </NavigationMenuItem>
             </NavigationMenuList>
         </NavigationMenu>
     );
