@@ -1,7 +1,7 @@
 "use server"
 
 import { config } from "@/lib/config";
-import { SkiArraySchema, SchuhSchema, SkistockArraySchema, SkistockArray } from "@/types/materialtypes";
+import { SkiArraySchema, SchuhSchema, SkistockArraySchema, SkistockArray, SkiHerstellerArraySchema, SkiHerstellerArray, HerstellerSchema } from "@/types/materialtypes";
 
 export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
     const response = await fetch(`${config.backendUrl}/api/v1/material/ski/eigen?skinr=${skiNr}`, { cache: "no-store" });
@@ -55,6 +55,44 @@ export async function getSkiStoecke(): Promise<SkistockArray> {
     }
     const data = await response.json();
     const parsedData = SkistockArraySchema.safeParse(data);
+    if (!parsedData.success) {
+        console.error("Validierungsfehler:", parsedData.error);
+        return [];
+    }
+    // Ensure we always return the correct structure
+    return parsedData.data || [];
+}
+
+export async function getSkiHersteller(): Promise<SkiHerstellerArray> {
+    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/hersteller`, { cache: "no-store" });
+    if (!response.ok) {
+        console.error("Fehler beim Suchen:", response);
+        return [];
+    }
+    const data = await response.json();
+    const parsedData = SkiHerstellerArraySchema.safeParse(data);
+    if (!parsedData.success) {
+        console.error("Validierungsfehler:", parsedData.error);
+        return [];
+    }
+    // Ensure we always return the correct structure
+    return parsedData.data || [];
+}
+
+export async function createSkiHersteller(previousState: unknown,name: string) {
+    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/hersteller`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ "Name":name }),
+    });
+    if (!response.ok) {
+        console.error("Fehler beim Suchen:", response);
+        return [];
+    }
+    const data = await response.json();
+    const parsedData = HerstellerSchema.safeParse(data);
     if (!parsedData.success) {
         console.error("Validierungsfehler:", parsedData.error);
         return [];

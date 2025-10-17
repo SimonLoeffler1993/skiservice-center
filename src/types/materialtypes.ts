@@ -6,10 +6,15 @@ const ArtSchema = z.object({
   ID: z.number(),
 });
 
-const HerstellerSchema = z.object({
+export const HerstellerSchema = z.object({
   Name: z.string(),
   ID: z.number(),
 });
+
+export const HerstellerCreateSchema = z.object({
+  Name: z.string().min(1, "Darf nicht leer sein").max(100, "Darf nicht länger als 100 Zeichen sein"),
+});
+export type HerstellerCreate = z.infer<typeof HerstellerCreateSchema>;
 
 const ModellSchema = z.object({
   Modell: z.string(),
@@ -38,6 +43,8 @@ export type Hersteller = z.infer<typeof HerstellerSchema>;
 export type Modell = z.infer<typeof ModellSchema>;
 export type Ski = z.infer<typeof SkiSchema>;
 
+export const SkiHerstellerArraySchema = z.array(HerstellerSchema);
+export type SkiHerstellerArray = z.infer<typeof SkiHerstellerArraySchema>;
 
 // Schuhschema
 export const SchuhHerstellerSchema = z.object({
