@@ -2,6 +2,7 @@
 import SkiHerstellerForm from "@/components/material/skierstellen/herstellerform";
 import SkiForm from "@/components/material/skierstellen/skiform";
 import { useSearchParams } from "next/navigation";
+import SkiModellForm from "@/components/material/skierstellen/modellform";
 
 export default function MaterialPage() {
     const searchParams = useSearchParams()
@@ -11,7 +12,7 @@ export default function MaterialPage() {
         case "skihersteller":
             return <SkiHerstellerForm />
         case "skimodell":
-            return <p>Skimodell</p>
+            return <SkiModellForm />
         case "skierstellen":
             return <SkiForm />
         case "schuhhersteller":

@@ -1,7 +1,10 @@
 "use server"
 
 import { config } from "@/lib/config";
-import { SkiArraySchema, SchuhSchema, SkistockArraySchema, SkistockArray, SkiHerstellerArraySchema, SkiHerstellerArray, HerstellerSchema } from "@/types/materialtypes";
+import { SkiArraySchema, SchuhSchema, SkistockArraySchema, SkistockArray,
+     SkiHerstellerArraySchema, SkiHerstellerArray, HerstellerSchema,
+     SkiArtArraySchema, SkiArtArray, 
+     ModellSchema, ModellArraySchema, ModellArray, SkiModellCreate } from "@/types/materialtypes";
 
 export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
     const response = await fetch(`${config.backendUrl}/api/v1/material/ski/eigen?skinr=${skiNr}`, { cache: "no-store" });
@@ -63,6 +66,7 @@ export async function getSkiStoecke(): Promise<SkistockArray> {
     return parsedData.data || [];
 }
 
+// Ski Hersteller
 export async function getSkiHersteller(): Promise<SkiHerstellerArray> {
     const response = await fetch(`${config.backendUrl}/api/v1/material/ski/hersteller`, { cache: "no-store" });
     if (!response.ok) {
@@ -93,6 +97,85 @@ export async function createSkiHersteller(previousState: unknown,name: string) {
     }
     const data = await response.json();
     const parsedData = HerstellerSchema.safeParse(data);
+    if (!parsedData.success) {
+        console.error("Validierungsfehler:", parsedData.error);
+        return [];
+    }
+    // Ensure we always return the correct structure
+    return parsedData.data || [];
+}
+
+// Ski Art
+export async function getSkiArt(): Promise<SkiArtArray> {
+    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/art`, { cache: "no-store" });
+    if (!response.ok) {
+        console.error("Fehler beim Suchen:", response);
+        return [];
+    }
+    const data = await response.json();
+    const parsedData = SkiArtArraySchema.safeParse(data);
+    if (!parsedData.success) {
+        console.error("Validierungsfehler:", parsedData.error);
+        return [];
+    }
+    // Ensure we always return the correct structure
+    return parsedData.data || [];
+}
+
+// TODO: Implementieren in UI
+// export async function createSkiArt(previousState: unknown,name: string) {
+//     const response = await fetch(`${config.backendUrl}/api/v1/material/ski/art`, {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ "Name":name }),
+//     });
+//     if (!response.ok) {
+//         console.error("Fehler beim Suchen:", response);
+//         return [];
+//     }
+//     const data = await response.json();
+//     const parsedData = ArtSchema.safeParse(data);
+//     if (!parsedData.success) {
+//         console.error("Validierungsfehler:", parsedData.error);
+//         return [];
+//     }
+//     // Ensure we always return the correct structure
+//     return parsedData.data || [];
+// }
+
+// Ski Modell
+export async function createSkiModell(previousState: unknown,data: SkiModellCreate) {
+    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/modell`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        console.error("Fehler beim Suchen:", response);
+        return [];
+    }
+    const responseData = await response.json();
+    const parsedData = ModellSchema.safeParse(responseData);
+    if (!parsedData.success) {
+        console.error("Validierungsfehler:", parsedData.error);
+        return [];
+    }
+    // Ensure we always return the correct structure
+    return parsedData.data || [];
+}   
+
+export async function getModell(): Promise<ModellArray> {
+    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/modell`, { cache: "no-store" });
+    if (!response.ok) {
+        console.error("Fehler beim Suchen:", response);
+        return [];
+    }
+    const data = await response.json();
+    const parsedData = ModellArraySchema.safeParse(data);
     if (!parsedData.success) {
         console.error("Validierungsfehler:", parsedData.error);
         return [];

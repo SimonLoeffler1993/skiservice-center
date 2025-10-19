@@ -35,6 +35,7 @@ export default function SkiHerstellerForm() {
         })
     }
 
+    // TODO: Fehlerbehandlung
     return (
         <div className="max-w-2xl mx-auto space-y-6">
             <Card className="m-2">

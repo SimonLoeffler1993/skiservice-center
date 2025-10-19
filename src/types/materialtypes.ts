@@ -1,22 +1,40 @@
 import { z } from "zod";
 
 // Skischema
-const ArtSchema = z.object({
+export const ArtSchema = z.object({
   Art: z.string(),
   ID: z.number(),
 });
+export type Art = z.infer<typeof ArtSchema>;
+// Mehrzahlschema
+export const SkiArtArraySchema = z.array(ArtSchema);
+export type SkiArtArray = z.infer<typeof SkiArtArraySchema>;
 
+
+// Hersteller Schema
 export const HerstellerSchema = z.object({
   Name: z.string(),
   ID: z.number(),
 });
+export type Hersteller = z.infer<typeof HerstellerSchema>;
 
 export const HerstellerCreateSchema = z.object({
   Name: z.string().min(1, "Darf nicht leer sein").max(100, "Darf nicht länger als 100 Zeichen sein"),
 });
 export type HerstellerCreate = z.infer<typeof HerstellerCreateSchema>;
 
-const ModellSchema = z.object({
+export const SkiHerstellerArraySchema = z.array(HerstellerSchema);
+export type SkiHerstellerArray = z.infer<typeof SkiHerstellerArraySchema>;
+
+// Modell Schema
+export const SkiModellCreateSchema = z.object({
+  Modell: z.string().min(1, "Darf nicht leer sein").max(100, "Darf nicht länger als 100 Zeichen sein"),
+  Art_ID: z.number().min(1, "Darf nicht leer sein").max(100, "Darf nicht länger als 100 Zeichen sein"),
+  Hersteller_ID: z.number().min(1, "Darf nicht leer sein").max(100, "Darf nicht länger als 100 Zeichen sein"),
+});
+export type SkiModellCreate = z.infer<typeof SkiModellCreateSchema>;
+
+export const ModellSchema = z.object({
   Modell: z.string(),
   Art_ID: z.number(),
   Hersteller_ID: z.number(),
@@ -24,6 +42,11 @@ const ModellSchema = z.object({
   Art: ArtSchema,
   Hersteller: HerstellerSchema,
 });
+
+export type Modell = z.infer<typeof ModellSchema>;
+
+export const ModellArraySchema = z.array(ModellSchema);
+export type ModellArray = z.infer<typeof ModellArraySchema>;
 
 export const SkiSchema = z.object({
   Modell_ID: z.number(),
@@ -38,13 +61,12 @@ export const SkiSchema = z.object({
 
 export const SkiArraySchema = z.array(SkiSchema);
 
-export type Art = z.infer<typeof ArtSchema>;
-export type Hersteller = z.infer<typeof HerstellerSchema>;
-export type Modell = z.infer<typeof ModellSchema>;
+
+
+
 export type Ski = z.infer<typeof SkiSchema>;
 
-export const SkiHerstellerArraySchema = z.array(HerstellerSchema);
-export type SkiHerstellerArray = z.infer<typeof SkiHerstellerArraySchema>;
+
 
 // Schuhschema
 export const SchuhHerstellerSchema = z.object({
