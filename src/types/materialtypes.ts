@@ -48,6 +48,17 @@ export type Modell = z.infer<typeof ModellSchema>;
 export const ModellArraySchema = z.array(ModellSchema);
 export type ModellArray = z.infer<typeof ModellArraySchema>;
 
+// Ski Schema
+export const SkiCreateSchema = z.object({
+  Modell_ID: z.number(),
+  Laenge: z.number().min(1, "Darf nicht leer sein").max(250, "Maximal 250cm"),
+  VK: z.number(),
+  EK: z.number(),
+  Saison: z.string(),
+  SkiNr: z.string().min(1, "Darf nicht leer sein").max(100, "Darf nicht länger als 100 Zeichen sein"),
+});
+export type SkiCreate = z.infer<typeof SkiCreateSchema>;
+
 export const SkiSchema = z.object({
   Modell_ID: z.number(),
   Laenge: z.number(),

@@ -1,10 +1,12 @@
 "use server"
 
 import { config } from "@/lib/config";
-import { SkiArraySchema, SchuhSchema, SkistockArraySchema, SkistockArray,
-     SkiHerstellerArraySchema, SkiHerstellerArray, HerstellerSchema,
-     SkiArtArraySchema, SkiArtArray, 
-     ModellSchema, ModellArraySchema, ModellArray, SkiModellCreate } from "@/types/materialtypes";
+import { SkiArraySchema, SkiCreate,
+    SchuhSchema, SkistockArraySchema, SkistockArray,
+    SkiSchema, 
+    SkiHerstellerArraySchema, SkiHerstellerArray, HerstellerSchema,
+    SkiArtArraySchema, SkiArtArray, 
+    ModellSchema, ModellArraySchema, ModellArray, SkiModellCreate } from "@/types/materialtypes";
 
 export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
     const response = await fetch(`${config.backendUrl}/api/v1/material/ski/eigen?skinr=${skiNr}`, { cache: "no-store" });
@@ -183,3 +185,26 @@ export async function getModell(): Promise<ModellArray> {
     // Ensure we always return the correct structure
     return parsedData.data || [];
 }
+
+// Ski
+export async function createSki(previousState: unknown,data: SkiCreate) {
+    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/anlegen`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        console.error("Fehler beim Suchen:", response);
+        return [];
+    }
+    const responseData = await response.json();
+    const parsedData = SkiSchema.safeParse(responseData);
+    if (!parsedData.success) {
+        console.error("Validierungsfehler:", parsedData.error);
+        return [];
+    }
+    // Ensure we always return the correct structure
+    return parsedData.data || [];
+}   
