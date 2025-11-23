@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { use } from "react"
+import { Suspense, use } from "react"
 
 import { useSkiModellContext } from "@/context/skimodell-context"
 import { useForm } from "react-hook-form"
@@ -11,8 +11,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { startTransition } from "react"
 import { useActionState } from "react"
 import { createSki } from "@/lib/materialactions"
+import { useEigenSkiContext } from "@/context/eigenski-context"
 
 import { SkiCreateSchema, SkiCreate } from "@/types/materialtypes"
+import SkiListe from "../skiliste"
 
 export default function SkiForm() {
     const { modellPromise } = useSkiModellContext();
@@ -33,8 +35,13 @@ export default function SkiForm() {
         startTransition(() => {
             action(data)
             reset()
+            refreshEigenSkisPromise()
         })
     }
+
+    const { eigenSkisPromise, refreshEigenSkisPromise } = useEigenSkiContext();
+    const eigenSkis = use(eigenSkisPromise);
+
     return (
         <div className="max-w-3xl mx-auto space-y-6">
             <Card className="m-2">
@@ -106,6 +113,9 @@ export default function SkiForm() {
                     </form>
                 </CardContent>
             </Card>
+            <Suspense fallback={<p>Lade Skis...</p>}>
+                <SkiListe skis={eigenSkis} />
+            </Suspense>
         </div>
     )
 }

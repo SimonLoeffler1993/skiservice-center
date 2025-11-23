@@ -71,10 +71,7 @@ export const SkiSchema = z.object({
 });
 
 export const SkiArraySchema = z.array(SkiSchema);
-
-
-
-
+export type SkiArray = z.infer<typeof SkiArraySchema>;
 export type Ski = z.infer<typeof SkiSchema>;
 
 
