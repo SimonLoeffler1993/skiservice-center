@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+// Cache ausschalten, da sich die Daten ändern
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { MaterialSidebar } from "@/components/material/material-sidebar";

@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+// Cache ausschalten, da sich die Daten ändern
+
 import MenueLeiste from "@/components/saisonverleih/menue/MenueLeiste";
 import { SaisonverleihlisteContextProvider } from "@/context/saisonverleihliste-context";
 import { getSaisonVerleihList } from "@/lib/saisonverleihactions";
