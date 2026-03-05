@@ -57,7 +57,7 @@ export default function SaisonVerleiAnzeigeUebersicht() {
 
             {/* Rechte Spalte: Material */}
             <div className="bg-white p-4 border-s md:h-full md:col-span-8">
-                <SaisonVerleiAnzeigeMaterial material={saisonverleihanzeige.Material} saisonverleihid={saisonverleihanzeige.ID} />
+                <SaisonVerleiAnzeigeMaterial material={saisonverleihanzeige.Material} />
             </div>
         </div>
     );
