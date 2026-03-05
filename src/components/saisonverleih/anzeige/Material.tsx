@@ -9,13 +9,13 @@ import SaisonVerleiAnzeigeMaterialSchuh from "./MaterialSchuh";
 import SaisonVerleiAnzeigeMaterialStock from "./MaterialStock";
 import { Card } from "@/components/ui/card";
 import ButtonNamenEttiket from "./ButtonNamenEttiket";
+import ButtonZurueckGegeben from "./ButtonZurueckGegeben";
 
 type MaterialProps = {
     material: MaterialRead[];
-    saisonverleihid: number;
 };
 
-export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid }: MaterialProps) {
+export default function SaisonVerleiAnzeigeMaterial({ material }: MaterialProps) {
 
     if (material.length === 0) {
         return (
@@ -34,7 +34,8 @@ export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid 
                     <h2 className="text-xl font-semibold">Material</h2>
                 </div>
                 <div className="flex items-center gap-2 self-start">
-                    <ButtonNamenEttiket id={saisonverleihid} />
+                    <ButtonNamenEttiket />
+                    <ButtonZurueckGegeben />
                 </div>
             </div>
 

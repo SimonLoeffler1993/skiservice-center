@@ -5,7 +5,7 @@ export default async function SaisonverleihAnzeigenLayout({ children, params }: 
     const { id } = await params;
     const saisonverleihanzeige = getSaisonVerleihById(id);
     return (
-            <SaisonverleihanzeigeContextProvider saisonverleihanzeigePromise={saisonverleihanzeige}>
+            <SaisonverleihanzeigeContextProvider saisonverleihanzeigePromise={saisonverleihanzeige} id={parseInt(id)}>
                 {children}
             </SaisonverleihanzeigeContextProvider>
     );

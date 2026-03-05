@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button";
 import { getSaisonVerleihNamenEttiket } from "@/lib/saisonverleihactions";
 import { startTransition, useActionState } from "react";
 import { Tags } from 'lucide-react';
+import { useSaisonverleihanzeigeContext } from "@/context/saisonverleihanzeige-contex";
 
-type MaterialProps = {
-  id: number;
-};
-
-export default function ButtonNamenEttiket({ id }: MaterialProps) {
+export default function ButtonNamenEttiket() {
+  const { id } = useSaisonverleihanzeigeContext();
   const [state, action, isPending] = useActionState(getSaisonVerleihNamenEttiket, null);
 
   function handleNamenEttiketPrint() {
