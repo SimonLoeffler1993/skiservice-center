@@ -9,6 +9,7 @@ import SaisonverleihCardBezahlt from "../liste/SaisonverleihCardBezahlt";
 import SaisonverleihCardStatus from "../liste/SaisonverleihCardStatus";
 import UebersichtGesamtPreis from "./UebersichtGesamtPreis";
 import SaisonVerleiAnzeigeUebersichtBemerkung from "./UebersichtBemerkung";
+import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 
 // TODO Rechter Seiten Strifen bei Handy weg
 
@@ -48,6 +49,8 @@ export default function SaisonVerleiAnzeigeUebersicht() {
                     <SaisonVerleiAnzeigeUebersichtBemerkung bemerkung={saisonverleihanzeige.Bemerkung} />
                 </div>
                 )}
+            
+                < QuittungKurzInfo quittungID={saisonverleihanzeige.QuittungID} />
 
                 {/* Kunde */}
                 <div className="bg-white p-4">
