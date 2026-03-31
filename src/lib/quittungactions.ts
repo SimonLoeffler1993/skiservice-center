@@ -1,5 +1,3 @@
-"use server";
-
 import { config } from "./config";
 
 export async function getQuittung(quittungID: number) {

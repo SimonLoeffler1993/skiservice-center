@@ -1,3 +1,4 @@
+"use client";
 import { useQuittung } from "@/hooks/useQuittung";
 
 type QuittungBezahlInfoProps = {
@@ -9,7 +10,7 @@ export default function QuittungBezahlInfo({ quittungID }: QuittungBezahlInfoPro
     console.log(quittung);
     return (
         <div className="border border-gray-300 flex flex-col gap-2 p-4 rounded-md">
-                <span className="text-sm">Betrag: 100,00 €</span>
+                <span className="text-sm">offen: {quittung.BezahlInfo.Offener_Betrag} €</span>
         </div>
     );
 }

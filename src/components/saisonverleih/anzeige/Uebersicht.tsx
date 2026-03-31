@@ -1,7 +1,7 @@
 "use client";
+import { useQuery } from "@tanstack/react-query";
+import { Suspense, use } from "react";
 
-import { use } from "react";
-import { useSaisonverleihanzeigeContext } from "@/context/saisonverleihanzeige-contex";
 import KundeForm from "@/components/kunde/KundeForm";
 import SaisonVerleiAnzeigeMaterial from "./Material";
 import SaisonVerleiAnzeigePDFButton from "./UebersichtPDFButton";
@@ -11,17 +11,31 @@ import UebersichtGesamtPreis from "./UebersichtGesamtPreis";
 import SaisonVerleiAnzeigeUebersichtBemerkung from "./UebersichtBemerkung";
 import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 
+import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
+
 // TODO Rechter Seiten Strifen bei Handy weg
 
-export default function SaisonVerleiAnzeigeUebersicht() {
-    const { saisonverleihanzeigePromise } = useSaisonverleihanzeigeContext();
-    const saisonverleihanzeige = use(saisonverleihanzeigePromise);
 
-    // console.log(saisonverleihanzeige);
+type SaisonVeliAnzeigeUebersichtProps = {
+    saisonverleihID: number;
+}
 
-    if (!saisonverleihanzeige || !saisonverleihanzeige.Kunde || !saisonverleihanzeige.Material) {
+export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: SaisonVeliAnzeigeUebersichtProps) {
+    // const { data: saisonVerleihDetails } = useSaisonverleihDetails({ saisonverleihID });
+
+    const {data: saisonVerleihDetails, isPending, error} = useQuery(saisonverleihDetailsOptions(saisonverleihID));
+
+    // const { saisonverleihanzeigePromise } = useSaisonverleihanzeigeContext();
+    // const saisonverleihanzeige = use(saisonverleihanzeigePromise);
+    if (!saisonVerleihDetails || isPending) {
         return <div>Loading...</div>;
     }
+
+    if (error) {
+        return <div>Fehler beim Laden: {error.message}</div>;
+    }
+
+    // console.log(saisonverleihanzeige);
     return (
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -29,39 +43,43 @@ export default function SaisonVerleiAnzeigeUebersicht() {
             <div className="flex flex-col gap-4 md:col-span-4">
                 {/* Header: Name links, Preis rechts */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <p className="text-2xl font-bold text-gray-900">{saisonverleihanzeige.Name}</p>
+                    <p className="text-2xl font-bold text-gray-900">{saisonVerleihDetails.Name}</p>
           
                         <div className="w-full md:w-auto md:self-start">
-                            <UebersichtGesamtPreis Material={saisonverleihanzeige.Material} />
+                            <UebersichtGesamtPreis Material={saisonVerleihDetails?.Material ?? []} />
                         </div>
                 </div>
 
                 {/* Statuszeile */}
                 <div className="flex flex-wrap items-center gap-3">
-                    <SaisonverleihCardStatus status={saisonverleihanzeige.Zurueck} />
-                    <SaisonverleihCardBezahlt bezahlt={saisonverleihanzeige.Bezahlt} />
-                    <SaisonVerleiAnzeigePDFButton saisonverleihanzeigeID={saisonverleihanzeige.ID} />
+                    <SaisonverleihCardStatus status={saisonVerleihDetails.Zurueck} />
+                    <SaisonverleihCardBezahlt bezahlt={saisonVerleihDetails.Bezahlt} />
+                    <SaisonVerleiAnzeigePDFButton saisonverleihanzeigeID={saisonVerleihDetails.ID} />
                 </div>
 
                 {/* Bemerkung */}
-                {saisonverleihanzeige.Bemerkung && (
+                {saisonVerleihDetails.Bemerkung && (
                 <div className="bg-white p-4">
-                    <SaisonVerleiAnzeigeUebersichtBemerkung bemerkung={saisonverleihanzeige.Bemerkung} />
+                    <SaisonVerleiAnzeigeUebersichtBemerkung bemerkung={saisonVerleihDetails.Bemerkung} />
                 </div>
                 )}
-            
-                < QuittungKurzInfo quittungID={saisonverleihanzeige.QuittungID} />
+
+  
+                < QuittungKurzInfo quittungID={saisonVerleihDetails.QuittungID} />
+      
 
                 {/* Kunde */}
                 <div className="bg-white p-4">
-                    <KundeForm kunde={saisonverleihanzeige.Kunde} />
+                    <KundeForm kunde={saisonVerleihDetails.Kunde} />
                 </div>
             </div>
 
             {/* Rechte Spalte: Material */}
             <div className="bg-white p-4 border-s md:h-full md:col-span-8">
-                <SaisonVerleiAnzeigeMaterial material={saisonverleihanzeige.Material} />
+                <SaisonVerleiAnzeigeMaterial material={saisonVerleihDetails?.Material ?? []} saisonverleihid={saisonVerleihDetails?.ID} />
             </div>
         </div>
+
     );
 }
+

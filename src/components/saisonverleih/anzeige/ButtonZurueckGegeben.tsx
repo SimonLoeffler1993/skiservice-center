@@ -1,17 +1,22 @@
 import { Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { setSaisonVerleihZurueckgegeben } from "@/lib/saisonverleihactions";
-import { startTransition, useActionState, useEffect } from "react";
-import { useSaisonverleihanzeigeContext } from "@/context/saisonverleihanzeige-contex";
+import { useActionState, startTransition } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
 
-export default function ButtonZurueckGegeben() {
-    const { id, refreshSaisonverleihanzeigePromise } = useSaisonverleihanzeigeContext();
+interface ButtonZurueckGegebenProps {
+    saisonverleihid: number; 
+}
+
+export default function ButtonZurueckGegeben({ saisonverleihid }: ButtonZurueckGegebenProps) {
+    const queryClient = useQueryClient();
     const [state, action, isPending] = useActionState(setSaisonVerleihZurueckgegeben, false);
 
     function handleZurueckGegeben() {
-        startTransition(() => {
-            action(id);
-            refreshSaisonverleihanzeigePromise();
+        startTransition(async () => {
+            action(saisonverleihid);
+            await queryClient.invalidateQueries(saisonverleihDetailsOptions(saisonverleihid));
         });
     }
 
