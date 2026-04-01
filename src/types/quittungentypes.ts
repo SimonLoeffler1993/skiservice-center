@@ -1,6 +1,7 @@
 // types/quittungtypes.ts
 import { z } from "zod"
 
+// TODO Gesamt Betrag in Quittungstypen aufnehmen,
 export const BezahlInfoSchema = z.object({
     Bezahlt: z.boolean(),
     Bezahlt_Am: z.string().date().nullable().optional(),

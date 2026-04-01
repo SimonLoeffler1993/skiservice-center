@@ -1,6 +1,5 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { Suspense, use } from "react";
 
 import KundeForm from "@/components/kunde/KundeForm";
 import SaisonVerleiAnzeigeMaterial from "./Material";
@@ -19,6 +18,8 @@ import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptio
 type SaisonVeliAnzeigeUebersichtProps = {
     saisonverleihID: number;
 }
+
+// TODO saisonverleihID in Zustand speichern
 
 export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: SaisonVeliAnzeigeUebersichtProps) {
     // const { data: saisonVerleihDetails } = useSaisonverleihDetails({ saisonverleihID });

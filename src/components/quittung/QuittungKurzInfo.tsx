@@ -10,6 +10,7 @@ type QuttungsProps = {
 }
 
 export default function QuittungKurzInfo({ quittungID }: QuttungsProps) {
+    // Wenn es keine QuittungID gibt
     if (!quittungID) {
         return (
             <div className="border border-amber-200 flex flex-col-2 gap-2 p-4 rounded-md bg-amber-100">
@@ -19,19 +20,10 @@ export default function QuittungKurzInfo({ quittungID }: QuttungsProps) {
         )
     }
 
+    // Wenn es ein QuittungID gibt
     return (
-        <div className="border border-gray-300 flex flex-col gap-2 p-4 rounded-md">
-            <div className="flex items-center gap-2">
-                <p>Quittung ID: {quittungID}</p>
-                <span className="font-bold">Quittung 25/26Q322</span>
-                <span className="text-sm text-gray-500">vom 01.01.2024</span>
-            </div>
-            <div className="flex items-center gap-4">
-                <Suspense fallback={<div className="text-sm text-gray-500">Lade Bezahlinformationen...</div>}>
-                    <QuittungBezahlInfo quittungID={quittungID}/>
-                </Suspense>
-                
-            </div>
-        </div>
+        <Suspense fallback={<div className="text-sm text-gray-500">Lade Bezahlinformationen...</div>}>
+            <QuittungBezahlInfo quittungID={quittungID} />
+        </Suspense>
     );
 }
