@@ -1,3 +1,5 @@
+"use server";
+
 import { QuittungRead, QuittungReadSchema } from "@/types/quittungentypes";
 import { config } from "./config";
 
