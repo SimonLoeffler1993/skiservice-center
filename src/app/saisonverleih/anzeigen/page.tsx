@@ -1,12 +1,16 @@
-"use client";
-
 import SaisonverleihListe from "@/components/saisonverleih/liste/SaisonverleihListe";
 import { Snowflake } from "lucide-react";
-import { Suspense } from "react";
-import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
+// import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { saisonverleihListOptions } from "@/hooks/useSaisonverleihListeOptions";
 
-export default function SaisonVerleiAnzeige() {
+export default async function SaisonVerleiAnzeige() {
+    const queryClient = new QueryClient();
+    await queryClient.prefetchInfiniteQuery(saisonverleihListOptions());
+
+
     // TODO Menuleiste
+    // TODO Saison wechseln (SaisonWechseler)
     return (
         <section className="space-y-4">
             <div className="flex items-center justify-between gap-2">   
@@ -15,10 +19,10 @@ export default function SaisonVerleiAnzeige() {
                     <h1 className="text-xl font-semibold">Saisonverleih</h1>
                 </div>
             </div>
-            <SaisonWechseler />
-            <Suspense fallback={<p>Saisonverleihliste wird zusammen gekruschelt...</p>}>
+            {/* <SaisonWechseler /> */}
+            <HydrationBoundary state={dehydrate(queryClient)}>
                 <SaisonverleihListe />
-            </Suspense>
+            </HydrationBoundary>
         </section>
     )
 }

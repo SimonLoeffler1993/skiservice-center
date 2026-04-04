@@ -64,12 +64,17 @@ export async function getSaisonVerleihById(id: number | string): Promise<Saisonv
 }
 
 // SaisonVerleihliste laden
-export async function getSaisonVerleihList(saisonID?: number): Promise<SaisonverleihReadList | null> {
+export async function getSaisonVerleihList(limit: number = 15, letzteID?: number, saisonID?: number): Promise<SaisonverleihReadList | null> {
 
-    let url = `${config.backendUrl}/api/v1/saisonverleih/`;
+    let url = `${config.backendUrl}/api/v1/saisonverleih/?limit=${limit}`;
     if (saisonID) {
-        url = `${config.backendUrl}/api/v1/saisonverleih/?saisonID=${saisonID}`;
+        url = `${config.backendUrl}/api/v1/saisonverleih/?saisonID=${saisonID}&limit=${limit}`;
     }
+
+    if (letzteID) {
+        url += `&last_id=${letzteID}`;
+    }
+
     try {
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) {
