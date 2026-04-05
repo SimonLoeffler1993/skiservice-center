@@ -1,21 +1,31 @@
 "use client"
 
-import { use } from "react";
+import { useInView } from "react-intersection-observer";
 import SaisonverleihListeCard from "./SaisonverleihListeCard";
 import { Badge } from "@/components/ui/badge";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { saisonverleihListOptions } from "@/hooks/useSaisonverleihListeOptions";
+import { useEffect } from "react";
 
 
 export default function SaisonverleihListe() {
     const {data, hasNextPage, fetchNextPage, isFetchingNextPage} = useInfiniteQuery(saisonverleihListOptions());
-    console.log("SaisonverleihListe data:", data);
+    // console.log("SaisonverleihListe data:", data);
+
+    const { ref, inView } = useInView();
 
     // if (!saisonverleihliste) {
     //     return <p>Saisonverleihliste nicht gefunden</p>;
     // }
 
     const items = data?.pages.flat().filter((item) => item !== null) ?? []
+
+    // Automatisch die nächste Seite laden, wenn der Benutzer das Ende der Liste erreicht
+    useEffect(() => {
+        if (inView && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
     
     return (
         <>
@@ -42,6 +52,7 @@ export default function SaisonverleihListe() {
             <div>
                 {isFetchingNextPage &&<p>Weitere Daten werden geladen...</p>}
             </div>
+            <div ref={ref} />
         </>
     );
 }
