@@ -7,12 +7,17 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { saisonverleihListOptions } from "@/hooks/useSaisonverleihListeOptions";
 import { useEffect } from "react";
 
+type SaisonverleihListeProps = {
+    saisonID: number;
+}
 
-export default function SaisonverleihListe() {
-    const {data, hasNextPage, fetchNextPage, isFetchingNextPage} = useInfiniteQuery(saisonverleihListOptions());
+
+export default function SaisonverleihListe({ saisonID }: SaisonverleihListeProps) {
+    const {data, hasNextPage, fetchNextPage, isFetchingNextPage} = useInfiniteQuery(saisonverleihListOptions(saisonID));
     // console.log("SaisonverleihListe data:", data);
 
     const { ref, inView } = useInView();
+    
 
     // if (!saisonverleihliste) {
     //     return <p>Saisonverleihliste nicht gefunden</p>;

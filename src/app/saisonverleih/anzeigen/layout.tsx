@@ -3,8 +3,8 @@ export const dynamic = 'force-dynamic';
 
 import MenueLeiste from "@/components/saisonverleih/menue/MenueLeiste";
 
-import { getSaisons } from "@/lib/saisonactions";
-import { SaisonContextProvider } from "@/context/saison-context";
+// import { getSaisons } from "@/lib/saisonactions";
+// import { SaisonContextProvider } from "@/context/saison-context";
 
 type SaisonVerleiAnzeigeLayoutProps = {
     children: React.ReactNode;
@@ -12,13 +12,13 @@ type SaisonVerleiAnzeigeLayoutProps = {
 
 export default function SaisonVerleiAnzeigeLayout({ children }: SaisonVerleiAnzeigeLayoutProps) {
   
-    const saisonPromise = getSaisons();
+    // const saisonPromise = getSaisons();
     return (
         <div className="container mx-auto p-4 space-y-6">
             <MenueLeiste />
-            <SaisonContextProvider saisonPromise={saisonPromise}>
+            {/* <SaisonContextProvider saisonPromise={saisonPromise}> */}
                     {children}
-            </SaisonContextProvider>
+            {/* </SaisonContextProvider> */}
         </div>
     );
 }
