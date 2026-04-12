@@ -10,7 +10,7 @@ import {
 
 export async function getSaisonVerleihPreis(): Promise<SaisonverleihPreise> {
     // TODO: Validierung auf das richtige schema
-    const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/preise`, { cache: "no-store" });
+    const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/preise`);
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return { preise: [] };
@@ -42,7 +42,7 @@ export async function createSaisonVerleih(previousState: unknown,saisonVerleih: 
 // Ein SaisonVerleih per ID laden
 export async function getSaisonVerleihById(id: number | string): Promise<SaisonverleihRead | null> {
     try {
-        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/${id}`, { cache: "no-store" });
+        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/${id}`);
         if (!res.ok) {
             console.error("Fehler beimLaden SaisonVerleih:", id, res.status, res.statusText);
             return null;
@@ -76,7 +76,7 @@ export async function getSaisonVerleihList(limit: number = 15, letzteID?: number
     }
 
     try {
-        const res = await fetch(url, { cache: "no-store" });
+        const res = await fetch(url);
         if (!res.ok) {
             console.error("Fehler beimLaden SaisonVerleih:", res.status, res.statusText);
             return null;
@@ -100,7 +100,7 @@ export async function getSaisonVerleihList(limit: number = 15, letzteID?: number
 // PDF generieren
 export async function getSaisonVerleihPDF(previousState: unknown,id: number): Promise<Blob | null> {
     try {
-        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/pdf/${id}`, { cache: "no-store" });
+        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/pdf/${id}`);
         if (!res.ok) {
             console.error("Fehler beimLaden SaisonVerleih:", id, res.status, res.statusText);
             return null;
@@ -116,7 +116,7 @@ export async function getSaisonVerleihPDF(previousState: unknown,id: number): Pr
 // Namen Ettiket generieren
 export async function getSaisonVerleihNamenEttiket(previousState: unknown,id: number): Promise<SaisonVerleihNamenEttiketResponse | null> {
     try {
-        const res = await fetch(`${config.backendUrl}/api/v1/ettiket/saisonfahrer/${id}`, { cache: "no-store" });
+        const res = await fetch(`${config.backendUrl}/api/v1/ettiket/saisonfahrer/${id}`);
         if (!res.ok) {
             console.error("Fehler beimLaden Namen Ettiket:", id, res.status, res.statusText);
             return null;
@@ -138,7 +138,7 @@ export async function getSaisonVerleihNamenEttiket(previousState: unknown,id: nu
 // Saisonverleih auf zurückgegeben setzen
 export async function setSaisonVerleihZurueckgegeben(previousState: unknown,id: number): Promise<boolean> {
     try {
-        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/zurueckgeben/${id}`, { method: "POST", cache: "no-store" });
+        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/zurueckgeben/${id}`, { method: "POST"});
         if (!res.ok) {
             console.error("Fehler beimSetzen SaisonVerleih auf zurückgegeben:", id, res.status, res.statusText);
             return false;

@@ -25,6 +25,13 @@ export default function SaisonverleihListe({ saisonID }: SaisonverleihListeProps
 
     const items = data?.pages.flat().filter((item) => item !== null) ?? []
 
+    // Auto Nachladen, sobald die Daten geladen sind.
+    useEffect(() => {
+        if (data && data.pages.length > 0 && hasNextPage) {
+            fetchNextPage();
+        }
+    }, [data, hasNextPage, fetchNextPage]);
+
     // Automatisch die nächste Seite laden, wenn der Benutzer das Ende der Liste erreicht
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {
@@ -36,18 +43,10 @@ export default function SaisonverleihListe({ saisonID }: SaisonverleihListeProps
         <>
             
             <Badge variant="secondary">gefunden: {items.length}</Badge>
-            {!hasNextPage && (
+            {/* {!hasNextPage && (
                 <Badge variant="secondary">Alle Saisonverleih-Datensätze geladen</Badge>
-            )}
-            {hasNextPage && (
-                <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    onClick={() => fetchNextPage()}
-                    disabled={isFetchingNextPage}
-                >
-                    Mehr laden
-                </button>
-            )}
+            )} */}
+            <Badge variant="secondary">{hasNextPage ? "Es sind noch nicht alle geladen" : "Alle Saisonverleih-Datensätze geladen"}</Badge>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {items.map((saisonverleih) => (
