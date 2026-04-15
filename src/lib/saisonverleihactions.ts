@@ -9,15 +9,20 @@ import {
     SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse } from "@/types/saisonverleihtypes";
 
 export async function getSaisonVerleihPreis(): Promise<SaisonverleihPreise> {
-    // TODO: Validierung auf das richtige schema
-    const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/preise`);
-    if (!response.ok) {
-        console.error("Fehler beim Suchen:", response);
+    try {
+        // TODO: Validierung auf das richtige schema
+        const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/preise`);
+        if (!response.ok) {
+            console.error("Fehler beim Suchen:", response);
+            return { preise: [] };
+        }
+        const data = await response.json();
+        // Ensure we always return the correct structure
+        return data || { preise: [] };
+    } catch (error) {
+        console.error("Fehler beim Laden der Saisonverleih-Preise:", error);
         return { preise: [] };
     }
-    const data = await response.json();
-    // Ensure we always return the correct structure
-    return data || { preise: [] };
 }
 
 export async function createSaisonVerleih(previousState: unknown,saisonVerleih: SaisonVerleihCreate): Promise<SaisonVerleihCreateResponse | null> {

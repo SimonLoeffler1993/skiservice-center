@@ -70,19 +70,24 @@ export async function getSchuhNrCheck(previousState: unknown,schuhNr: string) {
 }
 
 export async function getSkiStoecke(): Promise<SkistockArray> {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/stock/skistocke`, { cache: "no-store" });
-    if (!response.ok) {
-        console.error("Fehler beim Suchen:", response);
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/material/stock/skistocke`, { cache: "no-store" });
+        if (!response.ok) {
+            console.error("Fehler beim Suchen:", response);
+            return [];
+        }
+        const data = await response.json();
+        const parsedData = SkistockArraySchema.safeParse(data);
+        if (!parsedData.success) {
+            console.error("Validierungsfehler:", parsedData.error);
+            return [];
+        }
+        // Ensure we always return the correct structure
+        return parsedData.data || [];
+    } catch (error) {
+        console.error("Fehler beim Laden der Ski-Stöcke:", error);
         return [];
     }
-    const data = await response.json();
-    const parsedData = SkistockArraySchema.safeParse(data);
-    if (!parsedData.success) {
-        console.error("Validierungsfehler:", parsedData.error);
-        return [];
-    }
-    // Ensure we always return the correct structure
-    return parsedData.data || [];
 }
 
 // Ski Hersteller

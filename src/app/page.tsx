@@ -24,6 +24,7 @@ export default function Home() {
           <Button onClick={handleSaisonverleihErstellen}>Erstellen</Button>
         </Kachel>
         <Kachel title="Service" description="Es wird ein Saisonverleih erfasst.">
+          {/* TODO #2 Skiservice erstellen */}
           <Button>Erstellen</Button>
         </Kachel>
       </div>
