@@ -11,6 +11,7 @@ import SaisonVerleiAnzeigeUebersichtBemerkung from "./UebersichtBemerkung";
 import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 
 import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
+import ButtonQuittungZuweisen from "./ButtonQuittungZuweisen";
 
 // TODO Rechter Seiten Strifen bei Handy weg
 
@@ -18,8 +19,6 @@ import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptio
 type SaisonVeliAnzeigeUebersichtProps = {
     saisonverleihID: number;
 }
-
-// TODO saisonverleihID in Zustand speichern
 
 export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: SaisonVeliAnzeigeUebersichtProps) {
     // const { data: saisonVerleihDetails } = useSaisonverleihDetails({ saisonverleihID });
@@ -56,6 +55,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
                     <SaisonverleihCardStatus status={saisonVerleihDetails.Zurueck} />
                     <SaisonverleihCardBezahlt bezahlt={saisonVerleihDetails.Bezahlt} />
                     <SaisonVerleiAnzeigePDFButton saisonverleihanzeigeID={saisonVerleihDetails.ID} />
+                    <ButtonQuittungZuweisen />
                 </div>
 
                 {/* Bemerkung */}
