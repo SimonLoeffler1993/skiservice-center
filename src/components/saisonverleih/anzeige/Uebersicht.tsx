@@ -55,7 +55,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
                     <SaisonverleihCardStatus status={saisonVerleihDetails.Zurueck} />
                     <SaisonverleihCardBezahlt bezahlt={saisonVerleihDetails.Bezahlt} />
                     <SaisonVerleiAnzeigePDFButton saisonverleihanzeigeID={saisonVerleihDetails.ID} />
-                    <ButtonQuittungZuweisen />
+                    <ButtonQuittungZuweisen quittungID={saisonVerleihDetails.QuittungID}/>
                 </div>
 
                 {/* Bemerkung */}
