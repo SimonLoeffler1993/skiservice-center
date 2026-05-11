@@ -11,17 +11,25 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog";
+import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
 import { setExQuittungBeleg } from "@/lib/quittungactions";
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useRef, useState, useActionState, startTransition, useTransition } from "react";
+
+
+// TODO: Beim Quittungzuweisen kommt es zu einem Fehler beim Rendern, aber es wird richtig angezeigt. Seite neu laden?
 
 export default function DialogQuittungZuweisen() {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
     // SaisonID aus den URL-Parametern holen
     const { id } = useParams<{ id: string }>();
+
     const [isPending, startTransition] = useTransition();
     const [success, setSuccess] = useState<boolean | null>(null)
+
+    const queryClient = useQueryClient();
     // const [state, action] = useActionState(setExQuittungBeleg, null);
     
 
@@ -29,17 +37,20 @@ export default function DialogQuittungZuweisen() {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const selectedVoucherNumber = formData.get("selectedBeleg") as string;
-
+        
         startTransition(async () => {
             const result = await setExQuittungBeleg(selectedVoucherNumber, Number(id))
             setSuccess(result)
             console.log("Result:", result);
+            if (result) {
+                console.log("Quittung erfolgreich zugewiesen.");
+                queryClient.invalidateQueries(saisonverleihDetailsOptions(Number(id)));
+                
+            }
         })
         
         console.log("Zugewiesen:", selectedVoucherNumber);
-        console.log("SaisonID:", id);
-        // Hier deine Aktion
-        setOpen(false);
+        console.log("SaisonID:", id);        
     }
 
     return (

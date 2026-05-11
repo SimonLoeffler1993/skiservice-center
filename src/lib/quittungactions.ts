@@ -38,8 +38,8 @@ export async function setExQuittungBeleg(lexBelegID: string, saisonVerleihID: nu
     const response = await fetch(`${config.backendUrl}/api/v1/quittungen/quittung/nurextern`, {
         method: "POST",
         body: JSON.stringify({
-            SaisonverleihID: saisonVerleihID,  
-            LexOfficeID: lexBelegID             
+            SaisonverleihID: saisonVerleihID,
+            LexOfficeID: lexBelegID
         }),
         headers: {
             "Content-Type": "application/json"
