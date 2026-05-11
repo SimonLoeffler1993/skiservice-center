@@ -33,3 +33,21 @@ export async function getQuittungsBelegeListe(page: number = 0): Promise<LexPage
     // TODO: ZOD-Validierung könnte hier hinzugefügt werden, wenn ein entsprechendes Schema definiert ist.
     return data as LexPages<Beleg>;
 }
+
+export async function setExQuittungBeleg(lexBelegID: string, saisonVerleihID: number): Promise<boolean> {
+    const response = await fetch(`${config.backendUrl}/api/v1/quittungen/quittung/nurextern`, {
+        method: "POST",
+        body: JSON.stringify({
+            SaisonverleihID: saisonVerleihID,  
+            LexOfficeID: lexBelegID             
+        }),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+    if (!response.ok) {
+        console.error("Fehler beim Zuweisen der Quittung zum Beleg:", response);
+        return false;
+    }
+    return true;
+}

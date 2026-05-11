@@ -11,19 +11,30 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog";
+import { setExQuittungBeleg } from "@/lib/quittungactions";
 import { useParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { useRef, useState, useActionState, startTransition, useTransition } from "react";
 
 export default function ButtonQuittungZuweisen() {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
     // SaisonID aus den URL-Parametern holen
     const { id } = useParams<{ id: string }>();
+    const [isPending, startTransition] = useTransition();
+    const [success, setSuccess] = useState<boolean | null>(null)
+    // const [state, action] = useActionState(setExQuittungBeleg, null);
+    
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const selectedVoucherNumber = formData.get("selectedBeleg") as string;
+
+        startTransition(async () => {
+            const result = await setExQuittungBeleg(selectedVoucherNumber, Number(id))
+            setSuccess(result)
+            console.log("Result:", result);
+        })
         
         console.log("Zugewiesen:", selectedVoucherNumber);
         console.log("SaisonID:", id);
