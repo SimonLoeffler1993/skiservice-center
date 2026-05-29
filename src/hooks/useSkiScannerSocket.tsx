@@ -1,9 +1,11 @@
+import { ScannerWebSocketMessage, ScannerWebSocketMessageSchema } from "@/types/skiscanner";
 import { useEffect, useRef, useState } from "react";
 
 export function useSkiScannerSocket(backEndUrl: string) {
     const ws = useRef<WebSocket | null>(null);
-    const [nachricht, setNachricht] = useState<string | null>(null);
+    const [nachricht, setNachricht] = useState<ScannerWebSocketMessage | null>(null);
     const [verbunden, setVerbunden] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         ws.current = new WebSocket(backEndUrl.replace(/^http/, 'ws') + "/api/v1/scanner/skiscanner/data");
@@ -12,8 +14,21 @@ export function useSkiScannerSocket(backEndUrl: string) {
             setVerbunden(true);
         };
         ws.current.onmessage = (event) => {
-            console.log('Nachricht erhalten:', event.data);
-            setNachricht(event.data);
+            try {
+                setError(null);
+                console.log('Nachricht erhalten:', event.data);
+                const parsedata = ScannerWebSocketMessageSchema.safeParse(JSON.parse(event.data));
+                if (!parsedata.success) {
+                    console.error('Ungültige WebSocket-Nachricht:', parsedata.error);
+                    setError('Ungültige WebSocket-Nachricht');
+                    return;
+                }
+             
+                setNachricht(parsedata.data);
+            } catch (error) {
+                console.error('Fehler beim Parsen der WebSocket-Nachricht:', error);
+                setError('Fehler beim Parsen der WebSocket-Nachricht');
+            }
         };
         ws.current.onclose = () => {
             console.log('WebSocket getrennt');
@@ -32,6 +47,6 @@ export function useSkiScannerSocket(backEndUrl: string) {
         }
     };
 
-    return { nachricht, verbunden, nachrichtSenden };
+    return { nachricht, verbunden, nachrichtSenden, error };
 
 }
