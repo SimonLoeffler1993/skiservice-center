@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
 import useTimer from '@/hooks/useTimer';
+import { auftragFertigStellen } from '@/lib/auftragaction';
 
 type FertigButtonsProps = {
     serviceId: number | undefined | null;
@@ -9,25 +10,44 @@ type FertigButtonsProps = {
 };
 
 export default function FertigButtons({ serviceId, selectedSkiIds }: FertigButtonsProps) {
-    const { countdown, resetTimer } = useTimer();
+    const { countdown, resetTimer, setPause } = useTimer();
+    const [isPending, startTransition] = useTransition();
     const isButtonDisabled = !selectedSkiIds || selectedSkiIds.length === 0;
 
-    const skiIdsKey = selectedSkiIds
+    const skiIdsKey = selectedSkiIds;
 
     useEffect(() => {
-        resetTimer();
-    }, [skiIdsKey, resetTimer]); // resetTimer als Dependency hinzufügen
+        if (isButtonDisabled) {
+            setPause(true);
+            return;
+        }
 
-    console.log("Selected Ski IDs in FertigButtons:", selectedSkiIds);
+        setPause(false);
+        resetTimer();
+    }, [skiIdsKey, resetTimer, setPause, isButtonDisabled]); // resetTimer als Dependency hinzufügen
+
+    const handleFertigstellen = useCallback(() => {
+        // Hier kannst du die Logik zum Fertigstellen des Services hinzufügen, z.B. eine API-Anfrage senden
+        console.log("Fertigstellen mit Service ID:", serviceId, "und ausgewählten Ski IDs:", Array.from(selectedSkiIds || []));
+        startTransition(async () => {
+            const data = await auftragFertigStellen(serviceId!, Array.from(selectedSkiIds || []));
+            console.log("Fertigstellen abgeschlossen:", data);
+            // TODO: Meldung anzeeigen
+        });
+    }, [serviceId, selectedSkiIds]);
+
+    useEffect(() => {
+        if (countdown === 0) {
+            handleFertigstellen();
+        }
+    }, [countdown, handleFertigstellen]);
+
 
     if (!serviceId) {   
         return null; 
     }
 
-    function handleFertigstellen() {
-        // Hier kannst du die Logik zum Fertigstellen des Services hinzufügen, z.B. eine API-Anfrage senden
-        console.log("Fertigstellen mit Service ID:", serviceId, "und ausgewählten Ski IDs:", Array.from(selectedSkiIds || []));
-    }
+    
 
     return (
         <div className="flex gap-4">
