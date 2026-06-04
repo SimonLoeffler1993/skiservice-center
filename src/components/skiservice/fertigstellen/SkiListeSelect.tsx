@@ -3,6 +3,7 @@ import SkiDetail from '../SkiDetail';
 import useAuftragSkiSelection from '@/hooks/useAuftragSkiSelection';
 import { useEffect } from 'react';
 import FertigButtons from './FertigButtons';
+import AuswahlNachricht from './AuswahlNachricht';
 
 
 type SkiListeProps = {
@@ -33,6 +34,7 @@ export default function SkiListeSelect({ skis, selectedSkiIds }: SkiListeProps) 
 
     return (
         <>
+        <AuswahlNachricht selectedSkiIds={getSelectedSkiIds()} />
         <div className="space-y-1">
             <ul className="divide-y divide-border" >
                 {skis.map((ski) => (

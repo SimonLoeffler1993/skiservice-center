@@ -54,7 +54,7 @@ export default function FertigButtons({ serviceId, selectedSkiIds }: FertigButto
             <Button className="flex-1" onClick={handleFertigstellen} disabled={isButtonDisabled}>
                 Fertigstellen in {countdown}
             </Button>
-            <Button className="flex-1" variant="outline" disabled={isButtonDisabled}>
+            <Button className="flex-1" onClick={() => setPause(true)} variant="outline" disabled={isButtonDisabled}>
                 Abbrechen
             </Button>
         </div>
