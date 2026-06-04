@@ -1,0 +1,10 @@
+import MenueLeiste from "@/components/saisonverleih/menue/MenueLeiste";
+
+export default function FertigLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <div className="container mx-auto p-4 space-y-6">
+            <MenueLeiste />
+            {children}
+        </div>
+    );
+}

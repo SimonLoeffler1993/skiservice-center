@@ -14,6 +14,10 @@ export default function Home() {
     // Logik für Service erstellen
   };
 
+  const handleServiceFertigstellen = () => {
+    router.push('/fertig');
+  };
+
   return (
     <>
       <MenueLeiste />
@@ -26,6 +30,9 @@ export default function Home() {
         <Kachel title="Service" description="Es wird ein Saisonverleih erfasst.">
           {/* TODO #2 Skiservice erstellen */}
           <Button>Erstellen</Button>
+        </Kachel>
+        <Kachel title="Service Fertigstellen" description="Skiservice Fertigstellen und Benachrichtigen.">
+          <Button onClick={handleServiceFertigstellen}>Fertigstellen</Button>
         </Kachel>
       </div>
     </>
