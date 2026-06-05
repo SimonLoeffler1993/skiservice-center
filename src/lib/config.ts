@@ -3,3 +3,9 @@ export const config = {
     // backendUrl: getEnv('NEXT_PUBLIC_BACKEND_URL') || 'http://localhost:8000',
     backendUrl: process.env.BACKEND_URL ?? 'http://localhost:8000',
 };
+
+export function getConfig() {
+    return {
+        backendUrl: process.env.BACKEND_URL ?? 'http://localhost:8000',
+    };
+}
