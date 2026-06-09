@@ -1,7 +1,8 @@
 "use client";
 
 // import { Kunde } from "@/types/skikundentypes";
-import { useSkikundenContext } from "@/context/skikunden-context";
+// import { useSkikundenContext } from "@/context/skikunden-context";
+import { useKundeStore } from "@/stores/useKundeStore";
 import { Kunde } from "@/types/skikundentypes";
 import React, { useEffect, useState } from "react";
 import { Material } from "@/types/materialtypes";
@@ -23,7 +24,7 @@ type SaisonverleihContextType = {
 const SaisonverleihContext = React.createContext<SaisonverleihContextType | undefined>(undefined);
 
 export const SaisonverleihContextProvider = ({ children }: SaisonverleihContextProviderProps) => {
-    const { kunde, setKunde } = useSkikundenContext();
+    const { kunde, setKunde } = useKundeStore();
     const [materialList, setMaterialList] = useState<Material[]>([]);
     const [datenVollstaendig, setDatenVollstaendig] = useState(false);
     const [bemerkung, setBemerkung] = useState("");

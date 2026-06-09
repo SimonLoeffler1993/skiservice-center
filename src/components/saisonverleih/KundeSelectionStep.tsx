@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useSkikundenContext } from "@/context/skikunden-context";
+// import { useSkikundenContext } from "@/context/skikunden-context";
+import { useKundeStore } from "@/stores/useKundeStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import KundeSuchForm from "@/components/kunde/suche/suchform";
@@ -17,7 +18,7 @@ interface KundeSelectionStepProps {
 export default function KundeSelectionStep({
     onNextStep
 }: KundeSelectionStepProps) {
-    const { kunde, setKunde } = useSkikundenContext();
+    const { kunde, setKunde } = useKundeStore();
     const [showKundeSearch, setShowKundeSearch] = useState(!kunde);
 
     const handleKundeSelected = (selectedKunde: Kunde) => {
