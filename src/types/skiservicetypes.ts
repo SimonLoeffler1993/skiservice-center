@@ -7,9 +7,9 @@ export const SkiSchema = z.object({
     service: z.string(),
     preis: z.string(),
     status: z.number().int().nullable().optional(),
-    komentar: z.string(),
+    komentar: z.string().nullable().optional(),
     dabei: z.number().int().nullable().optional(),
-    fertig_date: z.string(),
+    fertig_date: z.string().nullable().optional(),
     bindung_id: z.number().int(),
     bindung_check: z.boolean().default(false),
     bindung_preis: z.number().int(),
@@ -51,3 +51,14 @@ export const AuftragSchema = z.object({
 
 export type Ski = z.infer<typeof SkiSchema>;
 export type Auftrag = z.infer<typeof AuftragSchema>;
+
+
+export const SkiserviceEintragSchema = z.object({
+    service: z.string(),
+    preis: z.number(),
+    bindung: z.boolean(),
+    bindung_preis: z.number()
+});
+
+export type SkiserviceEintrag = z.infer<typeof SkiserviceEintragSchema>;
+

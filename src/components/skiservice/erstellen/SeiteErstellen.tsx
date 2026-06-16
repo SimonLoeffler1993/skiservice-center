@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useState } from "react";
 import KundeTab from "@/components/kunde/KundeTab";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ServiceErstellenTab from "./ServiceErstellenTab";
 
 export default function SkiserviceErstellen() {
     const [activeTab, setActiveTab] = useState("kunde");
@@ -18,7 +19,7 @@ export default function SkiserviceErstellen() {
                 </div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="kunde" className="flex items-center gap-2">
                             <User className="h-4 w-4" />
                             1. Kunde
@@ -27,10 +28,10 @@ export default function SkiserviceErstellen() {
                             <Mountain className="h-4 w-4" />
                             2. Ski auswählen
                         </TabsTrigger>
-                        <TabsTrigger value="uebersicht" className="flex items-center gap-2">
+                        {/* <TabsTrigger value="uebersicht" className="flex items-center gap-2">
                             <ClipboardList className="h-4 w-4" />
                             3. Gesamt übersicht
-                        </TabsTrigger>
+                        </TabsTrigger> */}
                     </TabsList>
 
                     <TabsContent value="kunde" className="mt-6">
@@ -44,7 +45,14 @@ export default function SkiserviceErstellen() {
                         </Card>
                     </TabsContent>
                     <TabsContent value="ski" className="mt-6">
-                        <p className="text-gray-500">Hier kommt die Ski Auswahl hin.</p>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Skiservice hinzufügen</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <ServiceErstellenTab />
+                            </CardContent>
+                        </Card>
                     </TabsContent>
                     <TabsContent value="uebersicht" className="mt-6">
                         <p className="text-gray-500">Hier kommt die Gesamtübersicht hin.</p>
