@@ -29,10 +29,14 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
         name: `skiservices.${index}.bindung_check`,
     });
 
+    // Bindungspreis lesen, als fallback 0
+    const serviceBindung = skiservicePreise?.find((s) => s.Bindung)?.Preis ?? 0
+
     const { setValue } = useFormContext<FormInhalte>();
 
     const handleServiceChange = (serviceId: string) => {
         const selected = skiservicePreise?.find((s) => String(s.id) === serviceId);
+        
         if (!selected) return;
         setValue(`skiservices.${index}.service`, selected.Service);
         setValue(`skiservices.${index}.preis`, selected.Preis);
@@ -46,7 +50,7 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
                     <SelectValue placeholder="Service auswählen..." />
                 </SelectTrigger>
                 <SelectContent className="w-full">
-                    {skiservicePreise?.map((s) => (
+                    {skiservicePreise?.filter((S) => !S.Bindung).map((s) => (
                         <SelectItem key={s.id} value={String(s.id)}>
                             {s.Service}
                         </SelectItem>
@@ -63,9 +67,11 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
             <div className="flex justify-center">
                 <Checkbox
                     checked={bindung_check ?? false}
-                    onCheckedChange={(checked) =>
-                        setValue(`skiservices.${index}.bindung_check`, checked === true)
-                    }
+                    onCheckedChange={(checked) => {
+                        const isChecked = checked === true
+                        setValue(`skiservices.${index}.bindung_check`, isChecked)
+                        setValue(`skiservices.${index}.bindung_preis`, isChecked ? serviceBindung : 0);
+                    }}
                 />
             </div>
             <Button

@@ -43,7 +43,7 @@ export async function auftragAnlegen(kundeId: number, skiserviceEintraege: Skise
             skis: skiserviceEintraege.map(e => ({
                 service: e.service,
                 preis: String(e.preis),
-                bindung_preis: e.bindung_preis ? /* Preis hier */ 0 : 0,
+                bindung_preis: e.bindung_preis,
                 bindung_check: e.bindung_check
             })),
         })
