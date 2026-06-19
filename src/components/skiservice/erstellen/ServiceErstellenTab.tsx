@@ -12,6 +12,7 @@ import { useKundeStore } from "@/stores/useKundeStore";
 
 import { type SkiserviceEintrag } from "@/types/skiservicetypes";
 import { auftragAnlegen } from '@/lib/auftragaction';
+import AuftragGesamtPreis from './AuftragGesamtPreis';
 
 
 export type FormInhalte = {
@@ -52,7 +53,7 @@ export default function ServiceErstellenTab() {
         <FormProvider {...methods}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-semibold">Service erstellen</h2>
+                    <AuftragGesamtPreis />
                     <Button
                         type="button"
                         variant="outline"
