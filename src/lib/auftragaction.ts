@@ -29,13 +29,15 @@ export async function auftragFertigStellen(serviceId: number, skiIds: number[]) 
 export async function auftragAnlegen(kundeId: number, skiserviceEintraege: SkiserviceEintrag[], fertigBis: Date | null) {
     try {
 
+        // TODO: map muss weil preis in der API (DB) ein String ist
         const body = JSON.stringify({
             kunden_id: kundeId,
             abhol_date: fertigBis?.toISOString() ?? null,
             skis: skiserviceEintraege.map(e => ({
                 service: e.service,
                 preis: String(e.preis),
-                bindung_preis: e.bindung ? /* Preis hier */ 0 : 0,
+                bindung_preis: e.bindung_preis ? /* Preis hier */ 0 : 0,
+                bindung_check: e.bindung_check
             })),
         })
 

@@ -56,7 +56,7 @@ export type Auftrag = z.infer<typeof AuftragSchema>;
 export const SkiserviceEintragSchema = z.object({
     service: z.string(),
     preis: z.number(),
-    bindung: z.boolean(),
+    bindung_check: z.boolean(),
     bindung_preis: z.number()
 });
 

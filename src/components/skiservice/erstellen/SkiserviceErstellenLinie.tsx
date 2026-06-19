@@ -24,9 +24,9 @@ type SkiserviceErstellenLinieProps = {
 export default function ServiceErstellenLinie({ index, register, control, onRemove }: SkiserviceErstellenLinieProps) {
     const { data: skiservicePreise } = useQuery(skiservicesPreiseOptions);
 
-    const bindung = useWatch({
+    const bindung_check = useWatch({
         control,
-        name: `skiservices.${index}.bindung`,
+        name: `skiservices.${index}.bindung_check`,
     });
 
     const { setValue } = useFormContext<FormInhalte>();
@@ -62,9 +62,9 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
             />
             <div className="flex justify-center">
                 <Checkbox
-                    checked={bindung ?? false}
+                    checked={bindung_check ?? false}
                     onCheckedChange={(checked) =>
-                        setValue(`skiservices.${index}.bindung`, checked === true)
+                        setValue(`skiservices.${index}.bindung_check`, checked === true)
                     }
                 />
             </div>

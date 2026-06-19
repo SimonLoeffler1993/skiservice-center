@@ -57,7 +57,7 @@ export default function ServiceErstellenTab() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => append({ service: "", preis: 0, bindung: false, bindung_preis: 0 })}
+                        onClick={() => append({ service: "", preis: 0, bindung_check: false, bindung_preis: 0 })}
                     >
                         <Plus className="h-4 w-4 mr-1" />
                         Service hinzufügen
