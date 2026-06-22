@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useTransition } from 'react';
+import { useCallback, useEffect, useTransition, useState } from 'react';
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,9 +10,10 @@ import { skiservicesPreiseOptions } from "@/hooks/useSkiservicesPreiseOptions";
 import { useQuery } from "@tanstack/react-query";
 import { useKundeStore } from "@/stores/useKundeStore";
 
-import { type SkiserviceEintrag } from "@/types/skiservicetypes";
+import { type SkiserviceEintrag, type Antwort, AntwortSchema } from "@/types/skiservicetypes";
 import { auftragAnlegen } from '@/lib/auftragaction';
 import AuftragGesamtPreis from './AuftragGesamtPreis';
+import AuftragAngelegt from './AuftragAngelegt';
 
 
 export type FormInhalte = {
@@ -24,6 +25,7 @@ export default function ServiceErstellenTab() {
     const { data: skiservicePreise } = useQuery(skiservicesPreiseOptions);
     const { kunde } = useKundeStore();
     const [isPending, startTransition] = useTransition();
+    const [antwortErstellen, setAntwortErstellen] = useState<Antwort | null>(null);
 
     const methods = useForm<FormInhalte>({
         defaultValues: {
@@ -40,11 +42,16 @@ export default function ServiceErstellenTab() {
     });
 
     const onSubmit = (data: FormInhalte) => {
-        console.log(data);
+        // console.log(data);
         startTransition(async () => {
-            if (kunde != null && data != null){
-                const res = await auftragAnlegen(kunde.ID,data.skiservices,data.fertigBis)
-                console.log(res)
+            if (kunde != null && data != null) {
+                const res = await auftragAnlegen(kunde.ID, data.skiservices, data.fertigBis)
+                const parsedRes = AntwortSchema.safeParse(res)
+                // TODO: Fehler beim parsen abfangen
+                if (!parsedRes.success) return;
+
+                setAntwortErstellen(parsedRes.data)
+                // console.log(res)
             }
         })
     };
@@ -59,6 +66,7 @@ export default function ServiceErstellenTab() {
                         variant="outline"
                         size="sm"
                         onClick={() => append({ service: "", preis: 0, bindung_check: false, bindung_preis: 0 })}
+                        disabled={antwortErstellen?.success}
                     >
                         <Plus className="h-4 w-4 mr-1" />
                         Service hinzufügen
@@ -94,7 +102,18 @@ export default function ServiceErstellenTab() {
 
                 {fields.length > 0 && (
                     <div className="flex justify-end pt-2">
-                        <Button type="submit" disabled={kunde === null}>Speichern</Button>
+                        {isPending ? (
+                            <p className="text-sm text-muted-foreground">Wird erstellt…</p>
+                        ) : antwortErstellen?.success ? (
+                            <AuftragAngelegt serviceAuftragID={antwortErstellen.data.id} />
+                        ) : (
+                            <div>
+                                {antwortErstellen?.error && (
+                                    <p className="text-sm text-destructive">{antwortErstellen.error}</p>
+                                )}
+                                <Button type="submit" disabled={kunde === null}>Speichern</Button>
+                            </div>
+                        )}
                     </div>
                 )}
             </form>

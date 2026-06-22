@@ -8,7 +8,7 @@ type SkiDetailProps = {
 };
 
 export default function SkiDetail({ ski, isSelected = false }: SkiDetailProps) {
-    const skiPreis = parseFloat(ski.preis) + (ski.bindung_preis ?? 0);
+    const skiPreis = ski.preis + (ski.bindung_preis ?? 0);
 
     return (
         <div className={`grid grid-cols-4 items-center gap-4 ${isSelected ? 'border-green-500 bg-green-50' : 'border-transparent'} rounded-lg border px-3 py-2`}>

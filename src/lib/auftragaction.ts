@@ -1,6 +1,6 @@
 "use server";
 import { config } from "./config";
-import { type SkiserviceEintrag } from "@/types/skiservicetypes";
+import { AuftragSchema, type SkiserviceEintrag } from "@/types/skiservicetypes";
 
 // TODO: backend URL richtig lesen
 
@@ -61,8 +61,12 @@ export async function auftragAnlegen(kundeId: number, skiserviceEintraege: Skise
             console.error("Fehler beim Anlegen des Auftrags:", response);
             return { success: false, error: "Fehler beim Anlegen des Auftrags", data: null };
         }
-        const data = await response.json();
-        return { success: true, error: null, data };
+        const data = AuftragSchema.parse(await response.json());
+        // const serviceData = AuftragSchema.check(data)
+
+        console.log(data)
+
+        return { success: true, error: null, data};
 
     } catch (error) {
         console.error("Fehler beim Anlegen des Auftrags:", error);

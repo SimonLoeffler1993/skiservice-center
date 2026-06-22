@@ -42,7 +42,6 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
         setValue(`skiservices.${index}.preis`, selected.Preis);
     };
 
-    // TODO: Bindungsservice nicht in der Liste auflisten
     return (
         <div className="grid grid-cols-[2fr_120px_60px_36px] gap-2 items-center">
             <Select onValueChange={handleServiceChange}>

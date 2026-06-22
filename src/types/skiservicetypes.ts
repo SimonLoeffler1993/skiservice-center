@@ -5,7 +5,7 @@ export const SkiSchema = z.object({
     id: z.number().int(),
     auftrag_id: z.number().int(),
     service: z.string(),
-    preis: z.string(),
+    preis: z.number(),
     status: z.number().int().nullable().optional(),
     komentar: z.string().nullable().optional(),
     dabei: z.number().int().nullable().optional(),
@@ -62,3 +62,18 @@ export const SkiserviceEintragSchema = z.object({
 
 export type SkiserviceEintrag = z.infer<typeof SkiserviceEintragSchema>;
 
+
+export const AntwortSchema = z.discriminatedUnion("success", [
+  z.object({
+    success: z.literal(false),
+    error: z.string(),
+    data: z.null(),
+  }),
+  z.object({
+    success: z.literal(true),
+    error: z.null(),
+    data: AuftragSchema,
+  }),
+]);
+
+export type Antwort = z.infer<typeof AntwortSchema>;
