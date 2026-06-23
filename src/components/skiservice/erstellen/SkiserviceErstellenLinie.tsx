@@ -19,9 +19,10 @@ type SkiserviceErstellenLinieProps = {
     register: UseFormRegister<FormInhalte>;
     control: Control<FormInhalte>;
     onRemove: () => void;
+    deaktiviert?: boolean;
 };
 
-export default function ServiceErstellenLinie({ index, register, control, onRemove }: SkiserviceErstellenLinieProps) {
+export default function ServiceErstellenLinie({ index, register, control, onRemove, deaktiviert=false }: SkiserviceErstellenLinieProps) {
     const { data: skiservicePreise } = useQuery(skiservicesPreiseOptions);
 
     const bindung_check = useWatch({
@@ -44,7 +45,7 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
 
     return (
         <div className="grid grid-cols-[2fr_120px_60px_36px] gap-2 items-center">
-            <Select onValueChange={handleServiceChange}>
+            <Select onValueChange={handleServiceChange} disabled={deaktiviert}>
                 <SelectTrigger className="w-full">
                     <SelectValue placeholder="Service auswählen..." />
                 </SelectTrigger>
@@ -62,10 +63,12 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
                 type="number"
                 min={0}
                 step={0.01}
+                disabled={deaktiviert}
             />
             <div className="flex justify-center">
                 <Checkbox
                     checked={bindung_check ?? false}
+                    disabled={deaktiviert}
                     onCheckedChange={(checked) => {
                         const isChecked = checked === true
                         setValue(`skiservices.${index}.bindung_check`, isChecked)
@@ -79,6 +82,7 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
                 size="icon"
                 onClick={onRemove}
                 className="text-muted-foreground hover:text-destructive"
+                disabled={deaktiviert}
             >
                 <Trash2 className="h-4 w-4" />
             </Button>

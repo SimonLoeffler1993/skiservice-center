@@ -73,7 +73,8 @@ export default function ServiceErstellenTab() {
                     </Button>
                 </div>
 
-                <ServiceFertigBisPicker />
+                {/* TODO: Eingabe nach dem Speichern deaktivieren */}
+                <ServiceFertigBisPicker deaktiviert={antwortErstellen?.success} />
 
                 {fields.length === 0 ? (
                     <p className="text-muted-foreground text-sm py-4 text-center border border-dashed rounded-md">
@@ -95,6 +96,7 @@ export default function ServiceErstellenTab() {
                                 register={register}
                                 control={control}
                                 onRemove={() => remove(index)}
+                                deaktiviert={antwortErstellen?.success} 
                             />
                         ))}
                     </div>

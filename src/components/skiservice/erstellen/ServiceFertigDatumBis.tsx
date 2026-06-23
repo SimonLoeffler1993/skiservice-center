@@ -9,7 +9,11 @@ import { de } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { FormInhalte } from "./ServiceErstellenTab";
 
-export default function ServiceFertigDatumBis() {
+type ServiceFertigDatumBisProps = {
+    deaktiviert?: boolean
+}
+
+export default function ServiceFertigDatumBis({deaktiviert = false}:ServiceFertigDatumBisProps) {
     const { control } = useFormContext<FormInhalte>();
 
     return (
@@ -19,10 +23,11 @@ export default function ServiceFertigDatumBis() {
             render={({ field, fieldState }) => (
                 <Field className="flex flex-col">
                     <FieldLabel>Fertig bis</FieldLabel>
-                    <Popover>
+                    <Popover open={deaktiviert ? false : undefined}>
                         <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
+                                disabled={deaktiviert}
                                 className={cn(
                                     "w-[200px] pl-3 text-left font-normal",
                                     !field.value && "text-muted-foreground"
