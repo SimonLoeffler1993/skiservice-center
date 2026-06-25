@@ -19,7 +19,7 @@ export default function SkiListe({ skis }: SkiListeProps) {
             <ul className="divide-y divide-border">
                 {skis.map((ski) => (
                     <li key={ski.id} className="py-3 transition-colors hover:bg-muted/40 px-2">
-                        <SkiDetail ski={ski} />
+                        <SkiDetail ski={ski} showButtons={true} />
                     </li>
                 ))}
             </ul>

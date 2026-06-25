@@ -73,7 +73,6 @@ export default function ServiceErstellenTab() {
                     </Button>
                 </div>
 
-                {/* TODO: Eingabe nach dem Speichern deaktivieren */}
                 <ServiceFertigBisPicker deaktiviert={antwortErstellen?.success} />
 
                 {fields.length === 0 ? (
@@ -113,7 +112,7 @@ export default function ServiceErstellenTab() {
                                 {antwortErstellen?.error && (
                                     <p className="text-sm text-destructive">{antwortErstellen.error}</p>
                                 )}
-                                <Button type="submit" disabled={kunde === null}>Speichern</Button>
+                                <Button type="submit" disabled={kunde === null || isPending}>Speichern</Button>
                             </div>
                         )}
                     </div>

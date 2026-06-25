@@ -2,8 +2,6 @@
 import { config } from "./config";
 import { AuftragSchema, type SkiserviceEintrag } from "@/types/skiservicetypes";
 
-// TODO: backend URL richtig lesen
-
 export async function auftragFertigStellen(serviceId: number, skiIds: number[]) {
     try {
         const response = await fetch(`${config.backendUrl}/api/v1/skiservice/skifertig`, {
@@ -36,16 +34,10 @@ export async function auftragAnlegen(kundeId: number, skiserviceEintraege: Skise
                 year: 'numeric',
             })
 
-        // TODO: map muss weil preis in der API (DB) ein String ist
         const body = JSON.stringify({
             kunden_id: kundeId,
             abhol_date: fertigBis ? formatDate(fertigBis) : null,
-            skis: skiserviceEintraege.map(e => ({
-                service: e.service,
-                preis: String(e.preis),
-                bindung_preis: e.bindung_preis,
-                bindung_check: e.bindung_check
-            })),
+            skis: skiserviceEintraege,
         })
 
         console.log(body)
@@ -64,12 +56,62 @@ export async function auftragAnlegen(kundeId: number, skiserviceEintraege: Skise
         const data = AuftragSchema.parse(await response.json());
         // const serviceData = AuftragSchema.check(data)
 
-        console.log(data)
+        // console.log(data)
 
-        return { success: true, error: null, data};
+        return { success: true, error: null, data };
 
     } catch (error) {
         console.error("Fehler beim Anlegen des Auftrags:", error);
         return { success: false, error: "Fehler beim Anlegen des Auftrags - " + error, data: null };
+    }
+}
+
+export async function getAuftragLesen(auftragID: number) {
+    try {
+        const res = await fetch(`${config.backendUrl}/api/v1/skiservice/auftrag/${auftragID}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!res.ok) {
+            console.error("Fehler beim Anlegen des Auftrags:", res);
+            return { success: false, error: "Fehler beim Anlegen des Auftrags", data: null };
+        }
+
+        const data = AuftragSchema.parse(await res.json())
+
+        return { success: true, error: null, data };
+
+    } catch (error) {
+        console.error("Fehler beim Anlegen des Auftrags:", error);
+        return { success: false, error: "Fehler beim Anlegen des Auftrags - " + error, data: null };
+    };
+
+}
+
+export async function setBindungChecked(skiIds:number[]) {
+    try{
+        const body = JSON.stringify({
+            ski_ids: skiIds
+        })
+        const res = await fetch(`${config.backendUrl}/api/v1/skiservice/bindungfertig`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: body
+        });
+
+        if (!res.ok) {
+            console.log("Fehler beim BindungsCheck Response", res)
+            return false
+        }
+
+        return true
+    } catch (error) {
+        console.error("Fehler beim BindungsCheck: ", error)
+        return false
     }
 }

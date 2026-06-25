@@ -17,7 +17,7 @@ export default function AuftragAngelegt({ serviceAuftragID }: AuftragAnlegenProp
     }
 
     function handleAnzeigen() {
-        router.push(`skiservice/anzeigen/${serviceAuftragID}`)
+        router.push(`anzeigen/${serviceAuftragID}`)
     }
 
     return (
