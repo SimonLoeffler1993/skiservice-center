@@ -16,11 +16,10 @@ export default function SaisonverleihErstellenLayout({ children }: { children: R
             <MenueLeiste />
             <SaisonpreisContextProvider saisonpreisePromise={saisonpreisePromise}>
                 <SkimaterialContextProvider skistoeckePromise={skistoeckePromise}>
-                    <SkikundenContextProvider>
                         <SaisonverleihContextProvider>
                             {children}
                         </SaisonverleihContextProvider>
-                    </SkikundenContextProvider>
+
                 </SkimaterialContextProvider>
             </SaisonpreisContextProvider>
         </div>

@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Kunde } from "@/types/skikundentypes";
-import { useSkikundenContext } from "@/context/skikunden-context";
+// import { useSkikundenContext } from "@/context/skikunden-context";
+import { useKundeStore } from "@/stores/useKundeStore";
 
 type KundeSuchErgebnisseTabelleProps = {
     daten: Kunde[] | null;
@@ -12,7 +13,8 @@ type KundeSuchErgebnisseTabelleProps = {
 };
 
 export default function KundeSuchErgebnisseTabelle({ daten, onKundeAuswaehlen }: KundeSuchErgebnisseTabelleProps) {
-    const { setKunde } = useSkikundenContext();
+    // const { setKunde } = useSkikundenContext();
+    const { setKunde } = useKundeStore();
     if (!daten || daten.length === 0) {
         return <p className="text-sm text-muted-foreground mt-4">Keine Ergebnisse gefunden...</p>;
     }
