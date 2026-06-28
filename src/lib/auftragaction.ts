@@ -1,6 +1,6 @@
 "use server";
 import { config } from "./config";
-import { AuftragSchema, type SkiserviceEintrag } from "@/types/skiservicetypes";
+import { AuftragListe, AuftragListeSchema, AuftragSchema, type SkiserviceEintrag } from "@/types/skiservicetypes";
 
 export async function auftragFertigStellen(serviceId: number, skiIds: number[]) {
     try {
@@ -113,5 +113,32 @@ export async function setBindungChecked(skiIds:number[]) {
     } catch (error) {
         console.error("Fehler beim BindungsCheck: ", error)
         return false
+    }
+}
+
+// Skiservice Aufträge Laden
+export async function getSkiserviceListe(limit: number = 25, letzteID?: number, saisonID?: number): Promise<AuftragListe | null>{
+
+    let url = `${config.backendUrl}/api/v1/saisonverleih/?limit=${limit}`;
+    if (saisonID) {
+        url = `${config.backendUrl}/api/v1/saisonverleih/?saisonID=${saisonID}&limit=${limit}`;
+    }
+
+    if (letzteID) {
+        url += `&last_id=${letzteID}`;
+    }
+
+    try {
+        const res = await fetch(url);
+        if (!res.ok) {
+            console.error("Fehler beim Laden Skiservices; ", res.status, res.statusText);
+            return null;
+        }
+
+        return AuftragListeSchema.parse(await res.json())
+
+    } catch (e) {
+        console.error("Unerwarteter Fehler beim Laden der Skiservice Aufträge: ", e);
+        return null;
     }
 }

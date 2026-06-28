@@ -52,6 +52,9 @@ export const AuftragSchema = z.object({
 export type Ski = z.infer<typeof SkiSchema>;
 export type Auftrag = z.infer<typeof AuftragSchema>;
 
+// Mehrfach für Übersicht
+export const AuftragListeSchema = z.array(AuftragSchema)
+export type AuftragListe = z.infer<typeof AuftragListeSchema>;
 
 export const SkiserviceEintragSchema = z.object({
     service: z.string(),

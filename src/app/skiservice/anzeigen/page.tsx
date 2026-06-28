@@ -1,5 +1,7 @@
 import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
+import { serviceListeOptions } from "@/hooks/useServiceListeOptions";
 import { getAktuelleSaisonID, getSaisons } from "@/lib/saisonactions";
+import { QueryClient } from "@tanstack/react-query";
 import { Snowflake } from "lucide-react";
 import { Suspense } from "react";
 
@@ -30,6 +32,11 @@ export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesA
     if (!saisonID) {
         return <p>Keine Saison gefunden!</p>
     }
+
+    // Service in Cache laden
+    const queryClient = new QueryClient();
+    await queryClient.prefetchInfiniteQuery(serviceListeOptions(saisonID))
+
     return (
         <section className="space-y-4">
             <div className="flex items-center justify-between gap-2">
