@@ -1,7 +1,8 @@
 import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
+import AuftragListe from "@/components/skiservice/anzeigen/AuftragListe";
 import { serviceListeOptions } from "@/hooks/useServiceListeOptions";
 import { getAktuelleSaisonID, getSaisons } from "@/lib/saisonactions";
-import { QueryClient } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { Snowflake } from "lucide-react";
 import { Suspense } from "react";
 
@@ -48,7 +49,9 @@ export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesA
             <Suspense fallback={<div>Lade Skiservices ...</div>}>
                 <SaisonWechseler saisons={saisonData} selectedSaisonID={saisonID} />
             </Suspense>
-
+            <HydrationBoundary state={dehydrate(queryClient)}>
+                <AuftragListe saisonID={saisonID} />
+            </HydrationBoundary>
         </section>
     )
 }

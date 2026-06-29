@@ -119,9 +119,9 @@ export async function setBindungChecked(skiIds:number[]) {
 // Skiservice Aufträge Laden
 export async function getSkiserviceListe(limit: number = 25, letzteID?: number, saisonID?: number): Promise<AuftragListe | null>{
 
-    let url = `${config.backendUrl}/api/v1/saisonverleih/?limit=${limit}`;
+    let url = `${config.backendUrl}/api/v1/skiservice/?limit=${limit}`;
     if (saisonID) {
-        url = `${config.backendUrl}/api/v1/saisonverleih/?saisonID=${saisonID}&limit=${limit}`;
+        url = `${config.backendUrl}/api/v1/skiservice/?saisonID=${saisonID}&limit=${limit}`;
     }
 
     if (letzteID) {
