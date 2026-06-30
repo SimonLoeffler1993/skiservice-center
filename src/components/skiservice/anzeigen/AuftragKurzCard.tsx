@@ -17,7 +17,7 @@ export default function AuftragKurzCard({ skiserviceAuftrag }: AuftragKurzCardPr
         <Card>
             <div className="p-3">
                 <p>{skiserviceAuftrag.name}</p>
-                <div className="flex items-start justify-between gap-3">
+                <div className="space-y-2">
                     <div className="space-y-1">
                         <div className="text-base font-semibold leading-tight flex items-center gap-2">
                             <User className="h-4 w-4 text-muted-foreground" />
@@ -26,7 +26,7 @@ export default function AuftragKurzCard({ skiserviceAuftrag }: AuftragKurzCardPr
                         {/* TODO zusammenfassung anzahl ski, schuh, stock */}
                         <div className="text-xs text-muted-foreground"> #{skiserviceAuftrag.skis.length} Services</div>
                     </div>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <AuftragStatus status={skiserviceAuftrag.wie} />
                         <AuftragBenachrichtigt benachrichtigt={skiserviceAuftrag.benachrichtigt} />
                         <AuftragBezahlt bezahlt={skiserviceAuftrag.bezahlt} />
