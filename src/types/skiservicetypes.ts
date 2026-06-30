@@ -20,13 +20,15 @@ export const SkiSchema = z.object({
     gepueft: z.iso.date().nullable().optional(), // ISO date string "YYYY-MM-DD"
 });
 
+// Wie = Status 0: in Bearbeitung 1: fertig 2: abgeholt
 export const AuftragSchema = z.object({
     id: z.number().int(),
     kunden_id: z.number().int(),
     kunde: kundeSchema,
     start_date: z.iso.datetime({ offset: true, local: true }), // ISO datetime, local = bedeutet ohne Zeitzone
     ende_date: z.string().nullable().optional(),
-    wie: z.string().nullable().optional(),
+    // wie: z.string().nullable().optional(),
+    wie: z.enum(["0", "1", "2"]).nullable().optional(),
     a_ski: z.string().nullable().optional(),
     ettiket: z.string().nullable().optional(),
     zu: z.string(),
