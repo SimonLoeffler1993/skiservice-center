@@ -5,6 +5,7 @@ import { User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AuftragStatus } from "./AuftragStatus";
 import { AuftragBezahlt } from "./AuftragBezahlt";
+import { AuftragBenachrichtigt } from "./AuftragBenachrichtigt";
 
 type AuftragKurzCardProps = {
     skiserviceAuftrag: Auftrag;
@@ -27,6 +28,7 @@ export default function AuftragKurzCard({ skiserviceAuftrag }: AuftragKurzCardPr
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <AuftragStatus status={skiserviceAuftrag.wie} />
+                        <AuftragBenachrichtigt benachrichtigt={skiserviceAuftrag.benachrichtigt} />
                         <AuftragBezahlt bezahlt={skiserviceAuftrag.bezahlt} />
                     </div>
                 </div>

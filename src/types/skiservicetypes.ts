@@ -37,7 +37,7 @@ export const AuftragSchema = z.object({
     anzahlung: z.string().nullable().optional(),
     bezahlt: z.enum(["ja", "nein"]),
     bezahlt_am: z.iso.date().nullable().optional(), // ISO date string "YYYY-MM-DD"
-    benachrichtigt: z.string(),
+    benachrichtigt: z.string().nullable().optional(),
     abgerechnet: z.number().int().nullable().optional(),
     uberweisung: z.number().int().nullable().optional(),
     name: z.string().nullable().optional(),
