@@ -5,6 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SkiListe from "../SkiListe";
 import { Mountain } from "lucide-react";
+import { AuftragBezahlt } from "./AuftragBezahlt";
+import { AuftragBenachrichtigt } from "./AuftragBenachrichtigt";
+import { AuftragStatus } from "./AuftragStatus";
+import AuftragFertigBis from "./AuftragFertigBis";
 
 type SkiserviceAuftragDetailsProps = {
     skiserviceAuftragID: number;
@@ -39,6 +43,12 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID }
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
+                        <div className="mb-3">
+                            <AuftragFertigBis fertigBis={skiserviceData.data.abhol_date} />
+                        </div>
+                        <AuftragBezahlt bezahlt={skiserviceData.data.bezahlt} />
+                        <AuftragBenachrichtigt benachrichtigt={skiserviceData.data.benachrichtigt} className="ml-2" />
+                        <AuftragStatus status={skiserviceData.data.wie} className="ml-2" />
                         <SkiListe skis={skiserviceData.data.skis} />
                     </CardContent>
                 </Card>
