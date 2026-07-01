@@ -6,7 +6,11 @@ import { saisonverleihListOptions } from "@/hooks/useSaisonverleihListeOptions";
 import { getAktuelleSaisonID, getSaisons } from "@/lib/saisonactions";
 import { Suspense } from "react";
 
-export default async function SaisonVerleiAnzeige({searchParams}: {searchParams: Promise<{ saison?: string }>}) {
+type SaisonVerleiAnzeigeProps = {
+    searchParams: Promise<{ saison?: string }>
+}
+
+export default async function SaisonVerleiAnzeige({searchParams}: SaisonVerleiAnzeigeProps) {
     
     // Daten für SaisonWechseler laden
     const saisonsData = await getSaisons();

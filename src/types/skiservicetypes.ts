@@ -20,22 +20,24 @@ export const SkiSchema = z.object({
     gepueft: z.iso.date().nullable().optional(), // ISO date string "YYYY-MM-DD"
 });
 
+// Wie = Status 0: in Bearbeitung 1: fertig 2: abgeholt
 export const AuftragSchema = z.object({
     id: z.number().int(),
     kunden_id: z.number().int(),
     kunde: kundeSchema,
     start_date: z.iso.datetime({ offset: true, local: true }), // ISO datetime, local = bedeutet ohne Zeitzone
     ende_date: z.string().nullable().optional(),
-    wie: z.string().nullable().optional(),
+    // wie: z.string().nullable().optional(),
+    wie: z.enum(["0", "1", "2"]).nullable().optional(),
     a_ski: z.string().nullable().optional(),
     ettiket: z.string().nullable().optional(),
     zu: z.string(),
     fertig_date: z.string().nullable().optional(),
     abhol_date: z.string().nullable().optional(),
     anzahlung: z.string().nullable().optional(),
-    bezahlt: z.string(),
+    bezahlt: z.enum(["ja", "nein"]),
     bezahlt_am: z.iso.date().nullable().optional(), // ISO date string "YYYY-MM-DD"
-    benachrichtigt: z.string(),
+    benachrichtigt: z.string().nullable().optional(),
     abgerechnet: z.number().int().nullable().optional(),
     uberweisung: z.number().int().nullable().optional(),
     name: z.string().nullable().optional(),
@@ -52,6 +54,9 @@ export const AuftragSchema = z.object({
 export type Ski = z.infer<typeof SkiSchema>;
 export type Auftrag = z.infer<typeof AuftragSchema>;
 
+// Mehrfach für Übersicht
+export const AuftragListeSchema = z.array(AuftragSchema)
+export type AuftragListe = z.infer<typeof AuftragListeSchema>;
 
 export const SkiserviceEintragSchema = z.object({
     service: z.string(),
