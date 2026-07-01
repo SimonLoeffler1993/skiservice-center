@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useTransition, useState } from 'react';
+import { useRef, useTransition, useState } from 'react';
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,10 +22,11 @@ export type FormInhalte = {
 };
 
 export default function ServiceErstellenTab() {
-    const { data: skiservicePreise } = useQuery(skiservicesPreiseOptions);
+    useQuery(skiservicesPreiseOptions);
     const { kunde } = useKundeStore();
     const [isPending, startTransition] = useTransition();
     const [antwortErstellen, setAntwortErstellen] = useState<Antwort | null>(null);
+    const submittingRef = useRef(false);
 
     const methods = useForm<FormInhalte>({
         defaultValues: {
@@ -42,16 +43,21 @@ export default function ServiceErstellenTab() {
     });
 
     const onSubmit = (data: FormInhalte) => {
-        // console.log(data);
-        startTransition(async () => {
-            if (kunde != null && data != null) {
-                const res = await auftragAnlegen(kunde.ID, data.skiservices, data.fertigBis)
-                const parsedRes = AntwortSchema.safeParse(res)
-                // TODO: Fehler beim parsen abfangen
-                if (!parsedRes.success) return;
+        if (submittingRef.current) return;
+        submittingRef.current = true;
 
-                setAntwortErstellen(parsedRes.data)
-                // console.log(res)
+        startTransition(async () => {
+            try {
+                if (kunde != null && data != null) {
+                    const res = await auftragAnlegen(kunde.ID, data.skiservices, data.fertigBis)
+                    const parsedRes = AntwortSchema.safeParse(res)
+                    // TODO: Fehler beim parsen abfangen
+                    if (!parsedRes.success) return;
+
+                    setAntwortErstellen(parsedRes.data)
+                }
+            } finally {
+                submittingRef.current = false;
             }
         })
     };
@@ -112,7 +118,7 @@ export default function ServiceErstellenTab() {
                                 {antwortErstellen?.error && (
                                     <p className="text-sm text-destructive">{antwortErstellen.error}</p>
                                 )}
-                                <Button type="submit" disabled={kunde === null || isPending}>Speichern</Button>
+                                <Button type="submit" disabled={kunde === null || isPending || submittingRef.current}>Speichern</Button>
                             </div>
                         )}
                     </div>
