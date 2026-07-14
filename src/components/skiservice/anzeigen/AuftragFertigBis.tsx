@@ -37,7 +37,7 @@ export default function AuftragFertigBis({ fertigBis }: { fertigBis: string | nu
             ? `${diffInDays} Tage verbleibend`
             : `${Math.abs(diffInDays)} Tage überfällig`;
 
-    const needsAttention = diffInDays <= 3;
+    const needsAttention = diffInDays <= 4;
     const warningClass = diffInDays < 0 ? "text-red-600" : "text-amber-600";
 
     return (

@@ -9,6 +9,7 @@ import { AuftragBezahlt } from "./AuftragBezahlt";
 import { AuftragBenachrichtigt } from "./AuftragBenachrichtigt";
 import { AuftragStatus } from "./AuftragStatus";
 import AuftragFertigBis from "./AuftragFertigBis";
+import SkiEttikettenDruckButton from "../SkiEttikettenDruckButton";
 
 type SkiserviceAuftragDetailsProps = {
     skiserviceAuftragID: number;
@@ -43,6 +44,7 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID }
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
+                        <SkiEttikettenDruckButton skis={skiserviceData.data.skis} />
                         <div className="mb-3">
                             <AuftragFertigBis fertigBis={skiserviceData.data.abhol_date} />
                         </div>
