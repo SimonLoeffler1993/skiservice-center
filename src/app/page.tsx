@@ -20,7 +20,7 @@ export default async function Home() {
     }
 
     const aktuelleSaison = alleSaisons.find(saison => saison.Verwendet === 1);
-
+    // TODO: #7 Prüfen ob Backend da ist und Status falls nicht anzeigen
     return (
         <>
             <MenueLeiste />

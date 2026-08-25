@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import { useSkikundenContext } from "@/context/skikunden-context";
+import { useKundeStore } from "@/stores/useKundeStore";
 import { useActionState, startTransition } from "react";
 import { kundeTerminalSenden } from "@/lib/terminalactions";
 
@@ -19,7 +19,7 @@ async function sendeKundeAction(
 }
 
 export default function KundeTerminalSendenButton({ terminal }: KundeTerminalSendenButtonProps) {
-    const { kunde } = useSkikundenContext();
+    const { kunde } = useKundeStore();
     const [state, action, isPending] = useActionState(sendeKundeAction, null);
 
     const handleClick = () => {
