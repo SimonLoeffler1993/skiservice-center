@@ -1,12 +1,14 @@
 "use server"
 
 import { config } from "@/lib/config";
+import { ApiAntwort } from "@/types/actiontypes";
 import { SkiArraySchema, SkiCreate, SkiArray,
     SchuhSchema, SkistockArraySchema, SkistockArray,
     SkiSchema, 
     SkiHerstellerArraySchema, SkiHerstellerArray, HerstellerSchema,
     SkiArtArraySchema, SkiArtArray, 
-    ModellSchema, ModellArraySchema, ModellArray, SkiModellCreate } from "@/types/materialtypes";
+    ModellSchema, ModellArraySchema, ModellArray, SkiModellCreate, 
+    Hersteller} from "@/types/materialtypes";
 
     // SKI
 export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
@@ -90,9 +92,13 @@ export async function getSkiStoecke(): Promise<SkistockArray> {
     }
 }
 
-// Ski Hersteller
-export async function getSkiHersteller(): Promise<SkiHerstellerArray> {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/hersteller`, { cache: "no-store" });
+// Ski und Schuhe Hersteller
+export async function getSkiHersteller(schuh?: boolean): Promise<SkiHerstellerArray> {
+    const herstellerEndpoint = schuh
+        ? "/api/v1/material/schuh/hersteller"
+        : "/api/v1/material/ski/hersteller";
+
+    const response = await fetch(`${config.backendUrl}${herstellerEndpoint}`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return [];
@@ -107,26 +113,41 @@ export async function getSkiHersteller(): Promise<SkiHerstellerArray> {
     return parsedData.data || [];
 }
 
-export async function createSkiHersteller(previousState: unknown,name: string) {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/hersteller`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ "Name":name }),
-    });
-    if (!response.ok) {
-        console.error("Fehler beim Suchen:", response);
-        return [];
+// Wird auch zum Anlegen von Schuhherstellern verwendet, daher schuh?: boolean
+export async function createSkiHersteller(
+    previousState: unknown,
+    payload: { name: string; schuh?: boolean }
+): Promise<ApiAntwort<Hersteller>> {
+    const { name, schuh } = payload;
+    const herstellerEndpoint = schuh
+        ? "/api/v1/material/schuh/hersteller"
+        : "/api/v1/material/ski/hersteller";
+
+    try {
+        const response = await fetch(`${config.backendUrl}${herstellerEndpoint}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ Name: name }),
+        });
+
+        if (!response.ok) {
+            console.error("Fehler beim Anlegen:", response.status);
+            return { success: false, error: "Der Hersteller konnte nicht angelegt werden." };
+        }
+
+        const data = await response.json();
+        const parsedData = HerstellerSchema.safeParse(data);
+
+        if (!parsedData.success) {
+            console.error("Validierungsfehler:", parsedData.error);
+            return { success: false, error: "Antwort vom Server war ungültig." };
+        }
+
+        return { success: true, data: parsedData.data };
+    } catch (error) {
+        console.error("Netzwerkfehler:", error);
+        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
     }
-    const data = await response.json();
-    const parsedData = HerstellerSchema.safeParse(data);
-    if (!parsedData.success) {
-        console.error("Validierungsfehler:", parsedData.error);
-        return [];
-    }
-    // Ensure we always return the correct structure
-    return parsedData.data || [];
 }
 
 // Ski Art
