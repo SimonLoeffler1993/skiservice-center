@@ -8,7 +8,10 @@ import { SkiArraySchema, SkiCreate, SkiArray,
     SkiHerstellerArraySchema, SkiHerstellerArray, HerstellerSchema,
     SkiArtArraySchema, SkiArtArray, 
     ModellSchema, ModellArraySchema, ModellArray, SkiModellCreate, 
-    Hersteller} from "@/types/materialtypes";
+    Hersteller, SchuhModellSchema, SchuhModell, SchuhModellCreate,
+    SchuhModellArraySchema, SchuhModellArray } from "@/types/materialtypes";
+import { da } from "date-fns/locale";
+import { toApiAntwort } from "./helfer";
 
     // SKI
 export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
@@ -251,3 +254,53 @@ export async function createSki(previousState: unknown,data: SkiCreate) {
     // Ensure we always return the correct structure
     return parsedData.data || [];
 }   
+
+export async function getSchuhModelle(): Promise<ApiAntwort<SchuhModellArray>> {
+    const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/modelle`);
+    
+    if (!response.ok) {
+        console.error("Fehler beim Abfragen der Schumodelle:", response.status);
+        return { success: false, error: "Die Schumodelle konnten nicht geladen werden" };
+    }
+
+    try {
+        const data = await response.json();
+        const parsedData = SchuhModellArraySchema.safeParse(data);
+
+        return toApiAntwort(parsedData,"Antwort vom Server war ungültig, beim Abfragen der Schuhmodelle!")
+        // if (!parsedData.success) {
+        //     console.error("Validierungsfehler:", parsedData.error);
+        //     return { success: false, error: "Antwort vom Server war ungültig, beim Abfragen der Schuhmodelle!" };
+        // }
+
+        // return { success: true, data: parsedData.data };
+
+    } catch (error) {
+        console.error("Netzwerkfehler:", error);
+        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
+    }
+}
+
+export async function createSchuhModell(previousState: unknown,SchuhModell: SchuhModellCreate): Promise<ApiAntwort<SchuhModell>> {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/modell`,{
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(SchuhModell)
+        });
+        
+        if (!response.ok) {
+            console.error("Fehler beim Abfragen der Schumodelle:", response.status);
+            return { success: false, error: "Die Schumodelle konnten nicht geladen werden" };
+        }
+
+        const data = await response.json()
+        const parsedData = SchuhModellSchema.safeParse(data)
+
+        return toApiAntwort(parsedData, "Server hat beim erstellend des Schuhmodell nicht richtig geantwortet!")
+
+    } catch (error) {
+        console.error("Netzwerkfehler:", error);
+        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
+    }
+}

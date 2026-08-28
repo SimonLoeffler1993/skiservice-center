@@ -84,11 +84,24 @@ export const SchuhHerstellerSchema = z.object({
 
 export const SchuhModellSchema = z.object({
   Modell: z.string(),
-  Jugend: z.number(),
+  Jugend: z.boolean(),
   Hersteller_ID: z.number(),
   ID: z.number(),
   Hersteller: HerstellerSchema,
 });
+
+export type SchuhModell = z.infer<typeof SchuhModellSchema>;
+export const SchuhModellArraySchema = z.array(SchuhModellSchema);
+export type SchuhModellArray = z.infer<typeof SchuhModellArraySchema>;
+
+export const SchuhModellCreateSchema = z.object({
+  Modell: z.string(),
+  Jugend: z.boolean(),
+  Hersteller_ID: z.number(),
+})
+
+export type SchuhModellCreate = z.infer<typeof SchuhModellCreateSchema>;
+
 
 export const SchuhSchema = z.object({
   Modell_ID: z.number(),
