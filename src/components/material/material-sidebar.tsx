@@ -42,7 +42,7 @@ export function MaterialSidebar() {
                                     <Link href="/material?view=schuhmodell">Modell</Link>
                                 </SidebarMenuButton>
                                 <SidebarMenuButton asChild isActive={view === "ski"}>
-                                    <Link href="/material?view=schuhstelle">Schuh</Link>
+                                    <Link href="/material?view=schuherstellen">Schuh</Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>

@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getSkiHersteller, getSchuhModelle } from "@/lib/materialactions";
+import { getSkiHersteller, getSchuhModelle, getSkiSchuhe } from "@/lib/materialactions";
 
 export const schuhHerstellerOptions = queryOptions({
     queryKey: ["schuhHersteller"],
@@ -11,6 +11,13 @@ export const schuhHerstellerOptions = queryOptions({
 export const schuModelleOptions = queryOptions({
     queryKey: ["schuhModelle"],
     queryFn: () => getSchuhModelle(),
+    gcTime: 1000 * 60 * 60, // 1 Stunde
+    staleTime: 1000 * 60 * 5, // 5 Minuten
+})
+
+export const skiSchuheOptions = queryOptions({
+    queryKey: ["skischuhe"],
+    queryFn: () => getSkiSchuhe(),
     gcTime: 1000 * 60 * 60, // 1 Stunde
     staleTime: 1000 * 60 * 5, // 5 Minuten
 })

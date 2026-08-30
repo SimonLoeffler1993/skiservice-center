@@ -9,8 +9,9 @@ import { SkiArraySchema, SkiCreate, SkiArray,
     SkiArtArraySchema, SkiArtArray, 
     ModellSchema, ModellArraySchema, ModellArray, SkiModellCreate, 
     Hersteller, SchuhModellSchema, SchuhModell, SchuhModellCreate,
-    SchuhModellArraySchema, SchuhModellArray } from "@/types/materialtypes";
-import { da } from "date-fns/locale";
+    SchuhModellArraySchema, SchuhModellArray, 
+    SchuhArray,
+    SchuhArraySchema} from "@/types/materialtypes";
 import { toApiAntwort } from "./helfer";
 
     // SKI
@@ -59,7 +60,7 @@ export async function getSchuhNrCheck(previousState: unknown,schuhNr: string) {
         return { success: false, error: "Fehler beim Suchen", data: null };
     }
     const data = await response.json();
-    // TODO: Validierung auf das richtige schema
+
     const parsedData = SchuhSchema.safeParse(data);
     if (!parsedData.success) {
         console.error("Validierungsfehler:", parsedData.error);
@@ -301,6 +302,27 @@ export async function createSchuhModell(previousState: unknown,SchuhModell: Schu
 
     } catch (error) {
         console.error("Netzwerkfehler:", error);
+        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
+    }
+}
+
+export async function getSkiSchuhe(): Promise<ApiAntwort<SchuhArray>> {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen/liste`);
+
+        if (!response.ok) {
+            console.error("Fehler beim Abfragen der Schuhe:", response.status);
+            return { success: false, error: "Die Schuhe konnten nicht geladen werden" };
+        }
+
+        const data = await response.json();
+        const parsedData = SchuhArraySchema.safeParse(data)
+
+        return toApiAntwort(parsedData, "Antwort vom Server war ungültig beim abfragen der Skischuhe")
+
+
+    } catch (error) {
+        console.error("Netzwerkfehler: beim Skischuhe abfragen - ", error);
         return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
     }
 }

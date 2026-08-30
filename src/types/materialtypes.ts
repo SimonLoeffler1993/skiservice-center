@@ -112,8 +112,10 @@ export const SchuhSchema = z.object({
   ID: z.number(),
   Modell: SchuhModellSchema,
 });
+export const SchuhArraySchema = z.array(SchuhSchema);
 
 export type Schuh = z.infer<typeof SchuhSchema>;
+export type SchuhArray = z.infer<typeof SchuhArraySchema>;
 
 // Für Skistock
 export const SkistockSchema = z.object({
