@@ -10,7 +10,7 @@ import { SkiArraySchema, SkiCreate, SkiArray,
     ModellSchema, ModellArraySchema, ModellArray, SkiModellCreate, 
     Hersteller, SchuhModellSchema, SchuhModell, SchuhModellCreate,
     SchuhModellArraySchema, SchuhModellArray, 
-    SchuhArray,
+    SchuhArray, Schuh, CreateSkiSchuh,
     SchuhArraySchema} from "@/types/materialtypes";
 import { toApiAntwort } from "./helfer";
 
@@ -325,4 +325,29 @@ export async function getSkiSchuhe(): Promise<ApiAntwort<SchuhArray>> {
         console.error("Netzwerkfehler: beim Skischuhe abfragen - ", error);
         return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
     }
+}
+
+export async function createSkiSchuh(previousState: unknown, skiSchuh: CreateSkiSchuh): Promise<ApiAntwort<Schuh>> {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(skiSchuh)
+        });
+
+        if (!response.ok) {
+            console.error("Fehler beim Erstellen des Skischuhs:", response.status);
+            return { success: false, error: "Der Skischuh konnte nicht erstellt werden" };
+        }
+
+        const data = await response.json();
+        const parsedData = SchuhSchema.safeParse(data)
+
+        return toApiAntwort(parsedData, "Antwort vom Server war ungültig beim erstellen des Skischuhs")
+    
+    } catch (error) {
+        console.error("Netzwerkfehler: beim Skischuh erstellen - ", error);
+        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
+    }
+
 }

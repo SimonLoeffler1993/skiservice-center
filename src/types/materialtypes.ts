@@ -103,6 +103,17 @@ export const SchuhModellCreateSchema = z.object({
 export type SchuhModellCreate = z.infer<typeof SchuhModellCreateSchema>;
 
 
+
+// Skischuh
+export const CreateSchuhSchema = z.object({
+  Modell_ID: z.number(),
+  Groese: z.number(),
+  Saison: z.string(),
+  VK: z.number(),
+  EK: z.number(),
+});
+export type CreateSkiSchuh = z.infer<typeof CreateSchuhSchema>;
+
 export const SchuhSchema = z.object({
   Modell_ID: z.number(),
   Groese: z.number(),
@@ -112,6 +123,7 @@ export const SchuhSchema = z.object({
   ID: z.number(),
   Modell: SchuhModellSchema,
 });
+
 export const SchuhArraySchema = z.array(SchuhSchema);
 
 export type Schuh = z.infer<typeof SchuhSchema>;
