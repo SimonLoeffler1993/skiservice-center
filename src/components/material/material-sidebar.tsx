@@ -2,7 +2,32 @@
 
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
+import { Mountain, Footprints, GripVertical, Home } from "lucide-react"
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarSeparator,
+} from "@/components/ui/sidebar"
+
+const SKI_ITEMS = [
+    { label: "Hersteller", view: "skihersteller" },
+    { label: "Modell", view: "skimodell" },
+    { label: "Ski", view: "skierstellen" },
+]
+
+const SCHUH_ITEMS = [
+    { label: "Hersteller", view: "schuhhersteller" },
+    { label: "Modell", view: "schuhmodell" },
+    { label: "Schuh", view: "schuherstellen" },
+]
+
+const STOCK_ITEMS = [{ label: "Stöcke", view: "stoecke" }]
 
 export function MaterialSidebar() {
     const searchParams = useSearchParams()
@@ -12,43 +37,52 @@ export function MaterialSidebar() {
         <Sidebar>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarMenuButton>
-                        <Link href="../">Startseite</Link>
+                    <SidebarMenuButton asChild>
+                        <Link href="../">
+                            <Home />
+                            Startseite
+                        </Link>
                     </SidebarMenuButton>
-                    <SidebarGroupLabel>Material-Erfassen</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild isActive={view === "hersteller"}>
-                                    <Link href="/material?view=skihersteller">Hersteller</Link>
-                                </SidebarMenuButton>
-                                <SidebarMenuButton asChild isActive={view === "modell"}>
-                                    <Link href="/material?view=skimodell">Modell</Link>
-                                </SidebarMenuButton>
-                                <SidebarMenuButton asChild isActive={view === "ski"}>
-                                    <Link href="/material?view=skierstellen">Ski</Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                    <SidebarGroupLabel>Schuh-Erfassen</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild isActive={view === "hersteller"}>
-                                    <Link href="/material?view=schuhhersteller">Hersteller</Link>
-                                </SidebarMenuButton>
-                                <SidebarMenuButton asChild isActive={view === "modell"}>
-                                    <Link href="/material?view=schuhmodell">Modell</Link>
-                                </SidebarMenuButton>
-                                <SidebarMenuButton asChild isActive={view === "ski"}>
-                                    <Link href="/material?view=schuherstellen">Schuh</Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
                 </SidebarGroup>
+
+                <SidebarSeparator />
+
+                <MaterialGroup icon={Mountain} label="Ski" items={SKI_ITEMS} activeView={view} />
+                <MaterialGroup icon={Footprints} label="Schuhe" items={SCHUH_ITEMS} activeView={view} />
+                <MaterialGroup icon={GripVertical} label="Ski Stöcke" items={STOCK_ITEMS} activeView={view} />
             </SidebarContent>
         </Sidebar>
+    )
+}
+
+function MaterialGroup({
+    icon: Icon,
+    label,
+    items,
+    activeView,
+}: {
+    icon: React.ComponentType<{ className?: string }>
+    label: string
+    items: { label: string; view: string }[]
+    activeView: string
+}) {
+    return (
+        <SidebarGroup>
+            <SidebarGroupLabel className="flex items-center gap-2 text-sidebar-foreground/90 font-semibold">
+                <Icon className="size-4" />
+                {label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+                <SidebarMenu>
+                    {items.map((item) => (
+                        <SidebarMenuItem key={item.view}>
+                            <SidebarMenuButton asChild isActive={activeView === item.view}>
+                                <Link href={`/material?view=${item.view}`}>{item.label}</Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
     )
 }

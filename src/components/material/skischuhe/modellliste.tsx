@@ -8,7 +8,7 @@ export default function SchuhModelleListe() {
 
     if (isLoading) return <p>Schuhmodelle werden geladen...</p>
 
-    if (error) return <p className="text-red-500">Fehler beim Laden der Schuhmodelle.</p>
+    if (error) return <p className="text-red-500">Fehler beim Laden der Schuhmodelle: {error.message}</p>
 
     if (!data?.success) return <p>Schuhmodelle konnten nicht geladen werden</p>
 

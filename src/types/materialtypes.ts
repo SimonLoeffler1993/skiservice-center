@@ -129,16 +129,24 @@ export const SchuhArraySchema = z.array(SchuhSchema);
 export type Schuh = z.infer<typeof SchuhSchema>;
 export type SchuhArray = z.infer<typeof SchuhArraySchema>;
 
+
+
 // Für Skistock
 export const SkistockSchema = z.object({
   ID: z.number(),
   Bezeichnung: z.string()
 })
 
-// Einzeln
+export const SkistockCreateSchema = z.object({
+  Bezeichnung: z.string().min(1, "Darf nicht leer sein").max(100, "Darf nicht länger als 100 Zeichen sein"),
+})
+
+export type SkistockCreate = z.infer<typeof SkistockCreateSchema>;
+
+// Skistock Einzeln
 export type Skistock = z.infer<typeof SkistockSchema>;
 
-// Mehrfach
+// Skistock Mehrfach
 export const SkistockArraySchema = z.array(SkistockSchema);
 export type SkistockArray = z.infer<typeof SkistockArraySchema>;
 

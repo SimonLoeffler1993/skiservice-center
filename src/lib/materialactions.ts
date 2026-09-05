@@ -11,7 +11,10 @@ import { SkiArraySchema, SkiCreate, SkiArray,
     Hersteller, SchuhModellSchema, SchuhModell, SchuhModellCreate,
     SchuhModellArraySchema, SchuhModellArray, 
     SchuhArray, Schuh, CreateSkiSchuh,
-    SchuhArraySchema} from "@/types/materialtypes";
+    SchuhArraySchema,
+    SkistockSchema,
+    Skistock,
+    SkistockCreate} from "@/types/materialtypes";
 import { toApiAntwort } from "./helfer";
 
     // SKI
@@ -75,24 +78,43 @@ export async function getSchuhNrCheck(previousState: unknown,schuhNr: string) {
     return { success: true, error: null, data: parsedData.data };
 }
 
-export async function getSkiStoecke(): Promise<SkistockArray> {
+export async function getSkiStoecke(): Promise<ApiAntwort<SkistockArray>> {
     try {
         const response = await fetch(`${config.backendUrl}/api/v1/material/stock/skistocke`, { cache: "no-store" });
         if (!response.ok) {
             console.error("Fehler beim Suchen:", response);
-            return [];
+            return { success: false, error: "Fehler beim Suchen"};
         }
         const data = await response.json();
         const parsedData = SkistockArraySchema.safeParse(data);
-        if (!parsedData.success) {
-            console.error("Validierungsfehler:", parsedData.error);
-            return [];
-        }
-        // Ensure we always return the correct structure
-        return parsedData.data || [];
+        
+        return toApiAntwort(parsedData, "Antwort vom Server war ungültig beim abfragen der Ski-Stöcke");
     } catch (error) {
         console.error("Fehler beim Laden der Ski-Stöcke:", error);
-        return [];
+        return { success: false, error: "Fehler beim Laden der Ski-Stöcke"};
+    }
+}
+
+export async function createSkiStoeck(previousState: unknown, skistock: SkistockCreate): Promise<ApiAntwort<Skistock>> {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/material/stock`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(skistock)
+        });
+
+        if (!response.ok) {
+            console.error("Fehler beim Anlegen des Skistocks:", response.status);
+            return { success: false, error: "Der Skistock konnte nicht angelegt werden." };
+        }
+
+        const data = await response.json();
+        const parsedData = SkistockSchema.safeParse(data);
+
+        return toApiAntwort(parsedData, "Antwort vom Server war ungültig beim Anlegen des Skistocks");
+    } catch (error) {
+        console.error("Netzwerkfehler:", error);
+        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
     }
 }
 
