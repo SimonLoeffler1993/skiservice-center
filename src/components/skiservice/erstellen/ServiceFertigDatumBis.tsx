@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -15,6 +16,7 @@ type ServiceFertigDatumBisProps = {
 
 export default function ServiceFertigDatumBis({deaktiviert = false}:ServiceFertigDatumBisProps) {
     const { control } = useFormContext<FormInhalte>();
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
     return (
         <Controller
@@ -23,7 +25,11 @@ export default function ServiceFertigDatumBis({deaktiviert = false}:ServiceFerti
             render={({ field, fieldState }) => (
                 <Field className="flex flex-col">
                     <FieldLabel>Fertig bis</FieldLabel>
-                    <Popover open={deaktiviert ? false : undefined}>
+                    <Popover open={deaktiviert ? false : isPopoverOpen} onOpenChange={(open) => {
+                        if (!deaktiviert) {
+                            setIsPopoverOpen(open);
+                        }
+                    }}>
                         <PopoverTrigger asChild>
                             <Button
                                 variant="outline"

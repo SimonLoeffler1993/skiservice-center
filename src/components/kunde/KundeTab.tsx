@@ -4,6 +4,7 @@ import KundeForm from "./KundeForm";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { Kunde } from "@/types/skikundentypes";
+import KundeTerminalButton from "./KundeTerminalButton";
 
 export default function KundeTab() {
     const { kunde, setKunde } = useKundeStore();
@@ -43,9 +44,12 @@ export default function KundeTab() {
 
     return (
         <div>
-            <Button variant="outline" size="sm" onClick={() => setZeigenKundeSuchen(true)}>
-                Kunde wechseln
-            </Button>
+            <div className="flex justify-between items-center">
+                <Button variant="outline" size="sm" onClick={() => setZeigenKundeSuchen(true)}>
+                    Kunde wechseln
+                </Button>
+                <KundeTerminalButton />
+            </div>
             <KundeForm kunde={kunde} />
         </div>
     );

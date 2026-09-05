@@ -1,26 +1,28 @@
 import { SaisonverleihContextProvider } from "@/context/saisonverleih-context";
-import { SkikundenContextProvider } from "@/context/skikunden-context";
 import { getSaisonVerleihPreis } from "@/lib/saisonverleihactions";
 import { SaisonpreisContextProvider } from "@/context/saisonpreis-contex";
 
-import { SkimaterialContextProvider } from "@/context/skimaterial-contex";
-import { getSkiStoecke } from "@/lib/materialactions";
-import MenueLeiste from "@/components/saisonverleih/menue/MenueLeiste";
 
-export default function SaisonverleihErstellenLayout({ children }: { children: React.ReactNode }) {
+import MenueLeiste from "@/components/saisonverleih/menue/MenueLeiste";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { skiStoeckeOptions } from "@/hooks/useSchuhMaterialOptions";
+
+export default async function SaisonverleihErstellenLayout({ children }: { children: React.ReactNode }) {
     const saisonpreisePromise = getSaisonVerleihPreis();
-    const skistoeckePromise = getSkiStoecke();
+    // const skistoeckePromise = getSkiStoecke();
+    const queryClient = new QueryClient();
+    await queryClient.prefetchQuery(skiStoeckeOptions);
+
 
     return (
         <div className="container mx-auto p-4 space-y-6">
             <MenueLeiste />
             <SaisonpreisContextProvider saisonpreisePromise={saisonpreisePromise}>
-                <SkimaterialContextProvider skistoeckePromise={skistoeckePromise}>
-                        <SaisonverleihContextProvider>
-                            {children}
-                        </SaisonverleihContextProvider>
-
-                </SkimaterialContextProvider>
+                <SaisonverleihContextProvider>
+                    <HydrationBoundary state={dehydrate(queryClient)}>
+                        {children}
+                    </HydrationBoundary>
+                </SaisonverleihContextProvider>
             </SaisonpreisContextProvider>
         </div>
     );

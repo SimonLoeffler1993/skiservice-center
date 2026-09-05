@@ -26,7 +26,7 @@ export const kundeSchema = z.object({
   Strasse: z.string(),
   Ort: ortSchema,
   Tel: z.string(),
-  Email: z.string().email().or(z.literal("")), // erlaubt auch leeren String
+  Email: z.email().or(z.literal("")).nullable().optional(), // erlaubt auch leeren String, aus Historische Daten sätze kann auch "" vorkommen
 });
 
 // Hauptschema als Array

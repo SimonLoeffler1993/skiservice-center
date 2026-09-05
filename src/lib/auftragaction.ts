@@ -142,3 +142,29 @@ export async function getSkiserviceListe(limit: number = 25, letzteID?: number, 
         return null;
     }
 }
+
+export async function skiEttikettenDrucken(ettiketenData: FormData) {
+    const skiIDs = ettiketenData.getAll("skiIds").map(id => Number(id));
+    console.log("Ettiketen drucken für Skis:", skiIDs);
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/ettiket/serviceskis`, {
+            method: "POST",
+            body: JSON.stringify({ ski_ids: skiIDs }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            console.error("Fehler beim Drucken der Ettiketen:", response);
+            return { success: false, error: "Fehler beim Drucken der Ettiketen", data: null };
+        }
+
+        const data = await response.json();
+        return { success: true, error: null, data };
+
+    } catch (error) {
+        console.error("Fehler beim Drucken der Ettiketen:", error);
+        return { success: false, error: "Fehler beim Drucken der Ettiketen - " + error, data: null };
+    }
+}

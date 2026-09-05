@@ -33,7 +33,7 @@ export default function DialogQuittungZuweisen() {
     // const [state, action] = useActionState(setExQuittungBeleg, null);
     
 
-    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const selectedVoucherNumber = formData.get("selectedBeleg") as string;

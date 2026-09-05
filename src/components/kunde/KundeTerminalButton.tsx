@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Edit } from "lucide-react";
+import { SquareArrowOutUpRight} from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "../ui/dialog";
 import { kundeTerminaAbfragen } from "@/lib/terminalactions";
 import { useActionState, startTransition } from "react";
@@ -25,7 +25,7 @@ export default function KundeTerminalButton() {
         <Dialog>
             <DialogTrigger asChild>
                 <Button onClick={handleClick} variant="outline" size="sm" className="flex items-center gap-2">
-                    <Edit className="h-4 w-4" />
+                    <SquareArrowOutUpRight className="h-4 w-4" />
                     Kunde ans Terminal senden
                 </Button>
             </DialogTrigger>

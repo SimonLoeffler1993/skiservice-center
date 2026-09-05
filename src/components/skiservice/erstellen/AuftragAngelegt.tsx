@@ -22,8 +22,8 @@ export default function AuftragAngelegt({ serviceAuftragID }: AuftragAnlegenProp
 
     return (
         <div className="flex gap-4">
-            <Button onClick={handleNeuEingabe}>neu erfassen</Button>
-            <Button onClick={handleAnzeigen}>Anzeigen</Button>
+            <Button type="button" onClick={handleNeuEingabe}>neu erfassen</Button>
+            <Button type="button" onClick={handleAnzeigen}>Anzeigen</Button>
         </div>
     )
 }

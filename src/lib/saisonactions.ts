@@ -27,3 +27,24 @@ export async function getAktuelleSaisonID():Promise<SaisonsNamen | null> {
     const data = await response.json();
     return data || null;
 }
+
+export async function saisonAnlegen(name: string, von: string, bis: string): Promise<SaisonsNamen | null> {
+    const response = await fetch(`${config.backendUrl}/api/v1/saison/erfassen`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            Start: von,
+            Ende: bis,
+            Name: name,
+            Verwendet: 1
+         })
+    });
+    if (!response.ok) {
+        console.error("Fehler beim Anlegen der Saison:", response);
+        return null;
+    }
+    const data = await response.json();
+    return data || null;
+}
