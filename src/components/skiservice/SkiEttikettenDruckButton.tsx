@@ -14,6 +14,12 @@ type SkiEttikettenDruckButtonProps = {
 
 export default function SkiEttikettenDruckButton({ skis }: SkiEttikettenDruckButtonProps) {
 
+    async function handleEttikettenDrucken(formData: FormData) {
+        const result = await skiEttikettenDrucken(formData);
+        if (!result.success) {
+            console.error(result.error);
+        }
+    }
 
     return (
         <Popover>
@@ -22,14 +28,13 @@ export default function SkiEttikettenDruckButton({ skis }: SkiEttikettenDruckBut
             </PopoverTrigger>
             <PopoverContent align="start" className="w-80">
                 <p>welche Ettiketten sollen gedruckt werden?</p>
-                <form action={skiEttikettenDrucken}>
+                <form action={handleEttikettenDrucken}>
                     <FieldGroup>
                         {skis.map((ski) => (
                             <Field key={ski.id} orientation={"horizontal"}>
                                 <Checkbox id={`ski-${ski.id}`} name="skiIds" value={ski.id} defaultChecked />
                                 <Label htmlFor={`ski-${ski.id}`}>{ski.name}</Label>
                             </Field>
-                            // <li key={ski.id}>{ski.name}</li>
                         ))}
                     </FieldGroup>
                     <SkiEttikettenDruckSubmit />
