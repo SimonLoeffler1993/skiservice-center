@@ -23,20 +23,26 @@ type SkiserviceErstellenLinieProps = {
 };
 
 export default function ServiceErstellenLinie({ index, register, control, onRemove, deaktiviert=false }: SkiserviceErstellenLinieProps) {
-    const { data: skiservicePreise } = useQuery(skiservicesPreiseOptions);
+    const { data: skiservicePreise, isLoading, error } = useQuery(skiservicesPreiseOptions);
 
     const bindung_check = useWatch({
         control,
         name: `skiservices.${index}.bindung_check`,
     });
 
-    // Bindungspreis lesen, als fallback 0
-    const serviceBindung = skiservicePreise?.find((s) => s.Bindung)?.Preis ?? 0
-
     const { setValue } = useFormContext<FormInhalte>();
 
+    if (isLoading) return <p>Service Preise werden geladen...</p>
+
+    if (error) return <p className="text-red-500">Fehler beim Laden der Service Preise: {error.message}</p>
+
+    if (!skiservicePreise?.success) return <p>Service Preise konnten nicht geladen werden</p>
+
+        // Bindungspreis lesen, als fallback 0
+    const serviceBindung = skiservicePreise.data.find((s) => s.Bindung)?.Preis ?? 0
+
     const handleServiceChange = (serviceId: string) => {
-        const selected = skiservicePreise?.find((s) => String(s.id) === serviceId);
+        const selected = skiservicePreise.data.find((s) => String(s.id) === serviceId);
         
         if (!selected) return;
         setValue(`skiservices.${index}.service`, selected.Service);
@@ -50,7 +56,7 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
                     <SelectValue placeholder="Service auswählen..." />
                 </SelectTrigger>
                 <SelectContent className="w-full">
-                    {skiservicePreise?.filter((S) => !S.Bindung).map((s) => (
+                    {skiservicePreise.data.filter((S) => !S.Bindung).map((s) => (
                         <SelectItem key={s.id} value={String(s.id)}>
                             {s.Service}
                         </SelectItem>
