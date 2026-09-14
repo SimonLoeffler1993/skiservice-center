@@ -65,7 +65,7 @@ export default function BindungsserviceFestlegen() {
                 </select>
 
                 <button type="submit" disabled={isPending} className="bg-blue-500 text-white rounded p-2 disabled:opacity-50">
-                    Preis festlegen
+                    Service festlegen
                 </button>
                 {state?.success === false && (
                     <p className="text-red-500">Fehler beim Festlegen des Bindungsservices: {state.error}</p>
