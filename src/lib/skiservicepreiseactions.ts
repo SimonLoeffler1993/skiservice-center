@@ -45,3 +45,22 @@ export async function createSkiservicePreis(previousState: unknown, data: Create
 
     return toApiAntwort(parse, "Fehler beim erstellen der Preis");
 }
+
+export async function setzeBindungsserviceAction(previousState: unknown, serviceId: number): Promise<ApiAntwort<SkiServicePreise>> {
+    const response = await fetch(`${config.backendUrl}/api/v1/skiservice/bindungsservice?bindungsserviceid=${serviceId}`, {
+        method: "POST",
+        headers: {
+            accept: "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        console.error("Fehler beim Setzen des Bindungsservices:", response.statusText);
+        throw new Error("Fehler beim Setzen des Bindungsservices");
+    }
+
+    const responseData = await response.json();
+    const parse = skiServicePreiseSchema.safeParse(responseData);
+
+    return toApiAntwort(parse, "Fehler beim setzen der Preis");
+}

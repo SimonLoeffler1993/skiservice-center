@@ -22,6 +22,9 @@ export default function SkiservicePreiseListe() {
                     <div key={service.id} className="rounded-lg border p-4">
                         <h3 className="text-md font-semibold">{service.Service}</h3>
                         <p className="text-sm text-muted-foreground">€{service.Preis}</p>
+                        {service.Bindung && (
+                            <p className="text-sm text-muted-foreground">Bindungsservice</p>
+                        )}
                     </div>
                 ))}              
             </div>
