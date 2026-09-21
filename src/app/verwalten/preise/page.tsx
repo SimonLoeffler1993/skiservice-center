@@ -3,13 +3,7 @@ import SaisonverleihPreiseliste from "@/components/preise/saisonverleihpreiselis
 import SaisonverleihPreisForm from "@/components/preise/saisonverleihpreisform"
 import SkiservicePreiseListe from "@/components/preise/skiservicepreiseliste"
 import SkiservicePreisForm from "@/components/preise/skiservicepreisform"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+
 import {
     Tabs,
     TabsContent,
