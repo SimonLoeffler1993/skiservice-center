@@ -1,4 +1,6 @@
 import BindungsserviceFestlegen from "@/components/preise/bindungsservicefestlegen"
+import SaisonverleihPreiseliste from "@/components/preise/saisonverleihpreiseliste"
+import SaisonverleihPreisForm from "@/components/preise/saisonverleihpreisform"
 import SkiservicePreiseListe from "@/components/preise/skiservicepreiseliste"
 import SkiservicePreisForm from "@/components/preise/skiservicepreisform"
 import {
@@ -34,20 +36,10 @@ export default function PreisePage() {
                 <BindungsserviceFestlegen />
             </TabsContent>
             <TabsContent value="saisonverleih">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Saisonverleih</CardTitle>
-                        <CardDescription>
-                            Generate and download your detailed reports. Export data in
-                            multiple formats for analysis.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground">
-                        You have 5 reports ready and available to export.
-                    </CardContent>
-                </Card>
+                <SaisonverleihPreisForm />
+                <SaisonverleihPreiseliste />
             </TabsContent>
-            <TabsContent value="tagesverleih">
+            {/* <TabsContent value="tagesverleih">
                 <Card>
                     <CardHeader>
                         <CardTitle>Tagesverleih</CardTitle>
@@ -60,7 +52,7 @@ export default function PreisePage() {
                         Configure notifications, security, and themes.
                     </CardContent>
                 </Card>
-            </TabsContent>
+            </TabsContent> */}
         </Tabs>
     )
 }
