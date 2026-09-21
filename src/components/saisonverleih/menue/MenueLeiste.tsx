@@ -28,9 +28,10 @@ export default function MenueLeiste() {
                 </NavigationMenuItem>   
 
                 <NavigationMenuItem>
-                    <NavigationMenuTrigger>Material</NavigationMenuTrigger>
+                    <NavigationMenuTrigger>Verwalten</NavigationMenuTrigger>
                     <NavigationMenuContent>
-                        <NavigationMenuLink href="/material">Übersicht</NavigationMenuLink>
+                        <NavigationMenuLink href="/material">Material</NavigationMenuLink>
+                        <NavigationMenuLink href="/verwalten/preise">Preise</NavigationMenuLink>
                     </NavigationMenuContent>
                 </NavigationMenuItem>
             </NavigationMenuList>

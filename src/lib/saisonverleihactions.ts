@@ -2,26 +2,34 @@
 
 
 
+import { ApiAntwort } from "@/types/actiontypes";
 import { config } from "./config";
 import { 
-    SaisonverleihPreise, SaisonVerleihCreate, SaisonVerleihCreateResponse, 
+    SaisonVerleihCreate, SaisonVerleihCreateResponse, 
     SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList, 
     SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse } from "@/types/saisonverleihtypes";
+import { toApiAntwort } from "./helfer";
+import { SaisonverleihPreiseListe, saisonverleihPreiseListeSchema } from "@/types/saisonverleihpreisetypes";
 
-export async function getSaisonVerleihPreis(): Promise<SaisonverleihPreise> {
+export async function getSaisonVerleihPreis(): Promise<ApiAntwort<SaisonverleihPreiseListe>> {
     try {
-        // TODO: Validierung auf das richtige schema
         const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/preise`);
         if (!response.ok) {
             console.error("Fehler beim Suchen:", response);
-            return { preise: [] };
+            return { success: false, error: "Fehler beim Suchen" };
         }
         const data = await response.json();
-        // Ensure we always return the correct structure
-        return data || { preise: [] };
+        const parsed = saisonverleihPreiseListeSchema.safeParse(data);
+
+        if (!parsed.success) {
+            console.error("Ungültige Antwortstruktur für Saisonverleih-Preise", parsed.error.flatten());
+            return { success: false, error: "Ungültige Antwortstruktur für Saisonverleih-Preise" };
+        }
+
+        return toApiAntwort(parsed ,"Antowrt vom Server war nicht wie erwartet, beim Saisonverleih-Preise laden");
     } catch (error) {
         console.error("Fehler beim Laden der Saisonverleih-Preise:", error);
-        return { preise: [] };
+        return { success: false, error: "Fehler beim Laden der Saisonverleih-Preise" };
     }
 }
 

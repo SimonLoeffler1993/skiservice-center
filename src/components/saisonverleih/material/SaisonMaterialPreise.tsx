@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { useSaisonpreisContext } from "@/context/saisonpreis-contex";
 import { use, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
+import { saisonverleihPreiseOptions } from "@/hooks/useSaisonverleihPreiseOptions";
 
 interface SaisonMaterialPreiseProps {
     name: string;
@@ -12,10 +14,16 @@ interface SaisonMaterialPreiseProps {
 }
 
 export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPreiseProps) {
-    const { saisonpreisePromise } = useSaisonpreisContext();
-    const preise = use(saisonpreisePromise);
+    // const { saisonpreisePromise } = useSaisonpreisContext();
+    // const preise = use(saisonpreisePromise);
     const { watch, setValue } = useFormContext();
     const [isCustom, setIsCustom] = useState(false);
+
+    const { data, isLoading, error: fetchError } = useQuery(saisonverleihPreiseOptions);
+
+    if (isLoading) return <p>Preise werden geladen...</p>;
+    if (fetchError) return <p className="text-red-500">Fehler beim Laden der Preise: {fetchError.message}</p>;
+    if (!data?.success) return <p>Preise konnten nicht geladen werden</p>;
 
     // Form stores the numeric Preis
     const selectedValue = watch(name) as number | undefined;
@@ -56,7 +64,7 @@ export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPrei
                         <SelectValue placeholder="Preis auswählen..." />
                     </SelectTrigger>
                     <SelectContent>
-                        {preise.preise.map((preis) => (
+                        {data.data.preise.map((preis) => (
                             <SelectItem key={preis.ID} value={preis.Preis.toString()}>
                                 {preis.Bezeichnung} - {preis.Preis}€
                             </SelectItem>
