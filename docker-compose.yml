@@ -1,0 +1,73 @@
+x-logging: &default-logging
+    driver: json-file
+    options:
+        max-size: "10m"
+        max-file: "3"
+services:
+    skiserviceapi:
+        image: ghcr.io/simonloeffler1993/skiserviceapi:latest
+        logging: *default-logging
+        container_name: skiserviceapi
+        ports:
+            - "8000:8000"
+        environment:
+            - DB_HOST=mariadb
+            - DB_PORT=3306
+            - DB_USER=DeinDBBenutzer
+            - DB_PASSWORD=DeinGeheimesDBPasswort
+            - DB_NAME=skiservice
+            - SMTP_SERVER=dein.smtp.de
+            - SMTP_PORT=465
+            - SMTP_USER=DeinSMTPBenutzer
+            - SMTP_PASSWORD=DeinGeheimesSMTPPasswort
+            - EMAIL_FROM=DeineEmailAdresse
+            - HOST=DeineDomainFüCenter
+            - LABELPRINTERIDENT=IPDeinesEtikettendruckers
+        depends_on:
+            mariadb:
+                condition: service_healthy
+        restart: unless-stopped
+
+    kundenterminal:
+        image: ghcr.io/simonloeffler1993/ski-kunden-dialog:latest
+        logging: *default-logging
+        container_name: kundenterminal
+        ports:
+            - "3000:3000"
+        depends_on:
+            - skiserviceapi
+        environment:
+            - BACKEND_URL=DeinDomainFürAPI
+        restart: unless-stopped
+
+    skiservicecenter:
+        image: ghcr.io/simonloeffler1993/skiservice-center:latest
+        logging: *default-logging
+        container_name: skiservicecenter
+        ports:
+            - "3001:3000"
+        depends_on:
+            - skiserviceapi
+        environment:
+            - BACKEND_URL=DeinDomainFürAPI
+        restart: unless-stopped
+
+    mariadb:
+        image: mariadb:11
+        container_name: mariadb
+        logging: *default-logging
+        environment:
+            - MYSQL_ROOT_PASSWORD=SuperSicretPassword
+            - MYSQL_DATABASE=skiservice
+            - MYSQL_USER=DeinDBBenutzer
+            - MYSQL_PASSWORD=DeinGeheimesDBPasswort
+        volumes:
+            - mariadb_data:/var/lib/mysql
+        healthcheck:
+            test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+volumes:
+    mariadb_data:
