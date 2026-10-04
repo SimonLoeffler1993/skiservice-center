@@ -78,14 +78,14 @@ export default function KundeForm({ kunde, onClose }: KundeFormProps) {
                                 <label className="text-sm font-medium text-muted-foreground">
                                     Postleitzahl
                                 </label>
-                                <p className="text-base">{kunde.Ort.Postlz}</p>
+                                <p className="text-base">{kunde?.Ort?.Postlz}</p>
                             </div>
                             
                             <div>
                                 <label className="text-sm font-medium text-muted-foreground">
                                     Ort
                                 </label>
-                                <p className="text-base">{kunde.Ort.Ort}</p>
+                                <p className="text-base">{kunde?.Ort?.Ort}</p>
                             </div>
                         </div>
                     </div>
@@ -137,7 +137,7 @@ export default function KundeForm({ kunde, onClose }: KundeFormProps) {
                     <p className="text-sm">
                         {kunde.Vorname} {kunde.Nachname}<br />
                         {kunde.Strasse}<br />
-                        {kunde.Ort.Postlz} {kunde.Ort.Ort}
+                        {kunde?.Ort?.Postlz} {kunde?.Ort?.Ort}
                     </p>
                 </div>
             </CardContent>
