@@ -35,9 +35,9 @@ export default function ServiceErstellenTab() {
         },
     });
 
-    const { control, handleSubmit, register } = methods;
+    const { control, handleSubmit, register, getValues } = methods;
 
-    const { fields, append, remove } = useFieldArray({
+    const { fields, append, remove, insert } = useFieldArray({
         control,
         name: "skiservices",
     });
@@ -60,6 +60,13 @@ export default function ServiceErstellenTab() {
             }
         })
     };
+
+    function handelDuplicateService(index: number) {
+        const aktuell = getValues(`skiservices.${index}`);
+        if (!aktuell) return;
+
+        insert(index + 1, { ...aktuell });
+    }
 
     return (
         <FormProvider {...methods}>
@@ -101,6 +108,7 @@ export default function ServiceErstellenTab() {
                                 control={control}
                                 onRemove={() => remove(index)}
                                 deaktiviert={antwortErstellen?.success} 
+                                onDuplicate={() => handelDuplicateService(index)}
                             />
                         ))}
                     </div>

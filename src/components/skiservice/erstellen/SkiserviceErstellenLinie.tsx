@@ -8,7 +8,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Trash2 } from "lucide-react";
+import { Copy, Trash2 } from "lucide-react";
 import { Control, UseFormRegister, useWatch, useFormContext } from "react-hook-form";
 import { FormInhalte } from "./ServiceErstellenTab";
 import { skiservicesPreiseOptions } from "@/hooks/useSkiservicesPreiseOptions";
@@ -20,9 +20,10 @@ type SkiserviceErstellenLinieProps = {
     control: Control<FormInhalte>;
     onRemove: () => void;
     deaktiviert?: boolean;
+    onDuplicate?: () => void;
 };
 
-export default function ServiceErstellenLinie({ index, register, control, onRemove, deaktiviert=false }: SkiserviceErstellenLinieProps) {
+export default function ServiceErstellenLinie({ index, register, control, onRemove, deaktiviert = false, onDuplicate }: SkiserviceErstellenLinieProps) {
     const { data: skiservicePreise, isLoading, error } = useQuery(skiservicesPreiseOptions);
 
     const bindung_check = useWatch({
@@ -38,19 +39,30 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
 
     if (!skiservicePreise?.success) return <p>Service Preise konnten nicht geladen werden</p>
 
-        // Bindungspreis lesen, als fallback 0
+    // Bindungspreis lesen, als fallback 0
     const serviceBindung = skiservicePreise.data.find((s) => s.Bindung)?.Preis ?? 0
 
     const handleServiceChange = (serviceId: string) => {
         const selected = skiservicePreise.data.find((s) => String(s.id) === serviceId);
-        
+
         if (!selected) return;
         setValue(`skiservices.${index}.service`, selected.Service);
         setValue(`skiservices.${index}.preis`, selected.Preis);
     };
 
     return (
-        <div className="grid grid-cols-[2fr_120px_60px_36px] gap-2 items-center">
+        <div className="grid grid-cols-[36px_2fr_120px_60px_36px] gap-2 items-center">
+            <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={onDuplicate}
+                className="text-muted-foreground"
+                disabled={deaktiviert}
+                title="Duplizieren"
+            >
+                <Copy className="h-4 w-4" />
+            </Button>
             <Select onValueChange={handleServiceChange} disabled={deaktiviert}>
                 <SelectTrigger className="w-full">
                     <SelectValue placeholder="Service auswählen..." />
