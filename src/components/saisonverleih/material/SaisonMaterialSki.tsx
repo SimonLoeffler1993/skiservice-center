@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Loader2, Search } from "lucide-react";
 import { useActionState, startTransition, useEffect } from "react";
 import { getSkiNrCheck } from "@/lib/materialactions";
 import SaisonMaterialSkiAnzeige from "./SaisonMaterialSkiAnzeige";
@@ -53,7 +54,7 @@ export default function SaisonMaterialSki({
                     onClick={handleSkiNrCheck}
                     disabled={isPending || !value.trim()}
                 >
-                    {isPending ? 'Prüfe...' : 'Prüfen'}
+                    {isPending ? <Loader2 className="animate-spin" /> : <Search />}
                 </Button>
             </div>
             {error && !isPending && (

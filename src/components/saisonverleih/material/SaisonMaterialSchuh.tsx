@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { useActionState, startTransition, useEffect } from "react";
 import { getSchuhNrCheck } from "@/lib/materialactions";
 import SaisonMaterialSchuhAnzeige from "./SaisonMaterialSchuhAnzeigen";
+import { Loader2, Search } from "lucide-react";
 
 interface SaisonMaterialSchuhProps {
     value: string;
@@ -12,14 +13,14 @@ interface SaisonMaterialSchuhProps {
     error?: string;
 }
 
-export default function SaisonMaterialSchuh({ 
-    value, 
-    onChange, 
+export default function SaisonMaterialSchuh({
+    value,
+    onChange,
     onCheck,
-    error 
+    error
 }: SaisonMaterialSchuhProps) {
     const [state, action, isPending] = useActionState(getSchuhNrCheck, null);
-    
+
     const handleSchuhNrChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.value);
     };
@@ -34,26 +35,31 @@ export default function SaisonMaterialSchuh({
             onCheck?.(state.success);
         }
     }, [state, onCheck]);
-    
+
     return (
         <div>
             <Label htmlFor="interneSchuhNummer" className="block text-sm font-medium text-gray-700 mb-1">
                 Schuh Nr.
             </Label>
             <div className="flex gap-2">
-                <Input 
-                    type="text" 
-                    id="interneSchuhNummer" 
-                    value={value} 
+                <Input
+                    type="text"
+                    inputMode="numeric"
+                    id="interneSchuhNummer"
+                    value={value}
                     onChange={handleSchuhNrChange}
-                    className={error ? 'border-red-500' : ''}
+                    className={`min-w-0 ${error ? 'border-red-500' : ''}`}
                 />
-                <Button 
-                    type="button" 
+                <Button
+                    type="button"
+                    size="icon"
+                    className="shrink-0"
                     onClick={handleSchuhNrCheck}
                     disabled={isPending || !value.trim()}
+                    aria-label="Schuh-Nummer prüfen"
+                    title="Schuh-Nummer prüfen"
                 >
-                    {isPending ? 'Prüfe...' : 'Prüfen'}
+                    {isPending ? <Loader2 className="animate-spin" /> : <Search />}
                 </Button>
             </div>
             {error && !isPending && (
