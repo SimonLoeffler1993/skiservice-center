@@ -30,7 +30,7 @@ export default function UebersichtStep() {
               <p className="text-sm">
                 {kunde.Vorname} {kunde.Nachname}<br />
                 {kunde.Strasse}<br />
-                {kunde.Ort.Postlz} {kunde.Ort.Ort}
+                {kunde.Ort?.Postlz} {kunde.Ort?.Ort}
               </p>
             </div>
             

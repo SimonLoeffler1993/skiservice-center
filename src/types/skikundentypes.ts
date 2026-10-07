@@ -18,15 +18,15 @@ export const ortSchema = z.object({
   Ort: z.string(),
 });
 
-// Hauptschema für Kunde
 export const kundeSchema = z.object({
   ID: z.number(),
-  Nachname: z.string(),
-  Vorname: z.string(),
-  Strasse: z.string(),
-  Ort: ortSchema,
-  Tel: z.string(),
-  Email: z.email().or(z.literal("")).nullable().optional(), // erlaubt auch leeren String, aus Historische Daten sätze kann auch "" vorkommen
+  Nachname: z.string().nullish(),
+  Vorname: z.string().nullish(),
+  Strasse: z.string().nullish(),
+  Ort: ortSchema.nullish(),
+  Tel: z.string().nullish(),
+  Handy: z.string().nullish(),
+  Email: z.email().or(z.literal("")).nullish(), // historische Daten können "" enthalten
 });
 
 // Hauptschema als Array

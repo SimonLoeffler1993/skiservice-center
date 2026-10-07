@@ -2,8 +2,7 @@
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useSaisonpreisContext } from "@/context/saisonpreis-contex";
-import { use, useState } from "react";
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { saisonverleihPreiseOptions } from "@/hooks/useSaisonverleihPreiseOptions";
@@ -14,16 +13,19 @@ interface SaisonMaterialPreiseProps {
 }
 
 export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPreiseProps) {
-    // const { saisonpreisePromise } = useSaisonpreisContext();
-    // const preise = use(saisonpreisePromise);
     const { watch, setValue } = useFormContext();
     const [isCustom, setIsCustom] = useState(false);
 
     const { data, isLoading, error: fetchError } = useQuery(saisonverleihPreiseOptions);
 
-    if (isLoading) return <p>Preise werden geladen...</p>;
-    if (fetchError) return <p className="text-red-500">Fehler beim Laden der Preise: {fetchError.message}</p>;
-    if (!data?.success) return <p>Preise konnten nicht geladen werden</p>;
+    const loadError = fetchError
+        ? `Fehler beim Laden der Preise: ${fetchError.message}`
+        : data && !data.success
+            ? "Preise konnten nicht geladen werden"
+            : null;
+
+    const preise = data?.success ? data.data.preise : [];
+    const disabled = isLoading || !!loadError;
 
     // Form stores the numeric Preis
     const selectedValue = watch(name) as number | undefined;
@@ -51,20 +53,24 @@ export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPrei
     };
 
     return (
-        <div>
+        <div className="min-w-0">
             <Label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
                 Saisonverleih
             </Label>
             <div className="space-y-2">
-                <Select 
+                <Select
                     value={selectValue}
                     onValueChange={handleValueChange}
+                    disabled={disabled}
                 >
-                    <SelectTrigger className={error ? 'border-red-500' : ''}>
-                        <SelectValue placeholder="Preis auswählen..." />
+                    <SelectTrigger
+                        id={name}
+                        className={`w-full ${error ? 'border-red-500' : ''}`}
+                    >
+                        <SelectValue placeholder={isLoading ? "Lädt..." : "Preis auswählen..."} />
                     </SelectTrigger>
                     <SelectContent>
-                        {data.data.preise.map((preis) => (
+                        {preise.map((preis) => (
                             <SelectItem key={preis.ID} value={preis.Preis.toString()}>
                                 {preis.Bezeichnung} - {preis.Preis}€
                             </SelectItem>
@@ -74,26 +80,27 @@ export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPrei
                         </SelectItem>
                     </SelectContent>
                 </Select>
-                
+
                 {isCustom && (
-                    <div className="mt-2">
+                    <div>
                         <Input
                             type="number"
+                            inputMode="decimal"
                             step="0.01"
                             min="0"
-                            placeholder="Individueller Preis eingeben"
+                            placeholder="Preis in Euro, z. B. 12.50"
                             value={typeof selectedValue === 'number' && selectedValue > 0 ? selectedValue : ''}
                             onChange={handleCustomPriceChange}
                             className={error ? 'border-red-500' : ''}
                         />
-                        <p className="mt-1 text-xs text-gray-500">
-                            Bitte geben Sie den individuellen Preis in Euro ein (z.B. 12.50)
-                        </p>
                     </div>
                 )}
-                
+
+                {loadError && (
+                    <p className="text-sm text-red-600">{loadError}</p>
+                )}
                 {error && (
-                    <p className="mt-1 text-sm text-red-600">{error}</p>
+                    <p className="text-sm text-red-600">{error}</p>
                 )}
             </div>
         </div>

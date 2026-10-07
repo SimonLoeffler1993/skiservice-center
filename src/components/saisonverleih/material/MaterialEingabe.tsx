@@ -20,7 +20,7 @@ export default function MaterialEingabe() {
     const [skiValid, setSkiValid] = useState<boolean | null>(null);
     const [schuhValid, setSchuhValid] = useState<boolean | null>(null);
     const { materialList, setMaterialList } = useSaisonverleihContext();
-    
+
     const methods = useForm<MaterialFormData>({
         resolver: zodResolver(MaterialSchema),
         mode: 'onChange',
@@ -48,62 +48,25 @@ export default function MaterialEingabe() {
         setSchuhValid(null);
     };
 
-
     return (
         <FormProvider {...methods}>
-            <div className="p-6 max-w-6xl mx-auto bg-white rounded-lg shadow-md">
-                <h1 className="text-2xl font-bold mb-6 text-gray-800">Material Eingabe</h1>
-                
-                <form onSubmit={handleSubmit(onSubmit)} className="mb-8">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
-                        <div>
+            <div className="p-4 sm:p-6 max-w-6xl mx-auto bg-white rounded-lg shadow-md">
+                <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-800">Material Eingabe</h1>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="mb-6 sm:mb-8">
+                    {/* Mobil: 1 Spalte | ab sm: 2er-Reihen */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-5 mb-4 items-start">
+                        {/* Reihe 1: Preis | Skifahrer Name */}
+                        <div className="min-w-0">
                             <Suspense fallback={<div>Lade Service-Optionen...</div>}>
-                                <SaisonMaterialPreise 
+                                <SaisonMaterialPreise
                                     name="Preis"
                                     error={errors.Preis?.message}
                                 />
                             </Suspense>
                         </div>
 
-                        <div>
-                            <SaisonMaterialSki 
-                                value={watch('skinr')}
-                                onChange={(value) => setValue('skinr', value)}
-                                onCheck={setSkiValid}
-                                error={errors.skinr?.message}
-                            />
-                        </div>
-
-                        <div>
-                            <SaisonMaterialSchuh 
-                                value={watch('schuhnr') !== undefined ? String(watch('schuhnr')) : ''}
-                                onChange={(value) => setValue('schuhnr', value.trim() === '' ? undefined : Number(value), { shouldValidate: true })}
-                                onCheck={setSchuhValid}
-                                error={errors.schuhnr?.message}
-                            />
-                        </div>
-                        
-                        <div>
-                            <SaisonMaterialStock 
-                                value={watch('stockbez_ID')}
-                                onChange={(value) => setValue('stockbez_ID', Number(value))}
-                                error={errors.stockbez_ID?.message}
-                            />
-                            <input 
-                                type="number" 
-                                min="0" 
-                                max="180" 
-                                step="1" 
-                                placeholder="Stocklänge" 
-                                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                                {...register('stocklaenge', { valueAsNumber: true })} 
-                            />
-                            {errors.stocklaenge && (
-                                <p className="mt-1 text-sm text-red-600">{errors.stocklaenge.message}</p>
-                            )}
-                        </div>
-
-                        <div>
+                        <div className="min-w-0">
                             <label htmlFor="skifahrerName" className="block text-sm font-medium text-gray-700 mb-1">
                                 Skifahrer Name
                             </label>
@@ -121,10 +84,60 @@ export default function MaterialEingabe() {
                             )}
                         </div>
 
-                        <div className="flex items-end">
+                        {/* Reihe 2: Ski-Nr. | Schuh-Nr. */}
+                        <div className="min-w-0">
+                            <SaisonMaterialSki
+                                value={watch('skinr')}
+                                onChange={(value) => setValue('skinr', value)}
+                                onCheck={setSkiValid}
+                                error={errors.skinr?.message}
+                            />
+                        </div>
+
+                        <div className="min-w-0">
+                            <SaisonMaterialSchuh
+                                value={watch('schuhnr') !== undefined ? String(watch('schuhnr')) : ''}
+                                onChange={(value) => setValue('schuhnr', value.trim() === '' ? undefined : Number(value), { shouldValidate: true })}
+                                onCheck={setSchuhValid}
+                                error={errors.schuhnr?.message}
+                            />
+                        </div>
+
+                        {/* Reihe 3: Stock | Stocklänge */}
+                        <div className="min-w-0">
+                            <SaisonMaterialStock
+                                value={watch('stockbez_ID')}
+                                onChange={(value) => setValue('stockbez_ID', Number(value))}
+                                error={errors.stockbez_ID?.message}
+                            />
+                        </div>
+
+                        <div className="min-w-0">
+                            <label htmlFor="stocklaenge" className="block text-sm font-medium text-gray-700 mb-1">
+                                Stocklänge (cm)
+                            </label>
+                            <input
+                                type="number"
+                                id="stocklaenge"
+                                inputMode="numeric"
+                                min="0"
+                                max="180"
+                                step="1"
+                                placeholder="z. B. 120"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                {...register('stocklaenge', { valueAsNumber: true })}
+                            />
+                            {errors.stocklaenge && (
+                                <p className="mt-1 text-sm text-red-600">{errors.stocklaenge.message}</p>
+                            )}
+                        </div>
+
+                        {/* Button */}
+                        <div className="sm:col-span-2 flex sm:justify-end">
                             <button
                                 type="submit"
-                                className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
+                                disabled={!isFormValid}
+                                className={`w-full sm:w-auto sm:min-w-48 py-2 px-6 rounded-md font-medium transition-colors ${
                                     isFormValid
                                         ? 'bg-blue-600 hover:bg-blue-700 text-white'
                                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -138,51 +151,16 @@ export default function MaterialEingabe() {
 
                 {/* Material List */}
                 <div>
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Ausgewähltes Material</h2>
-                    
+                    <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">Ausgewähltes Material</h2>
+
                     {materialList.length === 0 ? (
-                        <div className="text-gray-500 text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                        <div className="text-gray-500 text-center py-6 sm:py-8 border-2 border-dashed border-gray-300 rounded-lg">
                             Noch kein Material ausgewählt
                         </div>
                     ) : (
-                        <SaisonMaterialListe />
-                        // <div className="overflow-x-auto">
-                        //     <table className="w-full border-collapse bg-white border border-gray-300 rounded-lg">
-                        //         <thead>
-                        //             <tr className="bg-gray-50">
-                        //                 <th className="border border-gray-300 px-4 py-2 text-left font-medium text-gray-700">Service Größe</th>
-                        //                 <th className="border border-gray-300 px-4 py-2 text-left font-medium text-gray-700">Ski Nr.</th>
-                        //                 <th className="border border-gray-300 px-4 py-2 text-left font-medium text-gray-700">Schuh Nr.</th>
-                        //                 <th className="border border-gray-300 px-4 py-2 text-left font-medium text-gray-700">Stock</th>
-                        //                 <th className="border border-gray-300 px-4 py-2 text-left font-medium text-gray-700">Skifahrer</th>
-                        //                 <th className="border border-gray-300 px-4 py-2 text-left font-medium text-gray-700">Aktion</th>
-                        //             </tr>
-                        //         </thead>
-                        //         <tbody>
-                        //             {materialList.map((item) => (
-                        //                 <tr key={item.id} className="hover:bg-gray-50">
-                        //                     <td className="border border-gray-300 px-4 py-2">
-                        //                         <span className="px-2 py-1 rounded-full text-xs font-medium ">
-                        //                             {item.servicePreis}
-                        //                         </span>
-                        //                     </td>
-                        //                     <td className="border border-gray-300 px-4 py-2 font-mono">{item.skiNr}</td>
-                        //                     <td className="border border-gray-300 px-4 py-2 font-mono">{item.interneSchuhNummer}</td>
-                        //                     <td className="border border-gray-300 px-4 py-2 font-mono">{item.stock}</td>
-                        //                     <td className="border border-gray-300 px-4 py-2">{item.skifahrerName}</td>
-                        //                     <td className="border border-gray-300 px-4 py-2">
-                        //                         <button
-                        //                             onClick={() => removeMaterial(item.id)}
-                        //                             className="text-red-600 hover:text-red-800"
-                        //                         >
-                        //                             Entfernen
-                        //                         </button>
-                        //                     </td>
-                        //                 </tr>
-                        //             ))}
-                        //         </tbody>
-                        //     </table>
-                        // </div>
+                        <div className="overflow-x-auto">
+                            <SaisonMaterialListe />
+                        </div>
                     )}
                 </div>
             </div>
