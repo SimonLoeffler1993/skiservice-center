@@ -11,7 +11,8 @@ import { useSaisonverleihContext } from "@/context/saisonverleih-context";
 export default function SaisonverleihErstellen() {
   const [activeTab, setActiveTab] = useState("kunde");
 
-  const { kunde } = useSaisonverleihContext();
+  const { kunde, art } = useSaisonverleihContext();
+  const titel = art === "tag" ? "Tagesverleih" : "Saisonverleih";
 
   
 
@@ -19,8 +20,8 @@ export default function SaisonverleihErstellen() {
     <div className="rounded-lg bg-gray-50 p-2 sm:p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-4 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Saisonverleih Erstellen</h1>
-          <p className="text-base sm:text-lg text-gray-600">Hier können Sie einen neuen Saisonverleih erfassen.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{titel} Erstellen</h1>
+          <p className="text-base sm:text-lg text-gray-600">Hier können Sie einen neuen {titel} erfassen.</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

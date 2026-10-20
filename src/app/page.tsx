@@ -26,6 +26,7 @@ export default async function Home() {
                         <AktuelleSaison saison={saisonDaten.data.aktuelle} />
                         <h2 className="text-2xl">was soll gemacht werden?</h2>
                         <Kachel title="Saisonverleih" description="Es wird ein Saisonverleih erfasst." href="/saisonverleih/erstellen" buttonText="Erstellen" />
+                        <Kachel title="Tagesverleih" description="Es wird ein Verleih für einzelne Tage erfasst." href="/saisonverleih/erstellen?art=tag" buttonText="Erstellen" />
                         <Kachel title="Service" description="Es wird ein Skiservice Auftrag erfasst." href="/skiservice/erstellen" buttonText="Erstellen" />
                         <Kachel title="Service Fertigstellen" description="Skiservice Fertigstellen und Benachrichtigen." href="/fertig" buttonText="Fertigstellen" />
                     </>

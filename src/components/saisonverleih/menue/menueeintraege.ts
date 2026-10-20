@@ -9,6 +9,7 @@ export const MENUE_GRUPPEN: MenueGruppe[] = [
         links: [
             { titel: "Anzeigen", href: "/saisonverleih/anzeigen" },
             { titel: "Neu", href: "/saisonverleih/erstellen" },
+            { titel: "Neu (Tagesverleih)", href: "/saisonverleih/erstellen?art=tag" },
         ],
     },
     {
