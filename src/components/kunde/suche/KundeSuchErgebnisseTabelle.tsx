@@ -23,13 +23,13 @@ export default function KundeSuchErgebnisseTabelle({ daten, onKundeAuswaehlen }:
         <Card className="mt-6">
             <CardContent>
                 <Table>
-                    <TableCaption>A list of your recent invoices.</TableCaption>
+                    <TableCaption>Gefundene Kunden</TableCaption>
                     <TableHeader>
                         <TableRow>
                             <TableHead>Vorname</TableHead>
                             <TableHead>Nachname</TableHead>
-                            <TableHead>E-Mail</TableHead>
-                            <TableHead>Telefon</TableHead>
+                            <TableHead className="hidden md:table-cell">E-Mail</TableHead>
+                            <TableHead className="hidden sm:table-cell">Telefon</TableHead>
                             <TableHead>Aktion</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -38,8 +38,8 @@ export default function KundeSuchErgebnisseTabelle({ daten, onKundeAuswaehlen }:
                             <TableRow key={kunde.ID}>
                                 <TableCell>{kunde.Vorname}</TableCell>
                                 <TableCell>{kunde.Nachname}</TableCell>
-                                <TableCell>{kunde.Email ?? "-"}</TableCell>
-                                <TableCell>{kunde.Tel ?? "-"}</TableCell>
+                                <TableCell className="hidden md:table-cell">{kunde.Email ?? "-"}</TableCell>
+                                <TableCell className="hidden sm:table-cell">{kunde.Tel ?? "-"}</TableCell>
                                 <TableCell>
                                     <Button 
                                         variant="outline" 
@@ -49,7 +49,7 @@ export default function KundeSuchErgebnisseTabelle({ daten, onKundeAuswaehlen }:
                                             onKundeAuswaehlen?.(kunde);
                                         }}
                                     >
-                                        Kunde auswählen
+                                        Auswählen
                                     </Button>
                                 </TableCell>
                             </TableRow>

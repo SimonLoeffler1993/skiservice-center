@@ -1,4 +1,3 @@
-import { type SkiserviceEintrag } from "@/types/skiservicetypes";
 import { type FormInhalte } from "./ServiceErstellenTab";
 import { useWatch } from "react-hook-form";
 
@@ -7,7 +6,9 @@ export default function AuftragGesamtPreis(){
     
     const gesamtPreis = skis.reduce((gesamt, ski) => {
         const bindungPreis = ski.bindung_check ? ski.bindung_preis : 0;
-        return gesamt + bindungPreis + ski.preis
+        // Leeres Preisfeld ergibt NaN und würde die Summe zerstören
+        const preis = Number.isFinite(ski.preis) ? ski.preis : 0;
+        return gesamt + bindungPreis + preis
     },0);
 
     return(

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Suspense, use } from "react"
+import { Suspense, use, useEffect } from "react"
 
 import { useSkiModellContext } from "@/context/skimodell-context"
 import { useForm } from "react-hook-form"
@@ -34,12 +34,18 @@ export default function SkiForm() {
     function onSubmit(data: SkiCreate) {
         startTransition(() => {
             action(data)
-            reset()
-            refreshEigenSkisPromise()
         })
     }
 
     const { eigenSkisPromise, refreshEigenSkisPromise } = useEigenSkiContext();
+
+    // Erst nach erfolgreichem Speichern leeren und Liste neu laden
+    useEffect(() => {
+        if (state?.success) {
+            reset()
+            startTransition(() => refreshEigenSkisPromise())
+        }
+    }, [state, reset, refreshEigenSkisPromise])
     const eigenSkis = use(eigenSkisPromise);
 
     return (
@@ -107,6 +113,8 @@ export default function SkiForm() {
                         </div>
 
                         <div className="flex items-center justify-end gap-2 pt-2">
+                            {state?.success === false && <p className="mr-auto text-sm text-red-500">{state.error}</p>}
+                            {state?.success === true && <p className="mr-auto text-sm text-green-700">Ski gespeichert.</p>}
                             <Button type="button" variant="outline" onClick={() => reset()} disabled={isPending}>Abbrechen</Button>
                             <Button type="submit" disabled={isPending}>Speichern</Button>
                         </div>

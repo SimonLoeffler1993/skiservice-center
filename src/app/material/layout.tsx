@@ -28,7 +28,7 @@ export default function MaterialLayout({ children }: MaterialLayoutProps) {
                 <SkiArtContextProvider artPromise={artPromise}>
                     <SkiModellContextProvider modellPromise={modellPromise}>
                         <MaterialSidebar />
-                        <main>
+                        <main className="w-full min-w-0 flex-1 p-2 sm:p-4">
                             <SidebarTrigger />
                             {children}
                         </main>

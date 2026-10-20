@@ -9,7 +9,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     // Daten 1min im Cache behalten, damit nicht bei jedem Seitenwechsel neu geladen werden muss
     const [queryClient] = useState(() => new QueryClient({
         defaultOptions: {
-            queries: { staleTime: 60 * 1000 }
+            queries: { staleTime: 60 * 1000, retry: 2 }
         }
     }))
     // const queryClient = new QueryClient();
@@ -17,7 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <QueryClientProvider client={queryClient}>
             {children}
-            <ReactQueryDevtools initialIsOpen={true} />
+            <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
     )
 }

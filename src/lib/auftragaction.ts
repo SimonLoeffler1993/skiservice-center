@@ -24,23 +24,14 @@ export async function auftragFertigStellen(serviceId: number, skiIds: number[]) 
     }
 }
 
-export async function auftragAnlegen(kundeId: number, skiserviceEintraege: SkiserviceEintrag[], fertigBis: Date | null) {
+// fertigBis kommt bereits als "TT.MM.JJJJ" aus dem Browser
+export async function auftragAnlegen(kundeId: number, skiserviceEintraege: SkiserviceEintrag[], fertigBis: string | null) {
     try {
-
-        const formatDate = (date: Date): string =>
-            date.toLocaleDateString('de-DE', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-            })
-
         const body = JSON.stringify({
             kunden_id: kundeId,
-            abhol_date: fertigBis ? formatDate(fertigBis) : null,
+            abhol_date: fertigBis,
             skis: skiserviceEintraege,
         })
-
-        console.log(body)
 
         const response = await fetch(`${config.backendUrl}/api/v1/skiservice/neu`, {
             method: "POST",

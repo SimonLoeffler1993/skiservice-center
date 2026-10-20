@@ -27,6 +27,7 @@ function getAktuelleSaisonString(): string {
 export function DialogSaisonErfassen() {
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
+    const [fehler, setFehler] = useState<string | null>(null)
     const router = useRouter()
 
     function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -38,11 +39,12 @@ export function DialogSaisonErfassen() {
 
         startTransition(async () => {
             const result = await saisonAnlegen(saison, von, bis);
-            if (result) {
+            if (result.success) {
+                setFehler(null);
                 setOpen(false);
                 router.refresh()
             } else {
-                console.error("Saison konnte nicht angelegt werden.");
+                setFehler(result.error);
             }
         });
     }
@@ -87,6 +89,7 @@ export function DialogSaisonErfassen() {
                             <Input id="bis" name="bis" type="date" required/>
                         </div>
                     </div>
+                    {fehler && <p className="text-sm text-destructive">{fehler}</p>}
                 </form>
                 <DialogFooter className="sm:justify-start">
                     <Button type="submit" form="saison-form" disabled={isPending}>

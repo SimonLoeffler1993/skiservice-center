@@ -13,7 +13,7 @@ export default function SkiDetail({ ski, isSelected = false, showButtons = false
     const skiPreis = ski.preis + (ski.bindung_preis ?? 0);
 
     return (
-        <div className={`grid grid-cols-4 items-center gap-2 ${isSelected ? 'border-green-500 bg-green-50' : 'border-transparent'} rounded-lg border px-3 py-2`}>
+        <div className={`grid grid-cols-2 sm:grid-cols-4 items-center gap-2 ${isSelected ? 'border-green-500 bg-green-50' : 'border-transparent'} rounded-lg border px-3 py-2`}>
 
             {/* Links: Name + Service */}
             <div className="space-y-0.5">
@@ -30,7 +30,7 @@ export default function SkiDetail({ ski, isSelected = false, showButtons = false
                 {skiPreis.toFixed(2)} €
             </span>
             {showButtons ? (
-            <div className="col-span-4 flex justify-end -mt-2">
+            <div className="col-span-2 sm:col-span-4 flex justify-end sm:-mt-2">
                 <SkiBindungPruefenButton skiid={ski.id} auftragid={ski.auftrag_id} Check={ski.bindung_check} Status={ski.bindung_status} />
             </div>
             ): (<></>)}

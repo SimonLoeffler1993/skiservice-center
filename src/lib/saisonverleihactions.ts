@@ -5,7 +5,7 @@
 import { ApiAntwort } from "@/types/actiontypes";
 import { config } from "./config";
 import { 
-    SaisonVerleihCreate, SaisonVerleihCreateResponse, 
+    SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonVerleihCreateResponseSchema,
     SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList, 
     SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse } from "@/types/saisonverleihtypes";
 import { toApiAntwort } from "./helfer";
@@ -33,23 +33,28 @@ export async function getSaisonVerleihPreis(): Promise<ApiAntwort<SaisonverleihP
     }
 }
 
-export async function createSaisonVerleih(previousState: unknown,saisonVerleih: SaisonVerleihCreate): Promise<SaisonVerleihCreateResponse | null> {
-    // console.log("Erstellen:", saisonVerleih);
-    
-    const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/neu`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(saisonVerleih),
-    });
-    if (!response.ok) {
-        console.error("Fehler beim Erstellen:", response);
-        return null;
+export async function createSaisonVerleih(previousState: unknown,saisonVerleih: SaisonVerleihCreate): Promise<SaisonVerleihCreateResponse> {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/neu`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(saisonVerleih),
+        });
+        if (!response.ok) {
+            console.error("Fehler beim Erstellen:", response.status);
+            return { success: false, error: "Saisonverleih konnte nicht gespeichert werden." };
+        }
+        const parsed = SaisonVerleihCreateResponseSchema.safeParse(await response.json());
+        if (!parsed.success) {
+            return { success: false, error: "Ungültige Antwort vom Server." };
+        }
+        return parsed.data;
+    } catch (error) {
+        console.error("Netzwerkfehler beim Erstellen:", error);
+        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
     }
-    const data = await response.json();
-    // Ensure we always return the correct structure
-    return data || null;
 }
 
 // Ein SaisonVerleih per ID laden

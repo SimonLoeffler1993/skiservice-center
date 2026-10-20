@@ -3,7 +3,9 @@ import { Snowflake } from "lucide-react";
 import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { saisonverleihListOptions } from "@/hooks/useSaisonverleihListeOptions";
-import { getAktuelleSaisonID, getSaisons } from "@/lib/saisonactions";
+import { getSaisonDaten } from "@/lib/saisonactions";
+import BackendFehler from "@/components/saison/BackendFehler";
+import KeineSaison from "@/components/saison/KeineSaison";
 import { Suspense } from "react";
 
 type SaisonVerleiAnzeigeProps = {
@@ -12,31 +14,25 @@ type SaisonVerleiAnzeigeProps = {
 
 export default async function SaisonVerleiAnzeige({searchParams}: SaisonVerleiAnzeigeProps) {
     
-    // Daten für SaisonWechseler laden
-    const saisonsData = await getSaisons();
-    const { saison } = await searchParams;
-
-    // Saison aus URL oder aktuelle Saison ermitteln
-    let saisonID: number | undefined;
-
-    if (!saison) {
-        const aktuelleSaison = await getAktuelleSaisonID()
-        if (aktuelleSaison) {
-            saisonID = aktuelleSaison.ID;
-        }
-    }else {
-        saisonID = parseInt(saison);
-        console.log("Saison aus URL:", saisonID);
+    // Saisons kommen aus dem Server Cache
+    const saisonDaten = await getSaisonDaten();
+    if (!saisonDaten.success) {
+        return <BackendFehler meldung={saisonDaten.error} />
     }
+    const saisonsData = saisonDaten.data.saisons;
 
-    // Falls gar keine Saison gefunden wurde
-    if (!saisonID) {
-        return <p>Keine Saison gefunden</p>;
+    // Saison aus URL, falls nicht vorhanden wird die aktuelle verwendet
+    const { saison } = await searchParams;
+    const saisonID = saison ? parseInt(saison) : saisonDaten.data.aktuelle?.ID;
+
+    // Fehler falls keine Saison gibt
+    if (!saisonID || Number.isNaN(saisonID)) {
+        return <KeineSaison />
     }
 
     // Prefetch SaisonverleihListe Daten für die ausgewählte Saison
     const queryClient = new QueryClient();
-    await queryClient.prefetchInfiniteQuery(saisonverleihListOptions(saisonID!));
+    await queryClient.prefetchInfiniteQuery(saisonverleihListOptions(saisonID));
 
     // TODO Menuleiste
     // TODO Saison wechseln (SaisonWechseler)

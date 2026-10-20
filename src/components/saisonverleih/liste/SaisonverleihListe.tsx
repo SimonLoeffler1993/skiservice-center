@@ -25,13 +25,6 @@ export default function SaisonverleihListe({ saisonID }: SaisonverleihListeProps
 
     const items = data?.pages.flat().filter((item) => item !== null) ?? []
 
-    // Auto Nachladen, sobald die Daten geladen sind.
-    useEffect(() => {
-        if (data && data.pages.length > 0 && hasNextPage) {
-            fetchNextPage();
-        }
-    }, [data, hasNextPage, fetchNextPage]);
-
     // Automatisch die nächste Seite laden, wenn der Benutzer das Ende der Liste erreicht
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {

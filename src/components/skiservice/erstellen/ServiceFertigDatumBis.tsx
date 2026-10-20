@@ -35,7 +35,7 @@ export default function ServiceFertigDatumBis({deaktiviert = false}:ServiceFerti
                                 variant="outline"
                                 disabled={deaktiviert}
                                 className={cn(
-                                    "w-[200px] pl-3 text-left font-normal",
+                                    "w-full sm:w-[200px] pl-3 text-left font-normal",
                                     !field.value && "text-muted-foreground"
                                 )}
                             >

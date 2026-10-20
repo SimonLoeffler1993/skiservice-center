@@ -1,40 +1,36 @@
 import { NavigationMenu, NavigationMenuLink, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Home } from "lucide-react";
 
+import { MENUE_GRUPPEN } from "./menueeintraege";
+import MobileMenue from "./MobileMenue";
+
 export default function MenueLeiste() {
     return (
-        <NavigationMenu viewport={false}>
-            <NavigationMenuList>
-                <NavigationMenuItem>
-                    <NavigationMenuLink href="/">
-                        <Home size={18} />
-                    </NavigationMenuLink>
-                </NavigationMenuItem>
+        <>
+            {/* Handy / kleines Tablet */}
+            <MobileMenue />
 
-                <NavigationMenuItem>
-                    <NavigationMenuTrigger>Saisonverleih</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <NavigationMenuLink href="/saisonverleih/anzeigen">Anzeigen</NavigationMenuLink>
-                        <NavigationMenuLink href="/saisonverleih/erstellen">Neu</NavigationMenuLink>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>   
+            {/* Ab md */}
+            <NavigationMenu viewport={false} className="hidden md:flex">
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/">
+                            <Home size={18} />
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                    <NavigationMenuTrigger>Skiservice</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <NavigationMenuLink href="/skiservice/anzeigen">Anzeigen</NavigationMenuLink>
-                        <NavigationMenuLink href="/skiservice/erstellen">Neu</NavigationMenuLink>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>   
-
-                <NavigationMenuItem>
-                    <NavigationMenuTrigger>Verwalten</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <NavigationMenuLink href="/material">Material</NavigationMenuLink>
-                        <NavigationMenuLink href="/verwalten/preise">Preise</NavigationMenuLink>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>
-            </NavigationMenuList>
-        </NavigationMenu>
+                    {MENUE_GRUPPEN.map((gruppe) => (
+                        <NavigationMenuItem key={gruppe.titel}>
+                            <NavigationMenuTrigger>{gruppe.titel}</NavigationMenuTrigger>
+                            <NavigationMenuContent>
+                                {gruppe.links.map((link) => (
+                                    <NavigationMenuLink key={link.href} href={link.href}>{link.titel}</NavigationMenuLink>
+                                ))}
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+                    ))}
+                </NavigationMenuList>
+            </NavigationMenu>
+        </>
     );
 }

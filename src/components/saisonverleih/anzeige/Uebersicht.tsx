@@ -12,8 +12,8 @@ import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 
 import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
 import ButtonQuittungZuweisen from "./ButtonQuittungZuweisen";
-
-// TODO Rechter Seiten Strifen bei Handy weg
+import VerleihArtBadge from "../liste/VerleihArtBadge";
+import VerleihAktionen, { istVerleihBezahlt } from "../bearbeiten/VerleihAktionen";
 
 
 type SaisonVeliAnzeigeUebersichtProps = {
@@ -27,12 +27,12 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
 
     // const { saisonverleihanzeigePromise } = useSaisonverleihanzeigeContext();
     // const saisonverleihanzeige = use(saisonverleihanzeigePromise);
-    if (!saisonVerleihDetails || isPending) {
-        return <div>Loading...</div>;
+    if (error) {
+        return <div className="text-destructive">Fehler beim Laden: {error.message}</div>;
     }
 
-    if (error) {
-        return <div>Fehler beim Laden: {error.message}</div>;
+    if (!saisonVerleihDetails || isPending) {
+        return <div>Saisonverleih wird geladen...</div>;
     }
 
     // console.log(saisonverleihanzeige);
@@ -50,8 +50,11 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
                         </div>
                 </div>
 
+                <VerleihAktionen verleih={saisonVerleihDetails} />
+
                 {/* Statuszeile */}
                 <div className="flex flex-wrap items-center gap-3">
+                    <VerleihArtBadge art={saisonVerleihDetails.Art} startAm={saisonVerleihDetails.Start_Am} endeAm={saisonVerleihDetails.Ende_Am} />
                     <SaisonverleihCardStatus status={saisonVerleihDetails.Zurueck} />
                     <SaisonverleihCardBezahlt bezahlt={saisonVerleihDetails.Bezahlt} />
                     <SaisonVerleiAnzeigePDFButton saisonverleihanzeigeID={saisonVerleihDetails.ID} />
@@ -76,8 +79,12 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
             </div>
 
             {/* Rechte Spalte: Material */}
-            <div className="bg-white p-4 border-s md:h-full md:col-span-8">
-                <SaisonVerleiAnzeigeMaterial material={saisonVerleihDetails?.Material ?? []} saisonverleihid={saisonVerleihDetails?.ID} />
+            <div className="bg-white p-4 md:border-s md:h-full md:col-span-8">
+                <SaisonVerleiAnzeigeMaterial
+                    material={saisonVerleihDetails?.Material ?? []}
+                    saisonverleihid={saisonVerleihDetails?.ID}
+                    bezahlt={istVerleihBezahlt(saisonVerleihDetails)}
+                />
             </div>
         </div>
 

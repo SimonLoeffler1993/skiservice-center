@@ -7,7 +7,7 @@ import { useFieldArray, useForm, FormProvider } from "react-hook-form";
 import ServiceErstellenLinie from "./SkiserviceErstellenLinie";
 import ServiceFertigBisPicker from "./ServiceFertigDatumBis";
 import { skiservicesPreiseOptions } from "@/hooks/useSkiservicesPreiseOptions";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useKundeStore } from "@/stores/useKundeStore";
 
 import { type SkiserviceEintrag, type Antwort, AntwortSchema } from "@/types/skiservicetypes";
@@ -27,6 +27,8 @@ export default function ServiceErstellenTab() {
     const [isPending, startTransition] = useTransition();
     const [antwortErstellen, setAntwortErstellen] = useState<Antwort | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [eingabeFehler, setEingabeFehler] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
     const methods = useForm<FormInhalte>({
         defaultValues: {
@@ -45,23 +47,43 @@ export default function ServiceErstellenTab() {
     const onSubmit = (data: FormInhalte) => {
         if (isSubmitting || kunde == null) return;
 
+        // Jede Zeile braucht einen Service und einen gültigen Preis
+        const fehlerhaft = data.skiservices.findIndex((s) => !s.service || Number.isNaN(s.preis) || s.preis < 0);
+        if (fehlerhaft !== -1) {
+            setEingabeFehler(`Zeile ${fehlerhaft + 1}: Bitte einen Service auswählen und einen gültigen Preis eingeben.`);
+            return;
+        }
+        setEingabeFehler(null);
+
         setIsSubmitting(true);
 
         startTransition(async () => {
             try {
-                const res = await auftragAnlegen(kunde.ID, data.skiservices, data.fertigBis)
+                // Datum im Browser formatieren, sonst verschiebt sich der Tag auf einem Server in UTC
+                const fertigBis = data.fertigBis ? data.fertigBis.toLocaleDateString('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                }) : null;
+                const res = await auftragAnlegen(kunde.ID, data.skiservices, fertigBis)
                 const parsedRes = AntwortSchema.safeParse(res)
-                // TODO: Fehler beim parsen abfangen
-                if (!parsedRes.success) return;
+                if (!parsedRes.success) {
+                    setEingabeFehler("Unerwartete Antwort vom Server.");
+                    return;
+                }
 
                 setAntwortErstellen(parsedRes.data)
+                if (parsedRes.data.success) {
+                    // Liste neu laden, damit der neue Auftrag sofort erscheint
+                    queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
+                }
             } finally {
                 setIsSubmitting(false);
             }
         })
     };
 
-    function handelDuplicateService(index: number) {
+    function handleDuplicateService(index: number) {
         const aktuell = getValues(`skiservices.${index}`);
         if (!aktuell) return;
 
@@ -71,7 +93,7 @@ export default function ServiceErstellenTab() {
     return (
         <FormProvider {...methods}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
                     <AuftragGesamtPreis />
                     <Button
                         type="button"
@@ -93,7 +115,8 @@ export default function ServiceErstellenTab() {
                     </p>
                 ) : (
                     <div className="space-y-2">
-                        <div className="grid grid-cols-[2fr_120px_60px_36px] gap-2 items-center">
+                        <div className="hidden md:grid grid-cols-[36px_2fr_120px_60px_36px] gap-2 items-center">
+                            <span />
                             <Label className="text-xs text-muted-foreground">Service</Label>
                             <Label className="text-xs text-muted-foreground">Preis (€)</Label>
                             <Label className="text-xs text-muted-foreground">Bindung</Label>
@@ -108,7 +131,7 @@ export default function ServiceErstellenTab() {
                                 control={control}
                                 onRemove={() => remove(index)}
                                 deaktiviert={antwortErstellen?.success} 
-                                onDuplicate={() => handelDuplicateService(index)}
+                                onDuplicate={() => handleDuplicateService(index)}
                             />
                         ))}
                     </div>
@@ -124,6 +147,9 @@ export default function ServiceErstellenTab() {
                             <div>
                                 {antwortErstellen?.error && (
                                     <p className="text-sm text-destructive">{antwortErstellen.error}</p>
+                                )}
+                                {eingabeFehler && (
+                                    <p className="text-sm text-destructive">{eingabeFehler}</p>
                                 )}
                                 <Button type="submit" disabled={kunde === null || isPending || isSubmitting}>Speichern</Button>
                             </div>

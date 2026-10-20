@@ -3,6 +3,7 @@ import { useCallback, useEffect, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import useTimer from '@/hooks/useTimer';
 import { auftragFertigStellen } from '@/lib/auftragaction';
+import { useQueryClient } from '@tanstack/react-query';
 
 type FertigButtonsProps = {
     serviceId: number | undefined | null;
@@ -11,7 +12,8 @@ type FertigButtonsProps = {
 
 export default function FertigButtons({ serviceId, selectedSkiIds }: FertigButtonsProps) {
     const { countdown, resetTimer, setPause } = useTimer();
-    const [isPending, startTransition] = useTransition();
+    const [, startTransition] = useTransition();
+    const queryClient = useQueryClient();
     const isButtonDisabled = !selectedSkiIds || selectedSkiIds.length === 0;
 
     const skiIdsKey = selectedSkiIds;
@@ -27,14 +29,16 @@ export default function FertigButtons({ serviceId, selectedSkiIds }: FertigButto
     }, [skiIdsKey, resetTimer, setPause, isButtonDisabled]); // resetTimer als Dependency hinzufügen
 
     const handleFertigstellen = useCallback(() => {
-        // Hier kannst du die Logik zum Fertigstellen des Services hinzufügen, z.B. eine API-Anfrage senden
-        console.log("Fertigstellen mit Service ID:", serviceId, "und ausgewählten Ski IDs:", Array.from(selectedSkiIds || []));
         startTransition(async () => {
             const data = await auftragFertigStellen(serviceId!, Array.from(selectedSkiIds || []));
-            console.log("Fertigstellen abgeschlossen:", data);
+            if (data.success) {
+                // Status in Liste und Details aktualisieren
+                queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
+                queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails", serviceId] });
+            }
             // TODO: Meldung anzeeigen
         });
-    }, [serviceId, selectedSkiIds]);
+    }, [serviceId, selectedSkiIds, queryClient]);
 
     useEffect(() => {
         if (countdown === 0) {

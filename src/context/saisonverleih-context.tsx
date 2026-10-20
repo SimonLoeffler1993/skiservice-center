@@ -4,11 +4,15 @@
 // import { useSkikundenContext } from "@/context/skikunden-context";
 import { useKundeStore } from "@/stores/useKundeStore";
 import { Kunde } from "@/types/skikundentypes";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { DateRange } from "react-day-picker";
 import { Material } from "@/types/materialtypes";
+import { VerleihArt } from "@/types/saisonverleihtypes";
 
 type SaisonverleihContextProviderProps = {
     children: React.ReactNode;
+    // Für das Hinzufügen von Material zu einem bestehenden Verleih
+    startArt?: VerleihArt;
 };
 
 type SaisonverleihContextType = {
@@ -19,25 +23,27 @@ type SaisonverleihContextType = {
     datenVollstaendig: boolean;
     bemerkung: string;
     setBemerkung: (bemerkung: string) => void;
+    art: VerleihArt;
+    setArt: (art: VerleihArt) => void;
+    // Nur beim Tagesverleih
+    zeitraum: DateRange | undefined;
+    setZeitraum: (zeitraum: DateRange | undefined) => void;
 };
 
 const SaisonverleihContext = React.createContext<SaisonverleihContextType | undefined>(undefined);
 
-export const SaisonverleihContextProvider = ({ children }: SaisonverleihContextProviderProps) => {
+export const SaisonverleihContextProvider = ({ children, startArt = "saison" }: SaisonverleihContextProviderProps) => {
     const { kunde, setKunde } = useKundeStore();
     const [materialList, setMaterialList] = useState<Material[]>([]);
-    const [datenVollstaendig, setDatenVollstaendig] = useState(false);
     const [bemerkung, setBemerkung] = useState("");
+    const [art, setArt] = useState<VerleihArt>(startArt);
+    const [zeitraum, setZeitraum] = useState<DateRange | undefined>(undefined);
 
-    useEffect(() => {
-        if (kunde && materialList.length > 0) {
-            setDatenVollstaendig(true);
-        }else{
-            setDatenVollstaendig(false);
-        }
-    }, [kunde, materialList]);
+    // Beim Tagesverleih muss zusätzlich der Zeitraum gewählt sein
+    const zeitraumOk = art === "saison" || (!!zeitraum?.from && !!zeitraum?.to);
+    const datenVollstaendig = !!kunde && materialList.length > 0 && zeitraumOk;
     return (
-        <SaisonverleihContext.Provider value={{ kunde, setKunde, materialList, setMaterialList, datenVollstaendig, bemerkung, setBemerkung }}>
+        <SaisonverleihContext.Provider value={{ kunde, setKunde, materialList, setMaterialList, datenVollstaendig, bemerkung, setBemerkung, art, setArt, zeitraum, setZeitraum }}>
             {children}
         </SaisonverleihContext.Provider>
     );

@@ -10,13 +10,16 @@ import SaisonVerleiAnzeigeMaterialStock from "./MaterialStock";
 import { Card } from "@/components/ui/card";
 // import ButtonNamenEttiket from "./ButtonNamenEttiket";
 import ButtonZurueckGegeben from "./ButtonZurueckGegeben";
+import MaterialAktionen from "../bearbeiten/MaterialAktionen";
 
 type MaterialProps = {
     material: MaterialRead[];
     saisonverleihid: number;
+    // Mit Angabe werden Bearbeiten-Aktionen je Material angezeigt
+    bezahlt?: boolean;
 };
 
-export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid }: MaterialProps) {
+export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid, bezahlt }: MaterialProps) {
 
     if (material.length === 0) {
         return (
@@ -50,6 +53,14 @@ export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid 
                         <SaisonVerleiAnzeigeMaterialSki material={a} />
                         <SaisonVerleiAnzeigeMaterialSchuh material={a} />
                         <SaisonVerleiAnzeigeMaterialStock material={a} />
+                        {bezahlt !== undefined && (
+                            <MaterialAktionen
+                                verleihId={saisonverleihid}
+                                material={a}
+                                bezahlt={bezahlt}
+                                letztesMaterial={material.length === 1}
+                            />
+                        )}
                     </Card>
                 ))}
             </div>

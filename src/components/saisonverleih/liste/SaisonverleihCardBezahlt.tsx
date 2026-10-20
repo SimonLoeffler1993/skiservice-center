@@ -5,8 +5,8 @@ type SaisonverleihCardBezahltProps = {
 };
 
 export default function SaisonverleihCardBezahlt({ bezahlt }: SaisonverleihCardBezahltProps) {
-  // null oder false = nicht bezahlt
-  const isBezahlt = bezahlt === 1 || bezahlt === null || bezahlt === undefined;
+  // null oder 0 = nicht bezahlt
+  const isBezahlt = bezahlt === 1;
 
   return (
     <span

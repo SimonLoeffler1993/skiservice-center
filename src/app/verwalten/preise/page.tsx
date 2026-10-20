@@ -13,7 +13,7 @@ import {
 
 export default function PreisePage() {
     return (
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue="skiservice" className="w-full">
             <TabsList>
                 <TabsTrigger value="skiservice">Skiservice</TabsTrigger>
                 <TabsTrigger value="bindung">Bindung</TabsTrigger>

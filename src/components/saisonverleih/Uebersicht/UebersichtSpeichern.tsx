@@ -3,6 +3,8 @@ import { Button } from "../../ui/button";
 import { useActionState, startTransition, useEffect } from "react";
 import { createSaisonVerleih } from "@/lib/saisonverleihactions";
 import UebersichtGespeichert from "./UeberSichtGespeichert";
+import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 
 type UebersichtSpeichernProps = {
@@ -10,26 +12,33 @@ type UebersichtSpeichernProps = {
 }
 
 export default function UebersichtSpeichern({datenChecked}: UebersichtSpeichernProps) {
-    const {datenVollstaendig, kunde, bemerkung, materialList} = useSaisonverleihContext();
+    const {datenVollstaendig, kunde, bemerkung, materialList, art, zeitraum} = useSaisonverleihContext();
    
     const [state, action, isPending] = useActionState(createSaisonVerleih, null);
+    const queryClient = useQueryClient();
 
+    // Liste neu laden, damit der neue Verleih sofort erscheint
     useEffect(() => {
         if (state?.success) {
-            console.log("Saisonverleih gespeichert");
-            console.log(state);
+            queryClient.invalidateQueries({ queryKey: ["saisonverleihList"] });
         }
-    }, [state]);
+    }, [state, queryClient]);
 
     function handleSpeichern() {
         if (kunde?.ID === undefined) {
             console.error("Kunde ID ist nicht definiert");
             return;
         }
+        // Datum lokal formatieren, toISOString würde in UTC umrechnen und den Tag verschieben
+        const tagesverleih = art === "tag" && zeitraum?.from && zeitraum?.to
+            ? { Start_Am: format(zeitraum.from, "yyyy-MM-dd"), Ende_Am: format(zeitraum.to, "yyyy-MM-dd") }
+            : {};
         startTransition(() => action({
             Kunde_ID: kunde.ID,
             Bemerkung: bemerkung,
-            Material: materialList
+            Material: materialList,
+            Art: art,
+            ...tagesverleih,
         }))
     }
 
@@ -38,7 +47,7 @@ export default function UebersichtSpeichern({datenChecked}: UebersichtSpeichernP
     }
 
     if (state?.success) {
-        if (state.data !== undefined) {
+        if (state.data) {
             return <UebersichtGespeichert id={state.data.ID} />;
         }
     }
@@ -48,7 +57,7 @@ export default function UebersichtSpeichern({datenChecked}: UebersichtSpeichernP
             <Button className="bg-green-600 hover:bg-green-700 text-white w-full" disabled={!(datenVollstaendig && datenChecked)} onClick={handleSpeichern}>
                 Speichern
             </Button>
-            {state?.success === false && <p>Es gab ein Fehler</p>}
+            {state?.success === false && <p className="text-sm text-destructive">{state.error ?? "Saisonverleih konnte nicht gespeichert werden."}</p>}
         </>
     );
 }

@@ -25,6 +25,7 @@ export default function SkischuhForm() {
         formState: { errors },
     } = useForm<CreateSkiSchuh>({
         resolver: zodResolver(CreateSchuhSchema),
+        defaultValues: { Saison: "" },
     });
 
     const [state, action, isPending] = useActionState(createSkiSchuh, null);
@@ -32,11 +33,12 @@ export default function SkischuhForm() {
     useEffect(() => {
         if (state?.success) {
             queryClient.invalidateQueries({ queryKey: skiSchuheOptions.queryKey });
+            // Eingaben leeren, damit direkt der nächste Schuh erfasst werden kann
+            reset();
         }
     }, [state, reset, queryClient]);
 
     function onSubmit(data: CreateSkiSchuh) {
-        console.log(data);
         startTransition(() => {
             action(data);
         });
@@ -70,7 +72,7 @@ export default function SkischuhForm() {
                                     name="Modell_ID"
                                     render={({ field }) => (
                                         <Select
-                                            value={field.value ? String(field.value) : undefined}
+                                            value={field.value ? String(field.value) : ""}
                                             onValueChange={(value) => field.onChange(Number(value))}
                                         >
                                             <SelectTrigger id="modell" className="w-full">
@@ -158,7 +160,15 @@ export default function SkischuhForm() {
                             </div>
                         </div>
 
-                        <Button type="submit" disabled={isPending}>Skischuh speichern</Button>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <Button type="submit" disabled={isPending}>Skischuh speichern</Button>
+                            {state?.success === true && (
+                                <p className="text-sm text-green-700">Skischuh {state.data.Groese} gespeichert.</p>
+                            )}
+                            {state?.success === false && (
+                                <p className="text-sm text-red-500">{state.error}</p>
+                            )}
+                        </div>
                     </form>
                 </CardContent>
             </Card>
