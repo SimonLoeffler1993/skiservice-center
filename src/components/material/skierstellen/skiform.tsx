@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Suspense, use, useEffect } from "react"
+import { Suspense, use, useEffect, useRef } from "react"
 
 import { useSkiModellContext } from "@/context/skimodell-context"
 import { useForm } from "react-hook-form"
@@ -40,8 +40,11 @@ export default function SkiForm() {
     const { eigenSkisPromise, refreshEigenSkisPromise } = useEigenSkiContext();
 
     // Erst nach erfolgreichem Speichern leeren und Liste neu laden
+    // Jedes Speicher-Ergebnis nur einmal verarbeiten
+    const verarbeitet = useRef<typeof state>(null);
     useEffect(() => {
-        if (state?.success) {
+        if (state?.success && verarbeitet.current !== state) {
+            verarbeitet.current = state
             reset()
             startTransition(() => refreshEigenSkisPromise())
         }

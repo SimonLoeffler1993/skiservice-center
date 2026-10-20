@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSkiHerstellerContext } from "@/context/skihersteller-context"
-import { Suspense, use, useEffect } from "react"
+import { Suspense, use, useEffect, useRef } from "react"
 import SkiModellListe from "./modellliste"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -40,8 +40,11 @@ export default function SkiModellForm() {
     }
 
     // Erst nach erfolgreichem Speichern leeren und Liste neu laden
+    // Jedes Speicher-Ergebnis nur einmal verarbeiten
+    const verarbeitet = useRef<typeof state>(null);
     useEffect(() => {
-        if (state?.success) {
+        if (state?.success && verarbeitet.current !== state) {
+            verarbeitet.current = state
             reset()
             startTransition(() => refreshModellPromise())
         }
