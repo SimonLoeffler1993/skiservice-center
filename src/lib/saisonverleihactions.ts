@@ -116,22 +116,6 @@ export async function getSaisonVerleihList(limit: number = 15, letzteID?: number
     }
 }
 
-// PDF generieren
-export async function getSaisonVerleihPDF(previousState: unknown,id: number): Promise<Blob | null> {
-    try {
-        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/pdf/${id}`);
-        if (!res.ok) {
-            console.error("Fehler beimLaden SaisonVerleih:", id, res.status, res.statusText);
-            return null;
-        }
-        const blob = await res.blob();
-        return blob;
-    } catch (e) {
-        console.error("Unerwarteter Fehler beimLaden SaisonVerleih:", e);
-        return null;
-    }
-}
-
 // Namen Ettiket generieren
 export async function getSaisonVerleihNamenEttiket(previousState: unknown,id: number): Promise<SaisonVerleihNamenEttiketResponse | null> {
     try {

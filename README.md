@@ -42,7 +42,7 @@ In der Detailansicht können Bemerkung, Art und Zeitraum geändert, Material hin
 
 ### Einstellungen
 
-Unter **Verwalten → Einstellungen** werden Firma, Etikettendrucker, E-Mail (SSL, STARTTLS oder ohne Verschlüsselung), Lexware, PDF-Dienst und Nummernkürzel gepflegt. Passwörter werden nie angezeigt, nur ob sie gesetzt sind. Mail, Drucker und Lexware lassen sich direkt testen.
+Unter **Verwalten → Einstellungen** werden Firma, Etikettendrucker, E-Mail (SSL, STARTTLS oder ohne Verschlüsselung), Lexware und Nummernkürzel gepflegt. Passwörter werden nie angezeigt, nur ob sie gesetzt sind. Mail, Drucker und Lexware lassen sich direkt testen.
 
 ![Einstellungen](docs/screenshots/einstellungen.png)
 
