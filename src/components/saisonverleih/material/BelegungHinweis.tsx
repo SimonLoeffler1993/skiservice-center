@@ -24,10 +24,10 @@ export default function BelegungHinweis({ belegungen, fehler, isPending }: Beleg
     }
     if (!belegungen) return null;
     if (belegungen.length === 0) {
-        return <p className="mt-1 text-sm text-green-700">Im gewählten Zeitraum frei.</p>;
+        return <p className="mt-1 text-left text-sm text-green-700">Im gewählten Zeitraum frei.</p>;
     }
     return (
-        <div className="mt-1 text-sm text-red-600">
+        <div className="mt-1 text-left text-sm text-red-600">
             <p className="font-medium">Im gewählten Zeitraum bereits verliehen:</p>
             <ul className="list-disc pl-5">
                 {belegungen.map((b) => (
