@@ -3,6 +3,7 @@ import { SaisonverleihRead } from "@/types/saisonverleihtypes";
 import { User } from "lucide-react";
 import SaisonverleihCardBezahlt from "./SaisonverleihCardBezahlt";
 import SaisonverleihCardStatus from "./SaisonverleihCardStatus";
+import VerleihArtBadge from "./VerleihArtBadge";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
@@ -16,7 +17,10 @@ export default function SaisonverleihListeCard({ saisonverleih }: SaisonverleihL
     return (
         <Card>
             <div className="p-3">
-                <p>{saisonverleih.Name}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                    <p>{saisonverleih.Name}</p>
+                    <VerleihArtBadge art={saisonverleih.Art} startAm={saisonverleih.Start_Am} endeAm={saisonverleih.Ende_Am} />
+                </div>
                 <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                         <div className="text-base font-semibold leading-tight flex items-center gap-2">

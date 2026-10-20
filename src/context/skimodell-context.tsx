@@ -1,7 +1,7 @@
 "use client"
 
 import { ModellArray } from "@/types/materialtypes";
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { getModell } from "@/lib/materialactions";
 
 type SkiModellContextType = {
@@ -14,9 +14,10 @@ export const SkiModellContext = createContext<SkiModellContextType | null>(null)
 export function SkiModellContextProvider({ children, modellPromise }: { children: React.ReactNode, modellPromise: Promise<ModellArray> }) {
     // State stellt Reload sicher
     const [statefulPromise, setStatefulPromise] = useState<Promise<ModellArray>>(modellPromise);
-    function refreshModellPromise() {
+    // Stabile Referenz, sonst lösen Effects mit dieser Abhängigkeit eine Endlosschleife aus
+    const refreshModellPromise = useCallback(() => {
         setStatefulPromise(getModell());
-    }
+    }, []);
     
     return (
         <SkiModellContext.Provider value={{ modellPromise: statefulPromise, refreshModellPromise }}>

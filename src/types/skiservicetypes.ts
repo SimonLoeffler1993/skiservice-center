@@ -12,7 +12,7 @@ export const SkiSchema = z.object({
     fertig_date: z.string().nullable().optional(),
     bindung_id: z.number().int(),
     bindung_check: z.boolean().default(false),
-    bindung_preis: z.number().int(),
+    bindung_preis: z.number(),
     name: z.string().nullable().optional(),
     band: z.number().int(),
     sack: z.number().int(),

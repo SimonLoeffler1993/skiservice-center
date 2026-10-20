@@ -14,3 +14,9 @@ export type SaisonsNamen = z.infer<typeof SaisonsNamenSchema>;
 // Mehrfach
 export const SaisonsNamenListeSchema = z.array(SaisonsNamenSchema);
 export type SaisonsNamenListe = z.infer<typeof SaisonsNamenListeSchema>;
+
+// Alle Saisons inkl. der aktuell verwendeten
+export type SaisonDaten = {
+  saisons: SaisonsNamenListe;
+  aktuelle: SaisonsNamen | undefined;
+};

@@ -16,6 +16,7 @@ import { SkiArraySchema, SkiCreate, SkiArray,
     Skistock,
     SkistockCreate} from "@/types/materialtypes";
 import { toApiAntwort } from "./helfer";
+import { z } from "zod";
 
     // SKI
 export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
@@ -217,26 +218,24 @@ export async function getSkiArt(): Promise<SkiArtArray> {
 // }
 
 // Ski Modell
-export async function createSkiModell(previousState: unknown,data: SkiModellCreate) {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/modell`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-        console.error("Fehler beim Suchen:", response);
-        return [];
+export async function createSkiModell(previousState: unknown, data: SkiModellCreate): Promise<ApiAntwort<z.infer<typeof ModellSchema>>> {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/material/ski/modell`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            console.error("Fehler beim Speichern:", response.status);
+            return { success: false, error: "Das Skimodell konnte nicht gespeichert werden." };
+        }
+        return toApiAntwort(ModellSchema.safeParse(await response.json()), "Ungültige Antwort vom Server.");
+    } catch (error) {
+        console.error("Netzwerkfehler:", error);
+        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
     }
-    const responseData = await response.json();
-    const parsedData = ModellSchema.safeParse(responseData);
-    if (!parsedData.success) {
-        console.error("Validierungsfehler:", parsedData.error);
-        return [];
-    }
-    // Ensure we always return the correct structure
-    return parsedData.data || [];
 }   
 
 export async function getModell(): Promise<ModellArray> {
@@ -256,26 +255,24 @@ export async function getModell(): Promise<ModellArray> {
 }
 
 // Ski
-export async function createSki(previousState: unknown,data: SkiCreate) {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/anlegen`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-        console.error("Fehler beim Suchen:", response);
-        return [];
+export async function createSki(previousState: unknown, data: SkiCreate): Promise<ApiAntwort<z.infer<typeof SkiSchema>>> {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/material/ski/anlegen`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            console.error("Fehler beim Speichern:", response.status);
+            return { success: false, error: "Der Ski konnte nicht gespeichert werden." };
+        }
+        return toApiAntwort(SkiSchema.safeParse(await response.json()), "Ungültige Antwort vom Server.");
+    } catch (error) {
+        console.error("Netzwerkfehler:", error);
+        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
     }
-    const responseData = await response.json();
-    const parsedData = SkiSchema.safeParse(responseData);
-    if (!parsedData.success) {
-        console.error("Validierungsfehler:", parsedData.error);
-        return [];
-    }
-    // Ensure we always return the correct structure
-    return parsedData.data || [];
 }   
 
 export async function getSchuhModelle(): Promise<ApiAntwort<SchuhModellArray>> {

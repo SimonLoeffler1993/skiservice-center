@@ -31,6 +31,12 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
         name: `skiservices.${index}.bindung_check`,
     });
 
+    // Gewählter Service, damit das Dropdown auch nach dem Duplizieren den Service anzeigt
+    const service = useWatch({
+        control,
+        name: `skiservices.${index}.service`,
+    });
+
     const { setValue } = useFormContext<FormInhalte>();
 
     if (isLoading) return <p>Service Preise werden geladen...</p>
@@ -46,29 +52,38 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
         const selected = skiservicePreise.data.find((s) => String(s.id) === serviceId);
 
         if (!selected) return;
-        setValue(`skiservices.${index}.service`, selected.Service);
-        setValue(`skiservices.${index}.preis`, selected.Preis);
+        setValue(`skiservices.${index}.service`, selected.Service, { shouldValidate: true });
+        setValue(`skiservices.${index}.preis`, selected.Preis, { shouldValidate: true });
     };
 
+    const serviceAuswahl = skiservicePreise.data.filter((s) => !s.Bindung);
+    const gewaehlteServiceId = serviceAuswahl.find((s) => s.Service === service)?.id;
+
+    // Mobil: Zeile 1 Kopieren | Service | Löschen, Zeile 2 Preis | Bindung
+    // Ab md: alles in einer Zeile
     return (
-        <div className="grid grid-cols-[36px_2fr_120px_60px_36px] gap-2 items-center">
+        <div className="grid grid-cols-[36px_1fr_auto_36px] md:grid-cols-[36px_2fr_120px_60px_36px] gap-2 items-center rounded-md border p-2 md:border-0 md:p-0">
             <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 onClick={onDuplicate}
-                className="text-muted-foreground"
+                className="order-1 text-muted-foreground"
                 disabled={deaktiviert}
                 title="Duplizieren"
             >
                 <Copy className="h-4 w-4" />
             </Button>
-            <Select onValueChange={handleServiceChange} disabled={deaktiviert}>
-                <SelectTrigger className="w-full">
+            <Select
+                value={gewaehlteServiceId !== undefined ? String(gewaehlteServiceId) : ""}
+                onValueChange={handleServiceChange}
+                disabled={deaktiviert}
+            >
+                <SelectTrigger className="order-2 col-span-2 w-full md:col-span-1" aria-invalid={!service}>
                     <SelectValue placeholder="Service auswählen..." />
                 </SelectTrigger>
                 <SelectContent className="w-full">
-                    {skiservicePreise.data.filter((S) => !S.Bindung).map((s) => (
+                    {serviceAuswahl.map((s) => (
                         <SelectItem key={s.id} value={String(s.id)}>
                             {s.Service}
                         </SelectItem>
@@ -77,13 +92,15 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
             </Select>
             <Input
                 {...register(`skiservices.${index}.preis`, { valueAsNumber: true })}
+                className="order-4 col-start-2 md:order-3 md:col-start-auto"
+                aria-label="Preis"
                 placeholder="0.00"
                 type="number"
                 min={0}
                 step={0.01}
                 disabled={deaktiviert}
             />
-            <div className="flex justify-center">
+            <label className="order-5 flex items-center justify-center gap-2 md:order-4">
                 <Checkbox
                     checked={bindung_check ?? false}
                     disabled={deaktiviert}
@@ -93,14 +110,16 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
                         setValue(`skiservices.${index}.bindung_preis`, isChecked ? serviceBindung : 0);
                     }}
                 />
-            </div>
+                <span className="text-sm md:hidden">Bindung</span>
+            </label>
             <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 onClick={onRemove}
-                className="text-muted-foreground hover:text-destructive"
+                className="order-3 text-muted-foreground hover:text-destructive md:order-5"
                 disabled={deaktiviert}
+                title="Entfernen"
             >
                 <Trash2 className="h-4 w-4" />
             </Button>

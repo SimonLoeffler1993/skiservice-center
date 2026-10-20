@@ -35,6 +35,10 @@ export type SaisonverleihPreise = z.infer<typeof SaisonverleihPreiseSchema>;
 //   export type SaisonVerleihMaterialCreate = z.infer<typeof SaisonVerleihMaterialCreateSchema>;
 
 // --- SaisonVerleih ---
+// "saison" = Saisonverleih, "tag" = Tagesverleih
+export const VerleihArtSchema = z.enum(["saison", "tag"]);
+export type VerleihArt = z.infer<typeof VerleihArtSchema>;
+
 export const SaisonVerleihSchema = z.object({
     ID: z.number().int(),
     Kunde_ID: z.number().int(),
@@ -43,11 +47,15 @@ export const SaisonVerleihSchema = z.object({
     Bezahlt_Am: z.string().date().optional().nullable(), // oder z.date()
     Zurueck: z.boolean().optional().nullable(),
     Zurueck_Am: z.string().date().optional().nullable(),
-    Bemerkung: z.string().optional(),
+    Bemerkung: z.string().nullish(),
     Saison_ID: z.number().int(), //nur wen es abweicht von der aktuellen Saison
     Abgerechnet: z.number().int().optional().nullable(),
     Name: z.string(),
     Start_Am: z.string().date().optional().nullable(),
+    Ende_Am: z.string().date().optional().nullable(),
+    Art: VerleihArtSchema.default("saison"),
+    Tage: z.number().int().optional().nullable(),
+    Bezeichnung: z.string().optional(),
     QuittungID: z.number().int().optional().nullable(),
     Material: z.array(MaterialReadSchema).optional().nullable(),
 })
@@ -66,6 +74,8 @@ export const SaisonVerleihCreateSchema = z.object({
     Abgerechnet: z.number().int().optional(),
     // Name: z.string(),
     Start_Am: z.string().date().optional(),
+    Ende_Am: z.string().date().optional(),
+    Art: VerleihArtSchema.optional(),
     QuittungID: z.number().int().optional(),
     Material: z.array(MaterialSchema).optional().nullable(),
 });
@@ -75,7 +85,8 @@ export type SaisonVerleihCreate = z.infer<typeof SaisonVerleihCreateSchema>;
 export const SaisonVerleihCreateResponseSchema = z.object({
     success: z.boolean(),
     message: z.string().optional(),
-    data: SaisonVerleihSchema.optional(),
+    error: z.string().nullish(),
+    data: SaisonVerleihSchema.nullish(),
 });
 
 export type SaisonVerleihCreateResponse = z.infer<typeof SaisonVerleihCreateResponseSchema>;
@@ -96,3 +107,17 @@ export const SaisonVerleihNamenEttiketResponseSchema = z.object({
     message: z.string().optional(),
 });
 export type SaisonVerleihNamenEttiketResponse = z.infer<typeof SaisonVerleihNamenEttiketResponseSchema>;
+
+
+// --- Belegung (Prüfung beim Tagesverleih) ---
+export const VerleihBelegungSchema = z.object({
+    ID: z.number().int(),
+    Name: z.string(),
+    Art: VerleihArtSchema,
+    Start_Am: z.string().date().nullable().optional(),
+    Ende_Am: z.string().date().nullable().optional(),
+    Kunde: z.string(),
+    Material: z.enum(["Ski", "Schuh"]),
+});
+export const VerleihBelegungListeSchema = z.array(VerleihBelegungSchema);
+export type VerleihBelegung = z.infer<typeof VerleihBelegungSchema>;

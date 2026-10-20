@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSkiHerstellerContext } from "@/context/skihersteller-context"
-import { Suspense, use } from "react"
+import { Suspense, use, useEffect, useRef } from "react"
 import SkiModellListe from "./modellliste"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -36,12 +36,20 @@ export default function SkiModellForm() {
     function onSubmit(data: SkiModellCreate) {
         startTransition(() => {
             action(data)
-            refreshModellPromise()
-            reset()
         })
     }
-    
-    // TODO: Fehlerbehandlung
+
+    // Erst nach erfolgreichem Speichern leeren und Liste neu laden
+    // Jedes Speicher-Ergebnis nur einmal verarbeiten
+    const verarbeitet = useRef<typeof state>(null);
+    useEffect(() => {
+        if (state?.success && verarbeitet.current !== state) {
+            verarbeitet.current = state
+            reset()
+            startTransition(() => refreshModellPromise())
+        }
+    }, [state, reset, refreshModellPromise])
+
     return (
         <div className="p-4">
             <Card className="mx-auto max-w-4xl">
@@ -83,7 +91,11 @@ export default function SkiModellForm() {
                                 )}
                             </div>
                         </div>
-                        <Button disabled={isPending} type="submit">Speichern</Button>
+                        <div className="flex items-center gap-2">
+                            <Button disabled={isPending} type="submit">Speichern</Button>
+                            {state?.success === false && <p className="text-sm text-red-500">{state.error}</p>}
+                            {state?.success === true && <p className="text-sm text-green-700">Skimodell gespeichert.</p>}
+                        </div>
                     </form>
                 </CardContent>
             </Card>

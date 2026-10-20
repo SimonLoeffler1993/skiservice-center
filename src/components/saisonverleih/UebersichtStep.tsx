@@ -8,9 +8,12 @@ import UebersichtCecked from "./Uebersicht/UebersichtCecked";
 import { useState } from "react";
 import UebersichtBemerkung from "./Uebersicht/UebersichtBemerkung";
 import UebersichtSpeichern from "./Uebersicht/UebersichtSpeichern";
+import { format } from "date-fns";
+import { anzahlTage } from "./VerleihArtAuswahl";
 
 export default function UebersichtStep() {
-  const { kunde, datenVollstaendig } = useSaisonverleihContext();
+  const { kunde, datenVollstaendig, art, zeitraum } = useSaisonverleihContext();
+  const tage = anzahlTage(zeitraum?.from, zeitraum?.to);
   const [checked, setChecked] = useState(false);
 
 
@@ -33,8 +36,22 @@ export default function UebersichtStep() {
                 {kunde.Ort?.Postlz} {kunde.Ort?.Ort}
               </p>
             </div>
+
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <h3 className="font-medium mb-2">Art:</h3>
+              {art === "tag" ? (
+                <p className="text-sm">
+                  Tagesverleih{" "}
+                  {zeitraum?.from && zeitraum?.to
+                    ? `${format(zeitraum.from, "dd.MM.yyyy")} – ${format(zeitraum.to, "dd.MM.yyyy")} (${tage} ${tage === 1 ? "Tag" : "Tage"})`
+                    : <span className="text-destructive">– bitte Zeitraum wählen</span>}
+                </p>
+              ) : (
+                <p className="text-sm">Saisonverleih</p>
+              )}
+            </div>
             
-            <div className="text-center py-12">
+            <div className="text-center py-4 sm:py-12">
               <SaisonMaterialListe showAktionSpalte={false} />
             </div>
             <div>

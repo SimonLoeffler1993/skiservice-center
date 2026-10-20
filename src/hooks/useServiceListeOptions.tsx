@@ -3,7 +3,7 @@ import { infiniteQueryOptions } from "@tanstack/react-query";
 
 export const serviceListeOptions = (saisonID: number) =>
     infiniteQueryOptions({
-        queryKey: ["saisonverleihList", saisonID],
+        queryKey: ["skiserviceList", saisonID],
         queryFn: ({ pageParam }) => getSkiserviceListe(25, pageParam, saisonID),
 
         // undefined = kein last_id beim ersten Aufruf

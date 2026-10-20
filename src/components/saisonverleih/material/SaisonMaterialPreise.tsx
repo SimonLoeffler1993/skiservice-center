@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { saisonverleihPreiseOptions } from "@/hooks/useSaisonverleihPreiseOptions";
+import { useSaisonverleihContext } from "@/context/saisonverleih-context";
 
 interface SaisonMaterialPreiseProps {
     name: string;
@@ -14,7 +15,9 @@ interface SaisonMaterialPreiseProps {
 
 export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPreiseProps) {
     const { watch, setValue } = useFormContext();
-    const [isCustom, setIsCustom] = useState(false);
+    const { art } = useSaisonverleihContext();
+    // Ausgewählte Preis-ID, damit zwei Preise mit gleichem Betrag unterscheidbar sind
+    const [auswahl, setAuswahl] = useState<string | undefined>(undefined);
 
     const { data, isLoading, error: fetchError } = useQuery(saisonverleihPreiseOptions);
 
@@ -24,26 +27,22 @@ export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPrei
             ? "Preise konnten nicht geladen werden"
             : null;
 
-    const preise = data?.success ? data.data.preise : [];
+    const preise = data?.success ? data.data.preise.filter((preis) => !preis.inaktiv) : [];
     const disabled = isLoading || !!loadError;
 
     // Form stores the numeric Preis
     const selectedValue = watch(name) as number | undefined;
-    const selectValue = isCustom
-        ? 'custom'
-        : typeof selectedValue === 'number' && selectedValue > 0
-            ? String(selectedValue)
-            : undefined;
+    // Beim Tagesverleih wird der Preis immer frei eingetragen
+    const isCustom = art === "tag" || auswahl === "custom";
 
     const handleValueChange = (value: string) => {
+        setAuswahl(value);
         if (value === 'custom') {
-            setIsCustom(true);
             // Initialize with 0 so validation will require a positive custom price
             setValue(name, 0, { shouldValidate: true });
         } else {
-            setIsCustom(false);
-            const num = Number(value);
-            setValue(name, isNaN(num) ? 0 : num, { shouldValidate: true });
+            const preis = preise.find((p) => String(p.ID) === value);
+            setValue(name, preis?.Preis ?? 0, { shouldValidate: true });
         }
     };
 
@@ -55,35 +54,38 @@ export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPrei
     return (
         <div className="min-w-0">
             <Label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
-                Saisonverleih
+                {art === "tag" ? "Preis Tagesverleih (gesamter Zeitraum)" : "Saisonverleih"}
             </Label>
             <div className="space-y-2">
-                <Select
-                    value={selectValue}
-                    onValueChange={handleValueChange}
-                    disabled={disabled}
-                >
-                    <SelectTrigger
-                        id={name}
-                        className={`w-full ${error ? 'border-red-500' : ''}`}
+                {art === "saison" && (
+                    <Select
+                        value={auswahl ?? ""}
+                        onValueChange={handleValueChange}
+                        disabled={disabled}
                     >
-                        <SelectValue placeholder={isLoading ? "Lädt..." : "Preis auswählen..."} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {preise.map((preis) => (
-                            <SelectItem key={preis.ID} value={preis.Preis.toString()}>
-                                {preis.Bezeichnung} - {preis.Preis}€
+                        <SelectTrigger
+                            id={name}
+                            className={`w-full ${error ? 'border-red-500' : ''}`}
+                        >
+                            <SelectValue placeholder={isLoading ? "Lädt..." : "Preis auswählen..."} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {preise.map((preis) => (
+                                <SelectItem key={preis.ID} value={String(preis.ID)}>
+                                    {preis.Bezeichnung} - {preis.Preis}€
+                                </SelectItem>
+                            ))}
+                            <SelectItem key="custom" value="custom">
+                                Individueller Preis
                             </SelectItem>
-                        ))}
-                        <SelectItem key="custom" value="custom">
-                            Individueller Preis
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
+                        </SelectContent>
+                    </Select>
+                )}
 
                 {isCustom && (
                     <div>
                         <Input
+                            id={art === "tag" ? name : undefined}
                             type="number"
                             inputMode="decimal"
                             step="0.01"
@@ -96,7 +98,7 @@ export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPrei
                     </div>
                 )}
 
-                {loadError && (
+                {loadError && art === "saison" && (
                     <p className="text-sm text-red-600">{loadError}</p>
                 )}
                 {error && (

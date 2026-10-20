@@ -1,7 +1,9 @@
 import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
 import AuftragListe from "@/components/skiservice/anzeigen/AuftragListe";
 import { serviceListeOptions } from "@/hooks/useServiceListeOptions";
-import { getAktuelleSaisonID, getSaisons } from "@/lib/saisonactions";
+import { getSaisonDaten } from "@/lib/saisonactions";
+import BackendFehler from "@/components/saison/BackendFehler";
+import KeineSaison from "@/components/saison/KeineSaison";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { Snowflake } from "lucide-react";
 import { Suspense } from "react";
@@ -12,26 +14,20 @@ type SkiservicesAnzeigenProps = {
 
 export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesAnzeigenProps) {
 
-    // Daten für den Saisonwechsler laden
-    const saisonData = await getSaisons();
-    const { saison } = await searchParams;
-
-    // atuelle Saison
-    let saisonID: number | undefined
-
-    // Saison aus URL, falls nicht vorhanden wird die aktuelle ermittelt
-    if (!saison) {
-        const aktuelleSaison = await getAktuelleSaisonID()
-        if (aktuelleSaison) {
-            saisonID = aktuelleSaison.ID
-        }
-    } else {
-        saisonID = parseInt(saison)
+    // Saisons kommen aus dem Server Cache
+    const saisonDaten = await getSaisonDaten();
+    if (!saisonDaten.success) {
+        return <BackendFehler meldung={saisonDaten.error} />
     }
+    const saisonData = saisonDaten.data.saisons;
+
+    // Saison aus URL, falls nicht vorhanden wird die aktuelle verwendet
+    const { saison } = await searchParams;
+    const saisonID = saison ? parseInt(saison) : saisonDaten.data.aktuelle?.ID;
 
     // Fehler falls keine Saison gibt
-    if (!saisonID) {
-        return <p>Keine Saison gefunden!</p>
+    if (!saisonID || Number.isNaN(saisonID)) {
+        return <KeineSaison />
     }
 
     // Service in Cache laden

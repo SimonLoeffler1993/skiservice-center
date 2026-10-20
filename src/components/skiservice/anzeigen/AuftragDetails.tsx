@@ -10,6 +10,7 @@ import { AuftragBenachrichtigt } from "./AuftragBenachrichtigt";
 import { AuftragStatus } from "./AuftragStatus";
 import AuftragFertigBis from "./AuftragFertigBis";
 import SkiEttikettenDruckButton from "../SkiEttikettenDruckButton";
+import AuftragAktionen from "../bearbeiten/AuftragAktionen";
 
 type SkiserviceAuftragDetailsProps = {
     skiserviceAuftragID: number;
@@ -18,12 +19,12 @@ type SkiserviceAuftragDetailsProps = {
 export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID }: SkiserviceAuftragDetailsProps) {
     const { data: skiserviceData, isPending, error } = useQuery(auftragDetailsOptions(skiserviceAuftragID))
 
-    if (!skiserviceData || isPending) {
-        return <div>Skiservice Daten werden geladen...</div>
+    if (error) {
+        return <div className="text-destructive">Fehler beim Laden: {error.message}</div>
     }
 
-    if (error) {
-        return <div>FEHLER beim Laden: {error.message}</div>
+    if (!skiserviceData || isPending) {
+        return <div>Skiservice Daten werden geladen...</div>
     }
 
     if (!skiserviceData.data?.kunde) {
@@ -32,10 +33,10 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID }
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-10 gap-2">
-            <div className="col-span-4">
+            <div className="sm:col-span-4">
                 <KundeForm kunde={skiserviceData.data?.kunde}></KundeForm>
             </div>
-            <div className="col-span-6">
+            <div className="sm:col-span-6">
                 <Card className="mt-6">
                     <CardHeader className="flex flex-row items-center">
                         <CardTitle className="text-xl font-semibold flex items-center gap-2">
@@ -44,14 +45,20 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID }
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <SkiEttikettenDruckButton skis={skiserviceData.data.skis} />
+                        <div className="mb-3 flex flex-col gap-2">
+                            <SkiEttikettenDruckButton skis={skiserviceData.data.skis} />
+                            <AuftragAktionen auftrag={skiserviceData.data} />
+                        </div>
                         <div className="mb-3">
                             <AuftragFertigBis fertigBis={skiserviceData.data.abhol_date} />
                         </div>
                         <AuftragBezahlt bezahlt={skiserviceData.data.bezahlt} />
                         <AuftragBenachrichtigt benachrichtigt={skiserviceData.data.benachrichtigt} className="ml-2" />
                         <AuftragStatus status={skiserviceData.data.wie} className="ml-2" />
-                        <SkiListe skis={skiserviceData.data.skis} />
+                        <SkiListe
+                            skis={skiserviceData.data.skis}
+                            bearbeiten={{ bezahlt: skiserviceData.data.bezahlt === "ja" || skiserviceData.data.quittung_id != null }}
+                        />
                     </CardContent>
                 </Card>
             </div>

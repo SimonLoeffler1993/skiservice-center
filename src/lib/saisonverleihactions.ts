@@ -5,9 +5,10 @@
 import { ApiAntwort } from "@/types/actiontypes";
 import { config } from "./config";
 import { 
-    SaisonVerleihCreate, SaisonVerleihCreateResponse, 
+    SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonVerleihCreateResponseSchema,
     SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList, 
-    SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse } from "@/types/saisonverleihtypes";
+    SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse,
+    VerleihBelegung, VerleihBelegungListeSchema } from "@/types/saisonverleihtypes";
 import { toApiAntwort } from "./helfer";
 import { SaisonverleihPreiseListe, saisonverleihPreiseListeSchema } from "@/types/saisonverleihpreisetypes";
 
@@ -33,23 +34,28 @@ export async function getSaisonVerleihPreis(): Promise<ApiAntwort<SaisonverleihP
     }
 }
 
-export async function createSaisonVerleih(previousState: unknown,saisonVerleih: SaisonVerleihCreate): Promise<SaisonVerleihCreateResponse | null> {
-    // console.log("Erstellen:", saisonVerleih);
-    
-    const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/neu`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(saisonVerleih),
-    });
-    if (!response.ok) {
-        console.error("Fehler beim Erstellen:", response);
-        return null;
+export async function createSaisonVerleih(previousState: unknown,saisonVerleih: SaisonVerleihCreate): Promise<SaisonVerleihCreateResponse> {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/neu`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(saisonVerleih),
+        });
+        if (!response.ok) {
+            console.error("Fehler beim Erstellen:", response.status);
+            return { success: false, error: "Saisonverleih konnte nicht gespeichert werden." };
+        }
+        const parsed = SaisonVerleihCreateResponseSchema.safeParse(await response.json());
+        if (!parsed.success) {
+            return { success: false, error: "Ungültige Antwort vom Server." };
+        }
+        return parsed.data;
+    } catch (error) {
+        console.error("Netzwerkfehler beim Erstellen:", error);
+        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
     }
-    const data = await response.json();
-    // Ensure we always return the correct structure
-    return data || null;
 }
 
 // Ein SaisonVerleih per ID laden
@@ -110,22 +116,6 @@ export async function getSaisonVerleihList(limit: number = 15, letzteID?: number
     }
 }
 
-// PDF generieren
-export async function getSaisonVerleihPDF(previousState: unknown,id: number): Promise<Blob | null> {
-    try {
-        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/pdf/${id}`);
-        if (!res.ok) {
-            console.error("Fehler beimLaden SaisonVerleih:", id, res.status, res.statusText);
-            return null;
-        }
-        const blob = await res.blob();
-        return blob;
-    } catch (e) {
-        console.error("Unerwarteter Fehler beimLaden SaisonVerleih:", e);
-        return null;
-    }
-}
-
 // Namen Ettiket generieren
 export async function getSaisonVerleihNamenEttiket(previousState: unknown,id: number): Promise<SaisonVerleihNamenEttiketResponse | null> {
     try {
@@ -163,3 +153,27 @@ export async function setSaisonVerleihZurueckgegeben(previousState: unknown,id: 
     }
 }
 
+
+
+// Prüft, ob Ski oder Schuh im Zeitraum (JJJJ-MM-TT) bereits verliehen sind. Leere Liste = frei.
+export async function getBelegung(
+    von: string,
+    bis: string,
+    material: { skinr?: string; schuhnr?: number },
+    ausserId?: number,
+): Promise<ApiAntwort<VerleihBelegung[]>> {
+    const parameter = new URLSearchParams({ von, bis });
+    if (material.skinr) parameter.set("skinr", material.skinr);
+    if (material.schuhnr !== undefined) parameter.set("schuhnr", String(material.schuhnr));
+    if (ausserId !== undefined) parameter.set("ausser_id", String(ausserId));
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/belegung?${parameter}`, { cache: "no-store" });
+        if (!response.ok) {
+            return { success: false, error: "Belegung konnte nicht geprüft werden." };
+        }
+        return toApiAntwort(VerleihBelegungListeSchema.safeParse(await response.json()), "Ungültige Antwort bei der Belegungsprüfung.");
+    } catch (error) {
+        console.error("Belegungsprüfung fehlgeschlagen:", error);
+        return { success: false, error: "Server nicht erreichbar. Belegung konnte nicht geprüft werden." };
+    }
+}

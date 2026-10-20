@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Search } from "lucide-react";
+import { useBelegungPruefung } from "@/hooks/useBelegungPruefung";
+import BelegungHinweis from "./BelegungHinweis";
 import { useActionState, startTransition, useEffect } from "react";
 import { getSkiNrCheck } from "@/lib/materialactions";
 import SaisonMaterialSkiAnzeige from "./SaisonMaterialSkiAnzeige";
@@ -20,6 +22,10 @@ export default function SaisonMaterialSki({
     error 
 }: SaisonMaterialSkiProps) {
     const [state, action, isPending] = useActionState(getSkiNrCheck, null);
+    // Beim Tagesverleih zusätzlich prüfen, ob im Zeitraum frei
+    const belegung = useBelegungPruefung("ski");
+    const belegungsErgebnis = belegung.aktuellesErgebnis(value);
+    const belegt = !!belegungsErgebnis && (belegungsErgebnis.belegungen.length > 0 || !!belegungsErgebnis.fehler);
 
     const handleSkiNrChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.value);
@@ -27,14 +33,15 @@ export default function SaisonMaterialSki({
 
     function handleSkiNrCheck() {
         startTransition(() => action(value));
+        belegung.pruefen(value);
     }
 
     // Notify parent about check result
     useEffect(() => {
         if (state) {
-            onCheck?.(state.success);
+            onCheck?.(state.success && !belegt);
         }
-    }, [state, onCheck]);
+    }, [state, belegt, onCheck]);
     
     return (
         <div>
@@ -64,6 +71,13 @@ export default function SaisonMaterialSki({
             {state?.success && <SaisonMaterialSkiAnzeige ski={state.data![0]} />}
             {state?.error && !isPending && (
                 <p className="mt-1 text-sm text-red-600">{state.error}</p>
+            )}
+            {belegung.aktiv && state?.success && (
+                <BelegungHinweis
+                    belegungen={belegungsErgebnis?.belegungen ?? null}
+                    fehler={belegungsErgebnis?.fehler ?? null}
+                    isPending={belegung.isPending}
+                />
             )}
         </div>
     );

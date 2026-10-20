@@ -16,9 +16,18 @@ import { useSaisonverleihContext } from '@/context/saisonverleih-context';
 
 type MaterialFormData = z.infer<typeof MaterialSchema>;
 
-export default function MaterialEingabe() {
+type MaterialEingabeProps = {
+    // Statt in die Liste des neuen Verleihs direkt speichern (bestehender Verleih).
+    // Gibt eine Fehlermeldung zurück oder null bei Erfolg.
+    onHinzufuegen?: (material: MaterialFormData) => Promise<string | null>;
+};
+
+export default function MaterialEingabe({ onHinzufuegen }: MaterialEingabeProps = {}) {
     const [skiValid, setSkiValid] = useState<boolean | null>(null);
     const [schuhValid, setSchuhValid] = useState<boolean | null>(null);
+    // Neuer Key setzt die interne Auswahl der Preis-Komponente zurück
+    const [eingabeNr, setEingabeNr] = useState(0);
+    const [speicherFehler, setSpeicherFehler] = useState<string | null>(null);
     const { materialList, setMaterialList } = useSaisonverleihContext();
 
     const methods = useForm<MaterialFormData>({
@@ -36,14 +45,21 @@ export default function MaterialEingabe() {
 
     const { register, handleSubmit, reset, setValue, watch, formState: { errors, isValid: isFormValid } } = methods;
 
-    const onSubmit: SubmitHandler<MaterialFormData> = (data) => {
+    const onSubmit: SubmitHandler<MaterialFormData> = async (data) => {
         if (skiValid === false || schuhValid === false) {
             alert('Bitte überprüfen Sie die Ski- und Schuh-Nummern auf Gültigkeit');
             return;
         }
 
-        setMaterialList([...materialList, data]);
+        if (onHinzufuegen) {
+            const fehler = await onHinzufuegen(data);
+            setSpeicherFehler(fehler);
+            if (fehler) return;
+        } else {
+            setMaterialList([...materialList, data]);
+        }
         reset();
+        setEingabeNr((nr) => nr + 1);
         setSkiValid(null);
         setSchuhValid(null);
     };
@@ -60,6 +76,7 @@ export default function MaterialEingabe() {
                         <div className="min-w-0">
                             <Suspense fallback={<div>Lade Service-Optionen...</div>}>
                                 <SaisonMaterialPreise
+                                    key={eingabeNr}
                                     name="Preis"
                                     error={errors.Preis?.message}
                                 />
@@ -146,11 +163,14 @@ export default function MaterialEingabe() {
                                 Hinzufügen
                             </button>
                         </div>
+                        {speicherFehler && (
+                            <p className="sm:col-span-2 text-sm text-red-600">{speicherFehler}</p>
+                        )}
                     </div>
                 </form>
 
-                {/* Material List */}
-                <div>
+                {/* Material List, nur beim Anlegen eines neuen Verleihs */}
+                {!onHinzufuegen && <div>
                     <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">Ausgewähltes Material</h2>
 
                     {materialList.length === 0 ? (
@@ -162,7 +182,7 @@ export default function MaterialEingabe() {
                             <SaisonMaterialListe />
                         </div>
                     )}
-                </div>
+                </div>}
             </div>
         </FormProvider>
     );

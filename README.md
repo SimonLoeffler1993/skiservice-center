@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Skiservice Center
 
-## Getting Started
+Verwaltungsoberfläche für die Mitarbeiter im Skiservice: Kunden, Skiservice-Aufträge, Saison- und Tagesverleih, Material, Preise und Einstellungen. Alle Daten kommen aus der [Skiservice API](https://github.com/SimonLoeffler1993/skiserviceapi).
 
-First, run the development server:
+![Startseite](docs/screenshots/startseite.png)
+
+## Funktionen
+
+### Skiservice
+
+Aufträge mit mehreren Ski erfassen. Zeilen lassen sich duplizieren, der Gesamtpreis wird laufend berechnet. Nach dem Speichern werden die Etiketten gedruckt.
+
+![Skiservice erfassen](docs/screenshots/skiservice-erstellen.png)
+
+In der Detailansicht können Ski hinzugefügt, bearbeitet, entfernt und zwischen *offen* und *fertig* umgeschaltet werden. Abholdatum ändern und Auftrag löschen sind ebenfalls möglich. Bezahlte Aufträge sind gesperrt.
+
+![Skiservice-Auftrag](docs/screenshots/skiservice-auftrag.png)
+
+| Liste | Fertigstellen per Scanner |
+|---|---|
+| ![Skiservice-Liste](docs/screenshots/skiservice-liste.png) | Seite `/fertig`: Ski scannen, fertigmelden, Kunde wird per Mail benachrichtigt |
+
+### Saison- und Tagesverleih
+
+Beim **Tagesverleih** wird ein Zeitraum gewählt und der Preis frei eingetragen. Ski und Schuhe werden beim Prüfen der Nummer darauf geprüft, ob sie im Zeitraum schon verliehen sind – in einem anderen Tagesverleih oder einem nicht zurückgegebenen Saisonverleih.
+
+![Tagesverleih erfassen mit Belegungsprüfung](docs/screenshots/tagesverleih-erstellen.png)
+
+Art und Zeitraum stehen in der URL und lassen sich direkt verlinken:
+
+| URL | Ergebnis |
+|---|---|
+| `/saisonverleih/erstellen` | Saisonverleih |
+| `/saisonverleih/erstellen?art=tag` | Tagesverleih, Zeitraum noch offen |
+| `/saisonverleih/erstellen?art=tag&von=2026-12-27&bis=2026-12-29` | Tagesverleih mit Zeitraum |
+
+| Übersicht | Detail |
+|---|---|
+| ![Verleihliste](docs/screenshots/saisonverleih-liste.png) | ![Tagesverleih](docs/screenshots/tagesverleih-detail.png) |
+
+In der Detailansicht können Bemerkung, Art und Zeitraum geändert, Material hinzugefügt, bearbeitet und entfernt sowie der Verleih gelöscht werden.
+
+### Einstellungen
+
+Unter **Verwalten → Einstellungen** werden Firma, Etikettendrucker, E-Mail (SSL, STARTTLS oder ohne Verschlüsselung), Lexware und Nummernkürzel gepflegt. Passwörter werden nie angezeigt, nur ob sie gesetzt sind. Mail, Drucker und Lexware lassen sich direkt testen.
+
+![Einstellungen](docs/screenshots/einstellungen.png)
+
+### Handy und Tablet
+
+Auf kleinen Bildschirmen klappt das Menü seitlich aus, Formulare und Listen stapeln sich.
+
+| Menü | Auftrag |
+|---|---|
+| ![Mobiles Menü](docs/screenshots/mobil-menue.png) | ![Mobiler Auftrag](docs/screenshots/mobil-auftrag.png) |
+
+## Konfiguration
+
+| Variable | Beschreibung |
+|---|---|
+| `BACKEND_URL` | Adresse der Skiservice API, z. B. `http://skiserviceapi:8000`. Standard: `http://localhost:8000` |
+
+Die Seite `/fertig` verbindet sich per WebSocket **aus dem Browser** mit der API. Dafür muss `BACKEND_URL` auch vom Browser aus erreichbar sein.
+
+Alle anderen Einstellungen liegen in der Datenbank und werden in der Oberfläche gepflegt.
+
+## Entwicklung
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+BACKEND_URL=http://localhost:8000 npm run dev   # http://localhost:3000
+npm run lint
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Aufbau
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Ordner | Inhalt |
+|---|---|
+| `src/app/` | Seiten (App Router) |
+| `src/lib/*actions.ts` | Server Actions, die die API aufrufen (`"use server"`) |
+| `src/hooks/use*Options.ts` | TanStack-Query-Optionen für die Server Actions |
+| `src/types/` | zod-Schemas und Typen |
+| `src/context/` | seitenweiter Zustand, z. B. der Verleih während der Erfassung |
+| `src/components/ui/` | shadcn/ui-Komponenten (über die shadcn-CLI hinzufügen) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Die Saisons werden zentral geladen und 5 Minuten im Server gecacht. Ist das Backend nicht erreichbar, zeigt das Center eine Meldung mit „Erneut versuchen“.
 
-## Learn More
+## Docker
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Bei jedem Push auf `master` baut GitHub Actions das Image `ghcr.io/simonloeffler1993/skiservice-center:latest` (Next.js standalone, Port 3000). Ein Beispiel für den kompletten Stack liegt im Repository der API unter `docker/alles/`.
