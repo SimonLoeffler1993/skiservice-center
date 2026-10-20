@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { parseISO } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -33,7 +34,11 @@ export default function MaterialHinzufuegenDialog({ verleih, bezahlt }: Material
                     <DialogTitle>Material zu {verleih.Name} hinzufügen</DialogTitle>
                 </DialogHeader>
                 {/* Eigener Context, damit die Eingabe die passende Preisauswahl (Saison/Tag) bekommt */}
-                <SaisonverleihContextProvider startArt={verleih.Art}>
+                <SaisonverleihContextProvider
+                    startArt={verleih.Art}
+                    startZeitraum={verleih.Start_Am && verleih.Ende_Am ? { from: parseISO(verleih.Start_Am), to: parseISO(verleih.Ende_Am) } : undefined}
+                    verleihId={verleih.ID}
+                >
                     <MaterialEingabe
                         onHinzufuegen={async (material) => {
                             const antwort = await fuegeMaterialHinzu(verleih.ID, material);

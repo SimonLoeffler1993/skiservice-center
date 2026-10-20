@@ -5,6 +5,8 @@ import { useActionState, startTransition, useEffect } from "react";
 import { getSchuhNrCheck } from "@/lib/materialactions";
 import SaisonMaterialSchuhAnzeige from "./SaisonMaterialSchuhAnzeigen";
 import { Loader2, Search } from "lucide-react";
+import { useBelegungPruefung } from "@/hooks/useBelegungPruefung";
+import BelegungHinweis from "./BelegungHinweis";
 
 interface SaisonMaterialSchuhProps {
     value: string;
@@ -20,6 +22,10 @@ export default function SaisonMaterialSchuh({
     error
 }: SaisonMaterialSchuhProps) {
     const [state, action, isPending] = useActionState(getSchuhNrCheck, null);
+    // Beim Tagesverleih zusätzlich prüfen, ob im Zeitraum frei
+    const belegung = useBelegungPruefung("schuh");
+    const belegungsErgebnis = belegung.aktuellesErgebnis(value);
+    const belegt = !!belegungsErgebnis && (belegungsErgebnis.belegungen.length > 0 || !!belegungsErgebnis.fehler);
 
     const handleSchuhNrChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.value);
@@ -27,14 +33,15 @@ export default function SaisonMaterialSchuh({
 
     function handleSchuhNrCheck() {
         startTransition(() => action(value));
+        belegung.pruefen(value);
     }
 
     // Notify parent about check result
     useEffect(() => {
         if (state) {
-            onCheck?.(state.success);
+            onCheck?.(state.success && !belegt);
         }
-    }, [state, onCheck]);
+    }, [state, belegt, onCheck]);
 
     return (
         <div>
@@ -69,6 +76,13 @@ export default function SaisonMaterialSchuh({
             {state?.success && <SaisonMaterialSchuhAnzeige schuh={state.data!} />}
             {state?.error && !isPending && (
                 <p className="mt-1 text-sm text-red-600">{state.error}</p>
+            )}
+            {belegung.aktiv && state?.success && (
+                <BelegungHinweis
+                    belegungen={belegungsErgebnis?.belegungen ?? null}
+                    fehler={belegungsErgebnis?.fehler ?? null}
+                    isPending={belegung.isPending}
+                />
             )}
         </div>
     );

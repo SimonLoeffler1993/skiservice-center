@@ -78,7 +78,7 @@ export default function VerleihArtAuswahl() {
                         </PopoverContent>
                     </Popover>
                     {tage !== null ? (
-                        <p className="text-sm">{tage} {tage === 1 ? "Tag" : "Tage"}</p>
+                        <p className="text-sm">{tage} {tage === 1 ? "Tag" : "Tage"} – Ski und Schuhe werden beim Prüfen der Nummer auf Belegung in diesem Zeitraum geprüft.</p>
                     ) : (
                         <p className="text-sm text-muted-foreground">Ersten Tag anklicken, dann den letzten Tag. Ein Klick allein ergibt einen Tag.</p>
                     )}

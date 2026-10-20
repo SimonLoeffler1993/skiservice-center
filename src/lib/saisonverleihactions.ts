@@ -7,7 +7,8 @@ import { config } from "./config";
 import { 
     SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonVerleihCreateResponseSchema,
     SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList, 
-    SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse } from "@/types/saisonverleihtypes";
+    SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse,
+    VerleihBelegung, VerleihBelegungListeSchema } from "@/types/saisonverleihtypes";
 import { toApiAntwort } from "./helfer";
 import { SaisonverleihPreiseListe, saisonverleihPreiseListeSchema } from "@/types/saisonverleihpreisetypes";
 
@@ -168,3 +169,27 @@ export async function setSaisonVerleihZurueckgegeben(previousState: unknown,id: 
     }
 }
 
+
+
+// Prüft, ob Ski oder Schuh im Zeitraum (JJJJ-MM-TT) bereits verliehen sind. Leere Liste = frei.
+export async function getBelegung(
+    von: string,
+    bis: string,
+    material: { skinr?: string; schuhnr?: number },
+    ausserId?: number,
+): Promise<ApiAntwort<VerleihBelegung[]>> {
+    const parameter = new URLSearchParams({ von, bis });
+    if (material.skinr) parameter.set("skinr", material.skinr);
+    if (material.schuhnr !== undefined) parameter.set("schuhnr", String(material.schuhnr));
+    if (ausserId !== undefined) parameter.set("ausser_id", String(ausserId));
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/belegung?${parameter}`, { cache: "no-store" });
+        if (!response.ok) {
+            return { success: false, error: "Belegung konnte nicht geprüft werden." };
+        }
+        return toApiAntwort(VerleihBelegungListeSchema.safeParse(await response.json()), "Ungültige Antwort bei der Belegungsprüfung.");
+    } catch (error) {
+        console.error("Belegungsprüfung fehlgeschlagen:", error);
+        return { success: false, error: "Server nicht erreichbar. Belegung konnte nicht geprüft werden." };
+    }
+}

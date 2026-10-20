@@ -107,3 +107,17 @@ export const SaisonVerleihNamenEttiketResponseSchema = z.object({
     message: z.string().optional(),
 });
 export type SaisonVerleihNamenEttiketResponse = z.infer<typeof SaisonVerleihNamenEttiketResponseSchema>;
+
+
+// --- Belegung (Prüfung beim Tagesverleih) ---
+export const VerleihBelegungSchema = z.object({
+    ID: z.number().int(),
+    Name: z.string(),
+    Art: VerleihArtSchema,
+    Start_Am: z.string().date().nullable().optional(),
+    Ende_Am: z.string().date().nullable().optional(),
+    Kunde: z.string(),
+    Material: z.enum(["Ski", "Schuh"]),
+});
+export const VerleihBelegungListeSchema = z.array(VerleihBelegungSchema);
+export type VerleihBelegung = z.infer<typeof VerleihBelegungSchema>;
