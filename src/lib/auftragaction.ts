@@ -1,6 +1,17 @@
 "use server";
 import { config } from "./config";
-import { AuftragListe, AuftragListeSchema, AuftragSchema, type SkiserviceEintrag } from "@/types/skiservicetypes";
+import { AuftragListe, AuftragListeSchema, AuftragSchema } from "@/types/skiservicetypes";
+import type { Bindungsdaten } from "@/types/bindungsdatentypes";
+
+// Ski wie ihn die API beim Anlegen erwartet
+export type SkiAnlegen = {
+    service: string;
+    preis: number;
+    bindung_check: boolean;
+    bindung_preis: number;
+    bindungsdaten: Bindungsdaten | null;
+    vorlage_id: number | null;
+};
 
 export async function auftragFertigStellen(serviceId: number, skiIds: number[]) {
     try {
@@ -25,7 +36,7 @@ export async function auftragFertigStellen(serviceId: number, skiIds: number[]) 
 }
 
 // fertigBis kommt bereits als "TT.MM.JJJJ" aus dem Browser
-export async function auftragAnlegen(kundeId: number, skiserviceEintraege: SkiserviceEintrag[], fertigBis: string | null) {
+export async function auftragAnlegen(kundeId: number, skiserviceEintraege: SkiAnlegen[], fertigBis: string | null) {
     try {
         const body = JSON.stringify({
             kunden_id: kundeId,

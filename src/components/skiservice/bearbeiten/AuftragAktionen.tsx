@@ -55,7 +55,7 @@ export default function AuftragAktionen({ auftrag }: AuftragAktionenProps) {
 
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <SkiFormDialog auftragId={auftrag.id} bezahlt={bezahlt} />
+            <SkiFormDialog auftragId={auftrag.id} bezahlt={bezahlt} kundeId={auftrag.kunden_id} />
 
             <Dialog open={datumOffen} onOpenChange={(wert) => { setDatumOffen(wert); setFehler(null); if (wert) setDatum(zuIso(auftrag.abhol_date)); }}>
                 <DialogTrigger asChild>

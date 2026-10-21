@@ -11,9 +11,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useKundeStore } from "@/stores/useKundeStore";
 
 import { type SkiserviceEintrag, type Antwort, AntwortSchema } from "@/types/skiservicetypes";
-import { auftragAnlegen } from '@/lib/auftragaction';
+import { auftragAnlegen, type SkiAnlegen } from '@/lib/auftragaction';
 import AuftragGesamtPreis from './AuftragGesamtPreis';
 import AuftragAngelegt from './AuftragAngelegt';
+import { zuBindungsdaten } from '@/types/bindungsdatentypes';
 
 
 export type FormInhalte = {
@@ -53,6 +54,24 @@ export default function ServiceErstellenTab() {
             setEingabeFehler(`Zeile ${fehlerhaft + 1}: Bitte einen Service auswählen und einen gültigen Preis eingeben.`);
             return;
         }
+
+        // Bindungsdaten prüfen und umwandeln, nur bei Bindungscheck
+        const skis: SkiAnlegen[] = [];
+        for (const [i, eintrag] of data.skiservices.entries()) {
+            const { daten, fehler } = eintrag.bindung_check ? zuBindungsdaten(eintrag.bindungsdaten) : { daten: null, fehler: null };
+            if (fehler) {
+                setEingabeFehler(`Zeile ${i + 1}: ${fehler}`);
+                return;
+            }
+            skis.push({
+                service: eintrag.service,
+                preis: eintrag.preis,
+                bindung_check: eintrag.bindung_check,
+                bindung_preis: eintrag.bindung_preis,
+                bindungsdaten: daten,
+                vorlage_id: daten ? eintrag.bindungsdaten?.vorlage_id ?? null : null,
+            });
+        }
         setEingabeFehler(null);
 
         setIsSubmitting(true);
@@ -65,7 +84,7 @@ export default function ServiceErstellenTab() {
                     month: '2-digit',
                     year: 'numeric',
                 }) : null;
-                const res = await auftragAnlegen(kunde.ID, data.skiservices, fertigBis)
+                const res = await auftragAnlegen(kunde.ID, skis, fertigBis)
                 const parsedRes = AntwortSchema.safeParse(res)
                 if (!parsedRes.success) {
                     setEingabeFehler("Unerwartete Antwort vom Server.");
@@ -76,6 +95,7 @@ export default function ServiceErstellenTab() {
                 if (parsedRes.data.success) {
                     // Liste neu laden, damit der neue Auftrag sofort erscheint
                     queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
+                    queryClient.invalidateQueries({ queryKey: ["bindungsdaten", kunde.ID] });
                 }
             } finally {
                 setIsSubmitting(false);
@@ -87,7 +107,8 @@ export default function ServiceErstellenTab() {
         const aktuell = getValues(`skiservices.${index}`);
         if (!aktuell) return;
 
-        insert(index + 1, { ...aktuell });
+        // Tiefe Kopie, damit die Bindungsdaten nicht zwischen den Zeilen geteilt werden
+        insert(index + 1, structuredClone(aktuell));
     }
 
     return (

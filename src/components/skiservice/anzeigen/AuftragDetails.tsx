@@ -57,7 +57,10 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID }
                         <AuftragStatus status={skiserviceData.data.wie} className="ml-2" />
                         <SkiListe
                             skis={skiserviceData.data.skis}
-                            bearbeiten={{ bezahlt: skiserviceData.data.bezahlt === "ja" || skiserviceData.data.quittung_id != null }}
+                            bearbeiten={{
+                                bezahlt: skiserviceData.data.bezahlt === "ja" || skiserviceData.data.quittung_id != null,
+                                kundeId: skiserviceData.data.kunden_id,
+                            }}
                         />
                     </CardContent>
                 </Card>

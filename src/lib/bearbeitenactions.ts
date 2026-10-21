@@ -9,6 +9,7 @@ import { toApiAntwort } from "./helfer";
 import { ApiAntwort } from "@/types/actiontypes";
 import { Auftrag, AuftragSchema } from "@/types/skiservicetypes";
 import { SaisonverleihRead, SaisonverleihReadSchema, VerleihArt } from "@/types/saisonverleihtypes";
+import type { Bindungsdaten } from "@/types/bindungsdatentypes";
 
 async function fehlerText(response: Response, standard: string): Promise<string> {
     const daten = await response.json().catch(() => null);
@@ -48,6 +49,9 @@ export type SkiDaten = {
     komentar?: string | null;
     bindung_check: boolean;
     bindung_preis: number;
+    // null entfernt die Bindungsdaten
+    bindungsdaten?: Bindungsdaten | null;
+    vorlage_id?: number | null;
 };
 
 export async function aendereAuftrag(auftragId: number, daten: { kunden_id?: number; abhol_date?: string }): Promise<ApiAntwort<Auftrag>> {

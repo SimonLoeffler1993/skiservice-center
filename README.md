@@ -12,6 +12,8 @@ Aufträge mit mehreren Ski erfassen. Zeilen lassen sich duplizieren, der Gesamtp
 
 ![Skiservice erfassen](docs/screenshots/skiservice-erstellen.png)
 
+Ist „Bindung“ angehakt, lassen sich optional die Bindungsdaten erfassen (Fahrer, Sohle, Gewicht, Größe, Fahrkönnen, Alter). „Letzte Daten abfragen“ zeigt die früheren Einträge des Kunden. Ein übernommener Eintrag wird beim Speichern archiviert, nicht mehr benötigte Einträge lassen sich dort auch von Hand archivieren.
+
 In der Detailansicht können Ski hinzugefügt, bearbeitet, entfernt und zwischen *offen* und *fertig* umgeschaltet werden. Abholdatum ändern und Auftrag löschen sind ebenfalls möglich. Bezahlte Aufträge sind gesperrt.
 
 ![Skiservice-Auftrag](docs/screenshots/skiservice-auftrag.png)

@@ -16,9 +16,10 @@ type SkiAktionenProps = {
     bezahlt: boolean;
     // Der letzte Ski kann nicht entfernt werden
     letzterSki: boolean;
+    kundeId: number;
 };
 
-export default function SkiAktionen({ ski, bezahlt, letzterSki }: SkiAktionenProps) {
+export default function SkiAktionen({ ski, bezahlt, letzterSki, kundeId }: SkiAktionenProps) {
     const [isPending, startTransition] = useTransition();
     const aktualisieren = useAuftragAktualisieren(ski.auftrag_id);
     const queryClient = useQueryClient();
@@ -46,7 +47,7 @@ export default function SkiAktionen({ ski, bezahlt, letzterSki }: SkiAktionenPro
             >
                 {istFertig ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
             </Button>
-            <SkiFormDialog auftragId={ski.auftrag_id} ski={ski} bezahlt={bezahlt} />
+            <SkiFormDialog auftragId={ski.auftrag_id} ski={ski} bezahlt={bezahlt} kundeId={kundeId} />
             <LoeschenDialog
                 titel={`Ski ${ski.name ?? ""} entfernen`}
                 beschreibung="Der Ski wird aus dem Auftrag entfernt."
