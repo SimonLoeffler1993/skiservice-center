@@ -8,7 +8,7 @@ import {
     SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonVerleihCreateResponseSchema,
     SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList, 
     SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse,
-    VerleihBelegung, VerleihBelegungListeSchema } from "@/types/saisonverleihtypes";
+    VerleihBelegung, VerleihBelegungListeSchema, VerleihArt } from "@/types/saisonverleihtypes";
 import { toApiAntwort } from "./helfer";
 import { SaisonverleihPreiseListe, saisonverleihPreiseListeSchema } from "@/types/saisonverleihpreisetypes";
 
@@ -83,7 +83,8 @@ export async function getSaisonVerleihById(id: number | string): Promise<Saisonv
 }
 
 // SaisonVerleihliste laden
-export async function getSaisonVerleihList(limit: number = 15, letzteID?: number, saisonID?: number): Promise<SaisonverleihReadList | null> {
+// art: nur Saison- oder nur Tagesverleihe, ohne Angabe alle
+export async function getSaisonVerleihList(limit: number = 15, letzteID?: number, saisonID?: number, art?: VerleihArt): Promise<SaisonverleihReadList | null> {
 
     let url = `${config.backendUrl}/api/v1/saisonverleih/?limit=${limit}`;
     if (saisonID) {
@@ -92,6 +93,9 @@ export async function getSaisonVerleihList(limit: number = 15, letzteID?: number
 
     if (letzteID) {
         url += `&last_id=${letzteID}`;
+    }
+    if (art) {
+        url += `&art=${art}`;
     }
 
     try {

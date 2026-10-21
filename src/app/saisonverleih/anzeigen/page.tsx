@@ -7,9 +7,11 @@ import { getSaisonDaten } from "@/lib/saisonactions";
 import BackendFehler from "@/components/saison/BackendFehler";
 import KeineSaison from "@/components/saison/KeineSaison";
 import { Suspense } from "react";
+import VerleihArtFilter from "@/components/saisonverleih/liste/VerleihArtFilter";
+import { VerleihArtSchema } from "@/types/saisonverleihtypes";
 
 type SaisonVerleiAnzeigeProps = {
-    searchParams: Promise<{ saison?: string }>
+    searchParams: Promise<{ saison?: string; art?: string }>
 }
 
 export default async function SaisonVerleiAnzeige({searchParams}: SaisonVerleiAnzeigeProps) {
@@ -22,7 +24,9 @@ export default async function SaisonVerleiAnzeige({searchParams}: SaisonVerleiAn
     const saisonsData = saisonDaten.data.saisons;
 
     // Saison aus URL, falls nicht vorhanden wird die aktuelle verwendet
-    const { saison } = await searchParams;
+    const { saison, art: artParameter } = await searchParams;
+    // Filter nach Art, ungültige Werte gelten als "alle"
+    const art = VerleihArtSchema.safeParse(artParameter).data;
     const saisonID = saison ? parseInt(saison) : saisonDaten.data.aktuelle?.ID;
 
     // Fehler falls keine Saison gibt
@@ -32,23 +36,24 @@ export default async function SaisonVerleiAnzeige({searchParams}: SaisonVerleiAn
 
     // Prefetch SaisonverleihListe Daten für die ausgewählte Saison
     const queryClient = new QueryClient();
-    await queryClient.prefetchInfiniteQuery(saisonverleihListOptions(saisonID));
+    await queryClient.prefetchInfiniteQuery(saisonverleihListOptions(saisonID, art));
 
-    // TODO Menuleiste
-    // TODO Saison wechseln (SaisonWechseler)
     return (
         <section className="space-y-4">
             <div className="flex items-center justify-between gap-2">   
                 <div className="flex items-center gap-2">
                     <Snowflake className="h-5 w-5 text-muted-foreground" />
-                    <h1 className="text-xl font-semibold">Saisonverleih</h1>
+                    <h1 className="text-xl font-semibold">Verleih</h1>
                 </div>
             </div>
             <Suspense fallback={<div>Lade Saisons...</div>}>
-                <SaisonWechseler saisons={saisonsData} selectedSaisonID={saisonID}/>
+                <div className="flex flex-wrap items-center gap-4">
+                    <SaisonWechseler saisons={saisonsData} selectedSaisonID={saisonID}/>
+                    <VerleihArtFilter art={art} />
+                </div>
             </Suspense>
             <HydrationBoundary state={dehydrate(queryClient)}>
-                <SaisonverleihListe saisonID={saisonID}/>
+                <SaisonverleihListe saisonID={saisonID} art={art}/>
             </HydrationBoundary>
         </section>
     )

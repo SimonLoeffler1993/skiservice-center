@@ -36,8 +36,9 @@ export default function MobileMenue() {
                                         key={link.href}
                                         href={link.href}
                                         onClick={() => setOffen(false)}
-                                        className="rounded-md px-2 py-2 hover:bg-accent"
+                                        className="flex items-center gap-2 rounded-md px-2 py-2 hover:bg-accent"
                                     >
+                                        <link.icon className="h-4 w-4 text-muted-foreground" />
                                         {link.titel}
                                     </Link>
                                 ))}

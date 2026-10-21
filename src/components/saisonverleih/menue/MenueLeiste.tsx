@@ -23,9 +23,16 @@ export default function MenueLeiste() {
                         <NavigationMenuItem key={gruppe.titel}>
                             <NavigationMenuTrigger>{gruppe.titel}</NavigationMenuTrigger>
                             <NavigationMenuContent>
-                                {gruppe.links.map((link) => (
-                                    <NavigationMenuLink key={link.href} href={link.href}>{link.titel}</NavigationMenuLink>
-                                ))}
+                                <ul className="grid w-48 gap-1">
+                                    {gruppe.links.map((link) => (
+                                        <li key={link.href}>
+                                            <NavigationMenuLink href={link.href} className="flex-row items-center gap-2">
+                                                <link.icon />
+                                                {link.titel}
+                                            </NavigationMenuLink>
+                                        </li>
+                                    ))}
+                                </ul>
                             </NavigationMenuContent>
                         </NavigationMenuItem>
                     ))}
