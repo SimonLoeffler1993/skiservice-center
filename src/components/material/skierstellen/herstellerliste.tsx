@@ -1,12 +1,28 @@
 "use client"
-import { use } from "react";
+import { startTransition, use } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSkiHerstellerContext } from "@/context/skihersteller-context"
+import { useSkiModellContext } from "@/context/skimodell-context"
+import { useEigenSkiContext } from "@/context/eigenski-context"
+import { aendereHersteller } from "@/lib/materialbearbeitenactions"
+import FeldDialog from "../bearbeiten/FeldDialog"
+import StammdatenLoeschenDialog from "../bearbeiten/StammdatenLoeschenDialog"
 
 export default function Herstellerliste() {
-    const { herstellerPromise } = useSkiHerstellerContext();
+    const { herstellerPromise, refreshHerstellerPromise } = useSkiHerstellerContext();
+    const { refreshModellPromise } = useSkiModellContext();
+    const { refreshEigenSkisPromise } = useEigenSkiContext();
     const hersteller = use(herstellerPromise);
-    // TODO: Suche und Inaktiv Schalten UI Ellemente wurden auskommentiert
+
+    // Herstellernamen stehen auch bei Modellen und Ski, deshalb alles neu laden
+    function neuLaden() {
+        startTransition(() => {
+            refreshHerstellerPromise();
+            refreshModellPromise();
+            refreshEigenSkisPromise();
+        });
+    }
+    // TODO: Suche
     return (
         <Card className="m-2">
             <CardHeader>
@@ -27,10 +43,26 @@ export default function Herstellerliste() {
                                         <p className="font-medium">{hersteller.Name}</p>
                                     </div>
                                 </div>
-                                {/* <div className="flex items-center gap-2">
-                                    <Button className="h-8 px-3">Bearbeiten</Button>
-                                    <Button className="h-8 px-3">Löschen</Button>
-                                </div> */}
+                                <div className="flex items-center gap-1">
+                                    <FeldDialog
+                                        titel={`Hersteller ${hersteller.Name} bearbeiten`}
+                                        startwerte={{ Name: hersteller.Name }}
+                                        felder={[{ name: "Name", label: "Name" }]}
+                                        onSpeichern={async (werte) => {
+                                            const antwort = await aendereHersteller("skihersteller", hersteller.ID, String(werte.Name));
+                                            if (!antwort.success) return antwort.error;
+                                            neuLaden();
+                                            return null;
+                                        }}
+                                    />
+                                    <StammdatenLoeschenDialog
+                                        art="skihersteller"
+                                        id={hersteller.ID}
+                                        bezeichnung={`Hersteller ${hersteller.Name}`}
+                                        verweis={["Modell", "Modellen"]}
+                                        onGeloescht={neuLaden}
+                                    />
+                                </div>
                             </li>
                         ))}
                     </ul>

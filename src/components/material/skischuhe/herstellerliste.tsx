@@ -1,10 +1,22 @@
+"use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { schuhHerstellerOptions } from "@/hooks/useSchuhMaterialOptions";
-import { useQuery } from "@tanstack/react-query";
+import { schuhHerstellerOptions, schuModelleOptions, skiSchuheOptions } from "@/hooks/useSchuhMaterialOptions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { aendereHersteller } from "@/lib/materialbearbeitenactions";
+import FeldDialog from "../bearbeiten/FeldDialog";
+import StammdatenLoeschenDialog from "../bearbeiten/StammdatenLoeschenDialog";
 
 
 export default function SchuhHerstellerListe() {
     const { data, isLoading, error } = useQuery(schuhHerstellerOptions)
+    const queryClient = useQueryClient()
+
+    // Herstellernamen stehen auch bei Modellen und Schuhen
+    function neuLaden() {
+        queryClient.invalidateQueries({ queryKey: schuhHerstellerOptions.queryKey })
+        queryClient.invalidateQueries({ queryKey: schuModelleOptions.queryKey })
+        queryClient.invalidateQueries({ queryKey: skiSchuheOptions.queryKey })
+    }
 
     if (isLoading) return <p>Hersteller werden geladen...</p>
 
@@ -29,6 +41,26 @@ export default function SchuhHerstellerListe() {
                                     <div>
                                         <p className="font-medium">{hersteller.Name}</p>
                                     </div>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <FeldDialog
+                                        titel={`Hersteller ${hersteller.Name} bearbeiten`}
+                                        startwerte={{ Name: hersteller.Name }}
+                                        felder={[{ name: "Name", label: "Name" }]}
+                                        onSpeichern={async (werte) => {
+                                            const antwort = await aendereHersteller("schuhhersteller", hersteller.ID, String(werte.Name))
+                                            if (!antwort.success) return antwort.error
+                                            neuLaden()
+                                            return null
+                                        }}
+                                    />
+                                    <StammdatenLoeschenDialog
+                                        art="schuhhersteller"
+                                        id={hersteller.ID}
+                                        bezeichnung={`Hersteller ${hersteller.Name}`}
+                                        verweis={["Modell", "Modellen"]}
+                                        onGeloescht={neuLaden}
+                                    />
                                 </div>
                             </li>
                         ))}

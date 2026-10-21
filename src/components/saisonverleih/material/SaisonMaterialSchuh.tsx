@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useActionState, startTransition, useEffect } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { getSchuhNrCheck } from "@/lib/materialactions";
 import SaisonMaterialSchuhAnzeige from "./SaisonMaterialSchuhAnzeigen";
 import { Loader2, Search } from "lucide-react";
@@ -9,9 +9,12 @@ import { useBelegungPruefung } from "@/hooks/useBelegungPruefung";
 import BelegungHinweis from "./BelegungHinweis";
 
 interface SaisonMaterialSchuhProps {
+    // Eingegebene Schuh-Nr. (z.B. "17" oder "INV-0042")
     value: string;
     onChange: (value: string) => void;
     onCheck?: (isValid: boolean) => void;
+    // Interne ID des gefundenen Schuhs, wird im Verleih gespeichert
+    onGefunden?: (schuhId: number | undefined) => void;
     error?: string;
 }
 
@@ -19,21 +22,32 @@ export default function SaisonMaterialSchuh({
     value,
     onChange,
     onCheck,
+    onGefunden,
     error
 }: SaisonMaterialSchuhProps) {
-    const [state, action, isPending] = useActionState(getSchuhNrCheck, null);
-    // Beim Tagesverleih zusätzlich prüfen, ob im Zeitraum frei
+    // Ergebnis der Prüfung, gilt nur für die geprüfte Nummer
+    const [pruefung, setPruefung] = useState<{ nummer: string; ergebnis: Awaited<ReturnType<typeof getSchuhNrCheck>> } | null>(null);
+    const [isPending, startTransition] = useTransition();
+    const state = pruefung?.nummer === value ? pruefung.ergebnis : null;
+    // Beim Tagesverleih zusätzlich prüfen, ob im Zeitraum frei (über die interne ID)
     const belegung = useBelegungPruefung("schuh");
-    const belegungsErgebnis = belegung.aktuellesErgebnis(value);
+    const belegungsErgebnis = state?.success ? belegung.aktuellesErgebnis(String(state.data.ID)) : null;
     const belegt = !!belegungsErgebnis && (belegungsErgebnis.belegungen.length > 0 || !!belegungsErgebnis.fehler);
 
     const handleSchuhNrChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Neue Nummer muss erneut geprüft werden
         onChange(e.target.value);
+        onGefunden?.(undefined);
     };
 
     function handleSchuhNrCheck() {
-        startTransition(() => action(value));
-        belegung.pruefen(value);
+        const nummer = value;
+        startTransition(async () => {
+            const ergebnis = await getSchuhNrCheck(null, nummer);
+            setPruefung({ nummer, ergebnis });
+            onGefunden?.(ergebnis.success ? ergebnis.data.ID : undefined);
+            if (ergebnis.success) belegung.pruefen(String(ergebnis.data.ID));
+        });
     }
 
     // Notify parent about check result
@@ -51,8 +65,7 @@ export default function SaisonMaterialSchuh({
             <div className="flex gap-2">
                 <Input
                     type="text"
-                    inputMode="numeric"
-                    id="interneSchuhNummer"
+                                        id="interneSchuhNummer"
                     value={value}
                     onChange={handleSchuhNrChange}
                     className={`min-w-0 ${error ? 'border-red-500' : ''}`}

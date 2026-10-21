@@ -42,6 +42,18 @@ Art und Zeitraum stehen in der URL und lassen sich direkt verlinken:
 
 In der Detailansicht können Bemerkung, Art und Zeitraum geändert, Material hinzugefügt, bearbeitet und entfernt sowie der Verleih gelöscht werden.
 
+### Material
+
+Unter **Verwalten → Material** lassen sich Ski, Schuhe, Stöcke, Hersteller, Skiarten und Modelle anlegen, bearbeiten und entfernen.
+
+- Der Entfernen-Dialog zeigt vorab, was passiert:
+  - Unbenutztes Material kann ausgemustert oder endgültig gelöscht werden.
+  - Material in Verleihen kann nur ausgemustert werden. Der Dialog listet die betroffenen Verleihe mit Link auf.
+- Ausgemustertes Material verschwindet aus der Auswahl im Verleih, lässt sich über „Ausgemusterte anzeigen“ wieder einblenden und wiederherstellen.
+- Hersteller und Modelle lassen sich nur löschen, wenn nichts mehr darauf verweist.
+- Ändert sich eine Ski-Nr., werden bestehende Verleihe automatisch umgestellt.
+- Schuhe können eine eigene Schuh-Nr. bekommen (z. B. Inventur-Aufkleber), sonst gilt die fortlaufende Nummer.
+
 ### Einstellungen
 
 Unter **Verwalten → Einstellungen** werden Firma, Etikettendrucker, E-Mail (SSL, STARTTLS oder ohne Verschlüsselung), Lexware und Nummernkürzel gepflegt. Passwörter werden nie angezeigt, nur ob sie gesetzt sind. Mail, Drucker und Lexware lassen sich direkt testen.

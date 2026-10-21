@@ -17,6 +17,7 @@ import {
 
 const SKI_ITEMS = [
     { label: "Hersteller", view: "skihersteller" },
+    { label: "Arten", view: "skiart" },
     { label: "Modell", view: "skimodell" },
     { label: "Ski", view: "skierstellen" },
 ]

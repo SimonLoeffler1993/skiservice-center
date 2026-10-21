@@ -2,44 +2,11 @@
 
 // Bearbeiten und Löschen von Skiservice Aufträgen und Verleihen
 
-import { z } from "zod";
-
-import { config } from "./config";
-import { toApiAntwort } from "./helfer";
-import { ApiAntwort } from "@/types/actiontypes";
+import { anfrage, LoeschenSchema } from "./apianfrage";
 import { Auftrag, AuftragSchema } from "@/types/skiservicetypes";
 import { SaisonverleihRead, SaisonverleihReadSchema, VerleihArt } from "@/types/saisonverleihtypes";
 import type { Bindungsdaten } from "@/types/bindungsdatentypes";
-
-async function fehlerText(response: Response, standard: string): Promise<string> {
-    const daten = await response.json().catch(() => null);
-    return typeof daten?.detail === "string" ? daten.detail : standard;
-}
-
-async function anfrage<T>(
-    pfad: string,
-    methode: "POST" | "PATCH" | "DELETE",
-    schema: z.ZodType<T>,
-    fehler: string,
-    body?: unknown,
-): Promise<ApiAntwort<T>> {
-    try {
-        const response = await fetch(`${config.backendUrl}/api/v1${pfad}`, {
-            method: methode,
-            headers: { "Content-Type": "application/json" },
-            body: body === undefined ? undefined : JSON.stringify(body),
-        });
-        if (!response.ok) {
-            return { success: false, error: await fehlerText(response, fehler) };
-        }
-        return toApiAntwort(schema.safeParse(await response.json()), "Ungültige Antwort vom Server.");
-    } catch (error) {
-        console.error(fehler, error);
-        return { success: false, error: "Server nicht erreichbar. Bitte später erneut versuchen." };
-    }
-}
-
-const LoeschenSchema = z.object({ success: z.boolean() });
+import { ApiAntwort } from "@/types/actiontypes";
 
 // --- Skiservice ---
 

@@ -1,10 +1,21 @@
 "use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useQuery } from "@tanstack/react-query"
-import { schuModelleOptions } from "@/hooks/useSchuhMaterialOptions";
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { schuhHerstellerOptions, schuModelleOptions, skiSchuheOptions } from "@/hooks/useSchuhMaterialOptions";
+import { aendereSchuhModell } from "@/lib/materialbearbeitenactions";
+import FeldDialog from "../bearbeiten/FeldDialog";
+import StammdatenLoeschenDialog from "../bearbeiten/StammdatenLoeschenDialog";
 
 export default function SchuhModelleListe() {
     const { data, isLoading, error } = useQuery(schuModelleOptions)
+    const { data: hersteller } = useQuery(schuhHerstellerOptions)
+    const queryClient = useQueryClient()
+
+    // Modellnamen stehen auch bei den Schuhen
+    function neuLaden() {
+        queryClient.invalidateQueries({ queryKey: schuModelleOptions.queryKey })
+        queryClient.invalidateQueries({ queryKey: skiSchuheOptions.queryKey })
+    }
 
     if (isLoading) return <p>Schuhmodelle werden geladen...</p>
 
@@ -26,9 +37,37 @@ export default function SchuhModelleListe() {
                                 <p className="font-medium">{modell.Modell}</p>
                                 <p className="text-sm text-muted-foreground">Hersteller: {modell.Hersteller.Name}</p>
                             </div>
-                            {modell.Jugend && (
-                                <span className="rounded-md bg-muted px-2 py-1 text-xs">Jugend</span>
-                            )}
+                            <div className="flex items-center gap-2">
+                                {modell.Jugend && (
+                                    <span className="rounded-md bg-muted px-2 py-1 text-xs">Jugend</span>
+                                )}
+                                <FeldDialog
+                                    titel={`Modell ${modell.Modell} bearbeiten`}
+                                    startwerte={{ Modell: modell.Modell, Hersteller_ID: String(modell.Hersteller_ID), Jugend: modell.Jugend }}
+                                    felder={[
+                                        { name: "Modell", label: "Modell" },
+                                        { name: "Hersteller_ID", label: "Hersteller", typ: "auswahl", optionen: (hersteller ?? []).map((h) => ({ wert: String(h.ID), text: h.Name })) },
+                                        { name: "Jugend", label: "Jugendschuh", typ: "bool" },
+                                    ]}
+                                    onSpeichern={async (werte) => {
+                                        const antwort = await aendereSchuhModell(modell.ID, {
+                                            Modell: String(werte.Modell),
+                                            Hersteller_ID: Number(werte.Hersteller_ID),
+                                            Jugend: werte.Jugend === true,
+                                        })
+                                        if (!antwort.success) return antwort.error
+                                        neuLaden()
+                                        return null
+                                    }}
+                                />
+                                <StammdatenLoeschenDialog
+                                    art="schuhmodell"
+                                    id={modell.ID}
+                                    bezeichnung={`Modell ${modell.Modell}`}
+                                    verweis={["Schuh", "Schuhen"]}
+                                    onGeloescht={neuLaden}
+                                />
+                            </div>
                         </li>
                     ))}
                 </ul>

@@ -22,9 +22,19 @@ export const skiSchuheOptions = queryOptions({
     staleTime: 1000 * 60 * 5, // 5 Minuten
 })
 
+// Nur verleihbare Stöcke, für die Auswahl im Verleih
 export const skiStoeckeOptions = queryOptions({
     queryKey: ["skistoecke"],
     queryFn: () => getSkiStoecke(),
+    gcTime: 1000 * 60 * 60, // 1 Stunde
+    staleTime: 1000 * 60 * 5, // 5 Minuten
+})
+
+// Alle Stöcke inkl. ausgemusterter, für die Materialverwaltung.
+// Der Key beginnt mit "skistoecke", invalidateQueries(["skistoecke"]) erfasst beide Listen.
+export const skiStoeckeVerwaltungOptions = queryOptions({
+    queryKey: ["skistoecke", "verwaltung"],
+    queryFn: () => getSkiStoecke(true),
     gcTime: 1000 * 60 * 60, // 1 Stunde
     staleTime: 1000 * 60 * 5, // 5 Minuten
 })

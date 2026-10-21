@@ -39,6 +39,7 @@ export default function MaterialEingabe({ onHinzufuegen }: MaterialEingabeProps 
             stockbez_ID: 0,
             stocklaenge: 0,
             schuhnr: undefined,
+            schuhAnzeige: '',
             SkiFahrerName: '',
         }
     });
@@ -48,6 +49,11 @@ export default function MaterialEingabe({ onHinzufuegen }: MaterialEingabeProps 
     const onSubmit: SubmitHandler<MaterialFormData> = async (data) => {
         if (skiValid === false || schuhValid === false) {
             alert('Bitte überprüfen Sie die Ski- und Schuh-Nummern auf Gültigkeit');
+            return;
+        }
+        // Eingegebene Schuh-Nr. muss geprüft sein, gespeichert wird die interne ID
+        if (data.schuhAnzeige?.trim() && data.schuhnr === undefined) {
+            alert('Bitte die Schuh-Nummer mit der Lupe prüfen');
             return;
         }
 
@@ -113,8 +119,9 @@ export default function MaterialEingabe({ onHinzufuegen }: MaterialEingabeProps 
 
                         <div className="min-w-0">
                             <SaisonMaterialSchuh
-                                value={watch('schuhnr') !== undefined ? String(watch('schuhnr')) : ''}
-                                onChange={(value) => setValue('schuhnr', value.trim() === '' ? undefined : Number(value), { shouldValidate: true })}
+                                value={watch('schuhAnzeige') ?? ''}
+                                onChange={(value) => setValue('schuhAnzeige', value)}
+                                onGefunden={(schuhId) => setValue('schuhnr', schuhId, { shouldValidate: true })}
                                 onCheck={setSchuhValid}
                                 error={errors.schuhnr?.message}
                             />

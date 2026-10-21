@@ -68,6 +68,9 @@ export const SkiSchema = z.object({
   SkiNr: z.string(),
   ID: z.number(),
   Modell: ModellSchema,
+  Ausgemustert: z.boolean().default(false),
+  // Steckt der Ski in einem Verleih
+  ImVerleih: z.boolean().default(false),
 });
 
 export const SkiArraySchema = z.array(SkiSchema);
@@ -107,7 +110,11 @@ export type SchuhModellCreate = z.infer<typeof SchuhModellCreateSchema>;
 // Skischuh
 export const CreateSchuhSchema = z.object({
   Modell_ID: z.number(),
+  // Eigene Nummer, z.B. Inventur-Aufkleber. Leer = interne ID
+  SchuhNr: z.string().max(50, "Höchstens 50 Zeichen").optional(),
   Groese: z.number(),
+  // Sohlenlänge in mm, optional
+  Sohle: z.number({ error: "Bitte eine Zahl eingeben" }).int("Bitte ganze mm eingeben").min(150, "Mindestens 150 mm").max(400, "Höchstens 400 mm").optional(),
   Saison: z.string(),
   VK: z.number(),
   EK: z.number(),
@@ -117,10 +124,16 @@ export type CreateSkiSchuh = z.infer<typeof CreateSchuhSchema>;
 export const SchuhSchema = z.object({
   Modell_ID: z.number(),
   Groese: z.number(),
+  Sohle: z.number().nullish(),
   Saison: z.string(),
   VK: z.number(),
   EK: z.number(),
   ID: z.number(),
+  // Sichtbare Schuh-Nr., Standard ist die ID
+  SchuhNr: z.string(),
+  Ausgemustert: z.boolean().default(false),
+  // Steckt der Schuh in einem Verleih
+  ImVerleih: z.boolean().default(false),
   Modell: SchuhModellSchema,
 });
 
@@ -134,7 +147,10 @@ export type SchuhArray = z.infer<typeof SchuhArraySchema>;
 // Für Skistock
 export const SkistockSchema = z.object({
   ID: z.number(),
-  Bezeichnung: z.string()
+  Bezeichnung: z.string(),
+  Ausgemustert: z.boolean().default(false),
+  // Steckt der Stock in einem Verleih
+  ImVerleih: z.boolean().default(false),
 })
 
 export const SkistockCreateSchema = z.object({
@@ -156,7 +172,10 @@ export const MaterialSchema = z.object({
   skinr: z.string(),
   stockbez_ID: z.number(),
   stocklaenge: z.number(),
+  // Interne ID des Schuhs (aus der Nummernprüfung)
   schuhnr: z.number().optional(),
+  // Eingegebene bzw. angezeigte Schuh-Nr.
+  schuhAnzeige: z.string().optional(),
   SkiFahrerName: z.string(),
 });
 
@@ -178,3 +197,32 @@ export const MaterialReadSchema = z.object({
 })
 
 export type MaterialRead = z.infer<typeof MaterialReadSchema>;
+
+
+// --- Bearbeiten / Ausmustern / Löschen ---
+
+// Ein Verleih, in dem ein Ski, Schuh oder Stock steckt
+export const VerleihVerwendungSchema = z.object({
+  ID: z.number(),
+  Name: z.string(),
+  Art: z.string(),
+  Start_Am: z.string().nullish(),
+  Ende_Am: z.string().nullish(),
+  Kunde: z.string(),
+  Fahrer: z.string().nullish(),
+  Zurueck: z.boolean(),
+});
+export const VerleihVerwendungListeSchema = z.array(VerleihVerwendungSchema);
+export type VerleihVerwendung = z.infer<typeof VerleihVerwendungSchema>;
+
+// Wie oft ein Hersteller oder Modell noch verwendet wird
+export const StammdatenVerwendungSchema = z.object({
+  Anzahl: z.number(),
+  Beispiele: z.array(z.string()),
+});
+export type StammdatenVerwendung = z.infer<typeof StammdatenVerwendungSchema>;
+
+// Antwort beim Ändern eines Ski: Anzahl der auf die neue Ski-Nr. umgestellten Verleihe
+export const SkiAenderungSchema = SkiSchema.extend({
+  UmgestellteVerleihe: z.number().default(0),
+});
