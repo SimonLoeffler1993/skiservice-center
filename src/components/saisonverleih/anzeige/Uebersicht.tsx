@@ -11,7 +11,7 @@ import SaisonVerleiAnzeigeUebersichtBemerkung from "./UebersichtBemerkung";
 import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 
 import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
-import ButtonQuittungZuweisen from "./ButtonQuittungZuweisen";
+import ButtonQuittungZuweisen from "@/components/quittung/ButtonQuittungZuweisen";
 import VerleihArtBadge from "../liste/VerleihArtBadge";
 import VerleihAktionen, { istVerleihBezahlt } from "../bearbeiten/VerleihAktionen";
 
@@ -58,7 +58,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
                     <SaisonverleihCardStatus status={saisonVerleihDetails.Zurueck} />
                     <SaisonverleihCardBezahlt bezahlt={saisonVerleihDetails.Bezahlt} />
                     <SaisonVerleiAnzeigePDFButton saisonverleihanzeigeID={saisonVerleihDetails.ID} />
-                    <ButtonQuittungZuweisen quittungID={saisonVerleihDetails.QuittungID}/>
+                    <ButtonQuittungZuweisen quittungID={saisonVerleihDetails.QuittungID} ziel={{ art: "verleih", id: saisonVerleihDetails.ID }}/>
                 </div>
 
                 {/* Bemerkung */}

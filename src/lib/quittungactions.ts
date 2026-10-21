@@ -34,20 +34,28 @@ export async function getQuittungsBelegeListe(page: number = 0): Promise<LexPage
     return data as LexPages<Beleg>;
 }
 
-export async function setExQuittungBeleg(lexBelegID: string, saisonVerleihID: number): Promise<boolean> {
-    const response = await fetch(`${config.backendUrl}/api/v1/quittungen/quittung/nurextern`, {
-        method: "POST",
-        body: JSON.stringify({
-            SaisonverleihID: saisonVerleihID,
-            LexOfficeID: lexBelegID
-        }),
-        headers: {
-            "Content-Type": "application/json"
+// Wem die externe Quittung zugewiesen wird
+export type QuittungZiel = { art: "verleih" | "auftrag"; id: number };
+
+export async function setExQuittungBeleg(lexBelegID: string, ziel: QuittungZiel): Promise<{ success: boolean; error?: string }> {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/quittungen/quittung/nurextern`, {
+            method: "POST",
+            body: JSON.stringify({
+                ...(ziel.art === "verleih" ? { SaisonverleihID: ziel.id } : { AuftragID: ziel.id }),
+                LexOfficeID: lexBelegID
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        if (!response.ok) {
+            const daten = await response.json().catch(() => null);
+            return { success: false, error: typeof daten?.detail === "string" ? daten.detail : "Die Quittung konnte nicht zugewiesen werden." };
         }
-    });
-    if (!response.ok) {
-        console.error("Fehler beim Zuweisen der Quittung zum Beleg:", response);
-        return false;
+        return { success: true };
+    } catch (error) {
+        console.error("Fehler beim Zuweisen der Quittung:", error);
+        return { success: false, error: "Server nicht erreichbar." };
     }
-    return true;
 }

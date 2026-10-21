@@ -11,6 +11,8 @@ import { AuftragStatus } from "./AuftragStatus";
 import AuftragFertigBis from "./AuftragFertigBis";
 import SkiEttikettenDruckButton from "../SkiEttikettenDruckButton";
 import AuftragAktionen from "../bearbeiten/AuftragAktionen";
+import ButtonQuittungZuweisen from "@/components/quittung/ButtonQuittungZuweisen";
+import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 
 type SkiserviceAuftragDetailsProps = {
     skiserviceAuftragID: number;
@@ -55,6 +57,14 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID }
                         <AuftragBezahlt bezahlt={skiserviceData.data.bezahlt} />
                         <AuftragBenachrichtigt benachrichtigt={skiserviceData.data.benachrichtigt} className="ml-2" />
                         <AuftragStatus status={skiserviceData.data.wie} className="ml-2" />
+                        {/* Quittung wie beim Saisonverleih: anzeigen bzw. externen Beleg zuweisen */}
+                        <div className="my-3 space-y-2">
+                            <ButtonQuittungZuweisen
+                                quittungID={skiserviceData.data.quittung_id}
+                                ziel={{ art: "auftrag", id: skiserviceData.data.id }}
+                            />
+                            <QuittungKurzInfo quittungID={skiserviceData.data.quittung_id} />
+                        </div>
                         <SkiListe
                             skis={skiserviceData.data.skis}
                             bearbeiten={{
