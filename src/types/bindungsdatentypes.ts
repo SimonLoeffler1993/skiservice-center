@@ -19,6 +19,7 @@ export const BindungsdatenReadSchema = BindungsdatenSchema.extend({
     ID: z.number().int(),
     Kunde_ID: z.number().int(),
     Ski_ID: z.number().int().nullable(),
+    Material_ID: z.number().int().nullish(),
     Erfasst_Am: z.iso.date(),
     Archiviert: z.boolean(),
 });
@@ -29,6 +30,9 @@ export const BindungsdatenListeEintragSchema = BindungsdatenReadSchema.extend({
     Auftrag_Name: z.string().nullable(),
     Ski_Name: z.string().nullable(),
     Service: z.string().nullable(),
+    // Bei Einträgen aus dem Verleih
+    Verleih_ID: z.number().int().nullish(),
+    Verleih_Name: z.string().nullish(),
 });
 export type BindungsdatenListeEintrag = z.infer<typeof BindungsdatenListeEintragSchema>;
 export const BindungsdatenListeSchema = z.array(BindungsdatenListeEintragSchema);

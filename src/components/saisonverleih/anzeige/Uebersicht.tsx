@@ -84,6 +84,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
                     material={saisonVerleihDetails?.Material ?? []}
                     saisonverleihid={saisonVerleihDetails?.ID}
                     bezahlt={istVerleihBezahlt(saisonVerleihDetails)}
+                    kundeId={saisonVerleihDetails.Kunde_ID}
                 />
             </div>
         </div>

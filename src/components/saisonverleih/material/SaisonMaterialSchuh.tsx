@@ -7,14 +7,15 @@ import SaisonMaterialSchuhAnzeige from "./SaisonMaterialSchuhAnzeigen";
 import { Loader2, Search } from "lucide-react";
 import { useBelegungPruefung } from "@/hooks/useBelegungPruefung";
 import BelegungHinweis from "./BelegungHinweis";
+import { Schuh } from "@/types/materialtypes";
 
 interface SaisonMaterialSchuhProps {
     // Eingegebene Schuh-Nr. (z.B. "17" oder "INV-0042")
     value: string;
     onChange: (value: string) => void;
     onCheck?: (isValid: boolean) => void;
-    // Interne ID des gefundenen Schuhs, wird im Verleih gespeichert
-    onGefunden?: (schuhId: number | undefined) => void;
+    // Interne ID des gefundenen Schuhs, wird im Verleih gespeichert. Dazu der Schuh, z.B. für die Sohlenlänge
+    onGefunden?: (schuhId: number | undefined, schuh?: Schuh) => void;
     error?: string;
 }
 
@@ -45,7 +46,7 @@ export default function SaisonMaterialSchuh({
         startTransition(async () => {
             const ergebnis = await getSchuhNrCheck(null, nummer);
             setPruefung({ nummer, ergebnis });
-            onGefunden?.(ergebnis.success ? ergebnis.data.ID : undefined);
+            onGefunden?.(ergebnis.success ? ergebnis.data.ID : undefined, ergebnis.success ? ergebnis.data : undefined);
             if (ergebnis.success) belegung.pruefen(String(ergebnis.data.ID));
         });
     }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MaterialSchema, MaterialReadSchema } from "./materialtypes";
+import { MaterialNeuSchema, MaterialReadSchema } from "./materialtypes";
 import { kundeSchema } from "./skikundentypes";
 
 // --- SaisonVerleihPreis ---
@@ -77,7 +77,7 @@ export const SaisonVerleihCreateSchema = z.object({
     Ende_Am: z.string().date().optional(),
     Art: VerleihArtSchema.optional(),
     QuittungID: z.number().int().optional(),
-    Material: z.array(MaterialSchema).optional().nullable(),
+    Material: z.array(MaterialNeuSchema).optional().nullable(),
 });
 
 export type SaisonVerleihCreate = z.infer<typeof SaisonVerleihCreateSchema>;

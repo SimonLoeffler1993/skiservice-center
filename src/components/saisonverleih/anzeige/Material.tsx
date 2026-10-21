@@ -11,15 +11,18 @@ import { Card } from "@/components/ui/card";
 // import ButtonNamenEttiket from "./ButtonNamenEttiket";
 import ButtonZurueckGegeben from "./ButtonZurueckGegeben";
 import MaterialAktionen from "../bearbeiten/MaterialAktionen";
+import SaisonVerleiAnzeigeMaterialBindung from "./MaterialBindung";
 
 type MaterialProps = {
     material: MaterialRead[];
     saisonverleihid: number;
     // Mit Angabe werden Bearbeiten-Aktionen je Material angezeigt
     bezahlt?: boolean;
+    // Mit Angabe können Bindungsdaten erfasst und bearbeitet werden
+    kundeId?: number;
 };
 
-export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid, bezahlt }: MaterialProps) {
+export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid, bezahlt, kundeId }: MaterialProps) {
 
     if (material.length === 0) {
         return (
@@ -53,6 +56,9 @@ export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid,
                         <SaisonVerleiAnzeigeMaterialSki material={a} />
                         <SaisonVerleiAnzeigeMaterialSchuh material={a} />
                         <SaisonVerleiAnzeigeMaterialStock material={a} />
+                        {kundeId !== undefined && (
+                            <SaisonVerleiAnzeigeMaterialBindung verleihId={saisonverleihid} material={a} kundeId={kundeId} />
+                        )}
                         {bezahlt !== undefined && (
                             <MaterialAktionen
                                 verleihId={saisonverleihid}

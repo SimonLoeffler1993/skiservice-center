@@ -35,7 +35,8 @@ export default function LetzteBindungsdatenDialog({ kundeId, deaktiviert = false
         const alter = eintrag.Alter !== null ? Math.min(eintrag.Alter + jahre, 100) : null;
         const eingabe = { ...zuEingabe({ ...eintrag, Alter: alter }), vorlage_id: eintrag.ID };
         const datum = format(parseISO(eintrag.Erfasst_Am), "dd.MM.yyyy");
-        const hinweis = `Übernommen vom ${datum}${eintrag.Auftrag_Name ? ` (${eintrag.Auftrag_Name})` : ""}`
+        const herkunft = eintrag.Auftrag_Name ?? (eintrag.Verleih_Name ? `Verleih ${eintrag.Verleih_Name}` : null);
+        const hinweis = `Übernommen vom ${datum}${herkunft ? ` (${herkunft})` : ""}`
             + (jahre > 0 && eintrag.Alter !== null ? `, Alter um ${jahre} ${jahre === 1 ? "Jahr" : "Jahre"} erhöht` : "")
             + ". Bitte prüfen.";
         onUebernehmen(eingabe, hinweis);
@@ -93,6 +94,7 @@ export default function LetzteBindungsdatenDialog({ kundeId, deaktiviert = false
                                     {format(parseISO(eintrag.Erfasst_Am), "dd.MM.yyyy")}
                                     {eintrag.Auftrag_Name && ` · ${eintrag.Ski_Name ?? eintrag.Auftrag_Name}`}
                                     {eintrag.Service && ` · ${eintrag.Service}`}
+                                    {eintrag.Verleih_Name && ` · Verleih ${eintrag.Verleih_Name}`}
                                     {eintrag.Archiviert && " · archiviert"}
                                 </p>
                             </div>

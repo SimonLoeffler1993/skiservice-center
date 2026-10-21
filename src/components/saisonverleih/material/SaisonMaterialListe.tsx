@@ -2,6 +2,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { useSaisonverleihContext } from "@/context/saisonverleih-context";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { bindungsdatenText } from "@/types/bindungsdatentypes";
 
 type SaisonMaterialListeProps = {
     showAktionSpalte?: boolean;
@@ -35,6 +36,7 @@ export default function SaisonMaterialListe({ showAktionSpalte = true }: SaisonM
                         <TableHead className="text-center">Schuh</TableHead>
                         <TableHead className="text-center">Stock</TableHead>
                         <TableHead className="text-center">Skifahrer</TableHead>
+                        <TableHead className="text-center">Bindung</TableHead>
                         {showAktionSpalte && <TableHead className="text-center">Aktion</TableHead>}
                     </TableRow>
                 </TableHeader>
@@ -46,6 +48,7 @@ export default function SaisonMaterialListe({ showAktionSpalte = true }: SaisonM
                             <TableCell className="text-center">{material.schuhAnzeige || material.schuhnr}</TableCell>
                             <TableCell className="text-center">{material.stockbez_ID}</TableCell>
                             <TableCell className="text-center">{material.SkiFahrerName}</TableCell>
+                            <TableCell className="text-center text-xs text-muted-foreground">{bindungsdatenText(material.bindungsdaten) ?? "–"}</TableCell>
                             {showAktionSpalte && (<TableCell className="text-center">
                                 <Button 
                                     variant="ghost" 

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { BindungsdatenEingabe, BindungsdatenReadSchema, BindungsdatenSchema } from "./bindungsdatentypes";
+
 // Skischema
 export const ArtSchema = z.object({
   Art: z.string(),
@@ -177,9 +179,21 @@ export const MaterialSchema = z.object({
   // Eingegebene bzw. angezeigte Schuh-Nr.
   schuhAnzeige: z.string().optional(),
   SkiFahrerName: z.string(),
+  // Optionale Bindungsdaten, Formularwerte (werden beim Hinzufügen umgewandelt)
+  bindungAktiv: z.boolean(),
+  bindungsEingabe: z.custom<BindungsdatenEingabe>().optional(),
 });
 
-export type Material = z.infer<typeof MaterialSchema>;
+export type MaterialEingabeWerte = z.infer<typeof MaterialSchema>;
+
+// Material eines neuen Verleihs, so wie es an die API geht
+export const MaterialNeuSchema = MaterialSchema.omit({ bindungAktiv: true, bindungsEingabe: true }).extend({
+  bindungsdaten: BindungsdatenSchema.nullable(),
+  // Aus "Letzte Daten abfragen" übernommener Eintrag, wird archiviert
+  vorlage_id: z.number().nullable(),
+});
+
+export type Material = z.infer<typeof MaterialNeuSchema>;
 
 
 // TODO Ski usw vertiefen
@@ -194,6 +208,7 @@ export const MaterialReadSchema = z.object({
   Schuh: SchuhSchema.optional().nullable(),
   Preis: z.number(),
   SkiFahrerName: z.string().optional().nullable(),
+  bindungsdaten: BindungsdatenReadSchema.nullish(),
 })
 
 export type MaterialRead = z.infer<typeof MaterialReadSchema>;

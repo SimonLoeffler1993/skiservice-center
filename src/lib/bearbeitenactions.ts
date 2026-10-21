@@ -57,6 +57,9 @@ export type MaterialDaten = {
     stockbez_ID?: number | null;
     stocklaenge?: number | null;
     SkiFahrerName?: string | null;
+    // null entfernt die Bindungsdaten
+    bindungsdaten?: Bindungsdaten | null;
+    vorlage_id?: number | null;
 };
 
 export async function aendereVerleih(verleihId: number, daten: VerleihAenderung): Promise<ApiAntwort<SaisonverleihRead>> {
