@@ -121,3 +121,14 @@ export const VerleihBelegungSchema = z.object({
 });
 export const VerleihBelegungListeSchema = z.array(VerleihBelegungSchema);
 export type VerleihBelegung = z.infer<typeof VerleihBelegungSchema>;
+
+// Etikett für einen Leihski oder Leihschuh, Schlüssel z.B. "12-ski" / "12-schuh"
+export const VerleihEtikettSchema = z.object({
+    Schluessel: z.string(),
+    Name: z.string(),
+    // SkiFahrerName, null wenn keiner angegeben ist
+    Fahrer: z.string().nullish(),
+    Teil: z.string(),
+});
+export type VerleihEtikett = z.infer<typeof VerleihEtikettSchema>;
+export const VerleihEtikettListeSchema = z.array(VerleihEtikettSchema);

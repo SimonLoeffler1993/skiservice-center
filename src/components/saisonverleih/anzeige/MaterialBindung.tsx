@@ -12,10 +12,12 @@ type MaterialBindungProps = {
     verleihId: number;
     material: MaterialRead;
     kundeId: number;
+    // Weitere Buttons neben "Bindungsdaten", z.B. Etiketten
+    children?: React.ReactNode;
 };
 
 // Bindungsdaten einer Materialzeile anzeigen und bearbeiten, auch nach dem Bezahlen
-export default function SaisonVerleiAnzeigeMaterialBindung({ verleihId, material, kundeId }: MaterialBindungProps) {
+export default function SaisonVerleiAnzeigeMaterialBindung({ verleihId, material, kundeId, children }: MaterialBindungProps) {
     const aktualisieren = useVerleihAktualisieren(verleihId);
     const text = bindungsdatenText(material.bindungsdaten);
 
@@ -27,23 +29,26 @@ export default function SaisonVerleiAnzeigeMaterialBindung({ verleihId, material
                     {text}
                 </p>
             )}
-            <BindungsdatenBearbeitenDialog
-                titel={material.SkiFahrerName || `Ausrüstung #${material.ID}`}
-                idPrefix={`material-${material.ID}`}
-                bindungsdaten={material.bindungsdaten}
-                kundeId={kundeId}
-                // Fahrer vom Skifahrernamen, Sohle vom Leihschuh
-                vorschlag={{
-                    Fahrer: material.SkiFahrerName ?? "",
-                    Sohle: material.Schuh?.Sohle ? String(material.Schuh.Sohle) : "",
-                }}
-                onSpeichern={async (daten, vorlageId) => {
-                    const antwort = await aendereMaterial(verleihId, material.ID, { bindungsdaten: daten, vorlage_id: vorlageId });
-                    if (!antwort.success) return antwort.error;
-                    aktualisieren(antwort.data);
-                    return null;
-                }}
-            />
+            <div className="flex flex-wrap gap-2">
+                <BindungsdatenBearbeitenDialog
+                    titel={material.SkiFahrerName || `Ausrüstung #${material.ID}`}
+                    idPrefix={`material-${material.ID}`}
+                    bindungsdaten={material.bindungsdaten}
+                    kundeId={kundeId}
+                    // Fahrer vom Skifahrernamen, Sohle vom Leihschuh
+                    vorschlag={{
+                        Fahrer: material.SkiFahrerName ?? "",
+                        Sohle: material.Schuh?.Sohle ? String(material.Schuh.Sohle) : "",
+                    }}
+                    onSpeichern={async (daten, vorlageId) => {
+                        const antwort = await aendereMaterial(verleihId, material.ID, { bindungsdaten: daten, vorlage_id: vorlageId });
+                        if (!antwort.success) return antwort.error;
+                        aktualisieren(antwort.data);
+                        return null;
+                    }}
+                />
+                {children}
+            </div>
         </div>
     );
 }

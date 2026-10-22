@@ -8,7 +8,7 @@ import SaisonVerleiAnzeigeMaterialSki from "./MaterialSki";
 import SaisonVerleiAnzeigeMaterialSchuh from "./MaterialSchuh";
 import SaisonVerleiAnzeigeMaterialStock from "./MaterialStock";
 import { Card } from "@/components/ui/card";
-// import ButtonNamenEttiket from "./ButtonNamenEttiket";
+import EtikettenDruckButton from "./EtikettenDruckButton";
 import ButtonZurueckGegeben from "./ButtonZurueckGegeben";
 import MaterialAktionen from "../bearbeiten/MaterialAktionen";
 import SaisonVerleiAnzeigeMaterialBindung from "./MaterialBindung";
@@ -41,8 +41,8 @@ export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid,
                     <h2 className="text-xl font-semibold">Material</h2>
                 </div>
                 <div className="flex items-center gap-2 self-start">
-                    {/* <ButtonNamenEttiket /> */}
                     <ButtonZurueckGegeben saisonverleihid={saisonverleihid} />
+                    <EtikettenDruckButton verleihId={saisonverleihid} deaktiviert={!material.some((m) => m.skinr || m.schuhnr)} />
                 </div>
             </div>
 
@@ -56,8 +56,12 @@ export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid,
                         <SaisonVerleiAnzeigeMaterialSki material={a} />
                         <SaisonVerleiAnzeigeMaterialSchuh material={a} />
                         <SaisonVerleiAnzeigeMaterialStock material={a} />
-                        {kundeId !== undefined && (
-                            <SaisonVerleiAnzeigeMaterialBindung verleihId={saisonverleihid} material={a} kundeId={kundeId} />
+                        {kundeId !== undefined ? (
+                            <SaisonVerleiAnzeigeMaterialBindung verleihId={saisonverleihid} material={a} kundeId={kundeId}>
+                                <MaterialEtiketten verleihId={saisonverleihid} material={a} />
+                            </SaisonVerleiAnzeigeMaterialBindung>
+                        ) : (
+                            <div className="m-2 mb-0"><MaterialEtiketten verleihId={saisonverleihid} material={a} /></div>
                         )}
                         {bezahlt !== undefined && (
                             <MaterialAktionen
@@ -71,5 +75,16 @@ export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid,
                 ))}
             </div>
         </section>
+    );
+}
+// Etiketten nur für Ski und Schuh dieser Materialzeile
+function MaterialEtiketten({ verleihId, material }: { verleihId: number; material: MaterialRead }) {
+    return (
+        <EtikettenDruckButton
+            verleihId={verleihId}
+            materialId={material.ID}
+            beschriftung="Etiketten"
+            deaktiviert={!material.skinr && !material.schuhnr}
+        />
     );
 }
