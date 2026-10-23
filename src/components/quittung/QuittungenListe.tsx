@@ -61,7 +61,7 @@ export default function QuittungenListe({ saisonID }: QuittungenListeProps) {
                         <TableRow>
                             <TableHead className="w-8" />
                             <TableHead>Nr.</TableHead>
-                            <TableHead>Quittung</TableHead>
+                            <TableHead>Name</TableHead>
                             <TableHead>Datum</TableHead>
                             <TableHead>Kunde</TableHead>
                             <TableHead>Bezug</TableHead>
@@ -101,8 +101,8 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                 <TableCell>
                     {offen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </TableCell>
-                <TableCell className="tabular-nums">{quittung.ID}</TableCell>
-                <TableCell className="font-medium">{quittung.Name}</TableCell>
+                <TableCell className="font-medium">{quittung.Nummer}</TableCell>
+                <TableCell className="text-muted-foreground">{quittung.Name || "–"}</TableCell>
                 <TableCell>{datum(quittung.Bezahlt_Am ?? quittung.Erstellt_Am)}</TableCell>
                 <TableCell>{quittung.Kunde ?? "–"}</TableCell>
                 <TableCell>

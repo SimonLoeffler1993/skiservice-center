@@ -39,6 +39,8 @@ export const QuittungUpdateSchema = z.object({
 
 export const QuittungReadSchema = QuittungBaseSchema.extend({
     ID: z.number().int(),
+    // Angezeigte Quittungsnummer, z.B. "26/27Q12"
+    Nummer: z.string().nullish(),
     // Beleg existiert nur in Lexware (zugewiesen oder direkt als Rechnung angelegt)
     NurExtern: z.boolean().nullish(),
     // Aktuelle Lexware Übertragung, null wenn aus
@@ -69,6 +71,8 @@ export const QuittungGruppeSchema = z.object({
 
 export const QuittungListeEintragSchema = z.object({
     ID: z.number().int(),
+    // Angezeigte Quittungsnummer, z.B. "26/27Q12"
+    Nummer: z.string(),
     Name: z.string().nullish(),
     Erstellt_Am: z.string().nullish(),
     Bezahlt_Am: z.string().nullish(),

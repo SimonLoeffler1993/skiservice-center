@@ -33,7 +33,7 @@ export default function QuittungBezahlInfo({ quittungID }: QuittungBezahlInfoPro
     return (
         <div className="border-t border-gray-300 flex flex-col gap-2 p-4">
             <div className="flex flex-wrap items-center gap-2 ps-4">
-                <span className="font-bold">Quittung {quittung?.Name}</span>
+                <span className="font-bold">Quittung {quittung.Nummer ?? quittung.Name}</span>
                 <span className="text-sm text-gray-500">vom {quittung?.Erstellt_Am}</span>
                 <QuittungLexware quittung={quittung} />
             </div>
