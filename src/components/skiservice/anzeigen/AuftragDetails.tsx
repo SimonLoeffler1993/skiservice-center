@@ -70,6 +70,7 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID }
                             bearbeiten={{
                                 bezahlt: skiserviceData.data.bezahlt === "ja" || skiserviceData.data.quittung_id != null,
                                 kundeId: skiserviceData.data.kunden_id,
+                                auftrag: skiserviceData.data,
                             }}
                         />
                     </CardContent>
