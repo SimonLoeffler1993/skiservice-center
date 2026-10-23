@@ -5,15 +5,17 @@ import SaisonverleihListeCard from "./SaisonverleihListeCard";
 import { Badge } from "@/components/ui/badge";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { saisonverleihListOptions } from "@/hooks/useSaisonverleihListeOptions";
+import { VerleihArt } from "@/types/saisonverleihtypes";
 import { useEffect } from "react";
 
 type SaisonverleihListeProps = {
     saisonID: number;
+    art?: VerleihArt;
 }
 
 
-export default function SaisonverleihListe({ saisonID }: SaisonverleihListeProps) {
-    const {data, hasNextPage, fetchNextPage, isFetchingNextPage} = useInfiniteQuery(saisonverleihListOptions(saisonID));
+export default function SaisonverleihListe({ saisonID, art }: SaisonverleihListeProps) {
+    const {data, hasNextPage, fetchNextPage, isFetchingNextPage} = useInfiniteQuery(saisonverleihListOptions(saisonID, art));
     // console.log("SaisonverleihListe data:", data);
 
     const { ref, inView } = useInView();
@@ -37,9 +39,9 @@ export default function SaisonverleihListe({ saisonID }: SaisonverleihListeProps
             
             <Badge variant="secondary">gefunden: {items.length}</Badge>
             {/* {!hasNextPage && (
-                <Badge variant="secondary">Alle Saisonverleih-Datensätze geladen</Badge>
+                <Badge variant="secondary">Alle Verleihe geladen</Badge>
             )} */}
-            <Badge variant="secondary">{hasNextPage ? "Es sind noch nicht alle geladen" : "Alle Saisonverleih-Datensätze geladen"}</Badge>
+            <Badge variant="secondary">{hasNextPage ? "Es sind noch nicht alle geladen" : "Alle Verleihe geladen"}</Badge>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {items.map((saisonverleih) => (

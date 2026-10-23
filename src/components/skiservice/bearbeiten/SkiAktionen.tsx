@@ -1,30 +1,40 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import LoeschenDialog from "@/components/bearbeiten/LoeschenDialog";
 import { aendereSki, entferneSki } from "@/lib/bearbeitenactions";
-import { Ski } from "@/types/skiservicetypes";
+import { Auftrag, Ski } from "@/types/skiservicetypes";
 import SkiFormDialog from "./SkiFormDialog";
+import FertigMailDialog from "./FertigMailDialog";
 import { useAuftragAktualisieren } from "./useAuftragAktualisieren";
 
 type SkiAktionenProps = {
     ski: Ski;
+    auftrag: Auftrag;
     bezahlt: boolean;
     // Der letzte Ski kann nicht entfernt werden
     letzterSki: boolean;
+    kundeId: number;
 };
 
-export default function SkiAktionen({ ski, bezahlt, letzterSki }: SkiAktionenProps) {
+export default function SkiAktionen({ ski, auftrag, bezahlt, letzterSki, kundeId }: SkiAktionenProps) {
     const [isPending, startTransition] = useTransition();
     const aktualisieren = useAuftragAktualisieren(ski.auftrag_id);
     const queryClient = useQueryClient();
     const istFertig = ski.status === 1;
+    // Wird der letzte offene Ski fertig, ist der Auftrag fertig: dann nach der Mail fragen
+    const letzterOffener = !istFertig && auftrag.skis.every((s) => s.id === ski.id || s.status === 1);
+    const [mailDialogOffen, setMailDialogOffen] = useState(false);
 
     function statusUmschalten() {
+        if (letzterOffener) {
+            setMailDialogOffen(true);
+            return;
+        }
         startTransition(async () => {
             const antwort = await aendereSki(ski.auftrag_id, ski.id, { status: istFertig ? 0 : 1 });
             if (antwort.success) {
@@ -42,11 +52,14 @@ export default function SkiAktionen({ ski, bezahlt, letzterSki }: SkiAktionenPro
                 size="icon"
                 onClick={statusUmschalten}
                 disabled={isPending}
-                title={istFertig ? "Wieder auf offen setzen" : "Als fertig markieren (ohne Mail)"}
+                title={istFertig ? "Wieder auf offen setzen" : letzterOffener ? "Als fertig markieren, Auftrag fertigstellen" : "Als fertig markieren (ohne Mail)"}
             >
                 {istFertig ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
             </Button>
-            <SkiFormDialog auftragId={ski.auftrag_id} ski={ski} bezahlt={bezahlt} />
+            {letzterOffener && (
+                <FertigMailDialog auftrag={auftrag} skis={[ski]} offen={mailDialogOffen} onOpenChange={setMailDialogOffen} />
+            )}
+            <SkiFormDialog auftragId={ski.auftrag_id} ski={ski} bezahlt={bezahlt} kundeId={kundeId} />
             <LoeschenDialog
                 titel={`Ski ${ski.name ?? ""} entfernen`}
                 beschreibung="Der Ski wird aus dem Auftrag entfernt."

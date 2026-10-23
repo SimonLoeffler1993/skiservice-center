@@ -3,7 +3,6 @@
 import { AlertTriangleIcon } from "lucide-react"
 
 import QuittungBezahlInfo from "./QuittungBezahlInfo";
-import { Suspense } from "react";
 
 type QuttungsProps = {
     quittungID: number | null | undefined;
@@ -21,9 +20,5 @@ export default function QuittungKurzInfo({ quittungID }: QuttungsProps) {
     }
 
     // Wenn es ein QuittungID gibt
-    return (
-        <Suspense fallback={<div className="text-sm text-gray-500">Lade Bezahlinformationen...</div>}>
-            <QuittungBezahlInfo quittungID={quittungID} />
-        </Suspense>
-    );
+    return <QuittungBezahlInfo quittungID={quittungID} />;
 }

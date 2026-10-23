@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, CheckCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -13,6 +13,7 @@ import LoeschenDialog from "@/components/bearbeiten/LoeschenDialog";
 import { aendereAuftrag, loescheAuftrag } from "@/lib/bearbeitenactions";
 import { Auftrag } from "@/types/skiservicetypes";
 import SkiFormDialog from "./SkiFormDialog";
+import FertigMailDialog from "./FertigMailDialog";
 import { useAuftragAktualisieren } from "./useAuftragAktualisieren";
 
 // "TT.MM.JJJJ" <-> "JJJJ-MM-TT" für das Datumsfeld
@@ -34,6 +35,7 @@ export default function AuftragAktionen({ auftrag }: AuftragAktionenProps) {
     const queryClient = useQueryClient();
     const aktualisieren = useAuftragAktualisieren(auftrag.id);
     const bezahlt = auftrag.bezahlt === "ja" || auftrag.quittung_id != null;
+    const offeneSkis = auftrag.skis.filter((ski) => ski.status !== 1);
 
     const [datumOffen, setDatumOffen] = useState(false);
     const [datum, setDatum] = useState(zuIso(auftrag.abhol_date));
@@ -55,7 +57,20 @@ export default function AuftragAktionen({ auftrag }: AuftragAktionenProps) {
 
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <SkiFormDialog auftragId={auftrag.id} bezahlt={bezahlt} />
+            <SkiFormDialog auftragId={auftrag.id} bezahlt={bezahlt} kundeId={auftrag.kunden_id} />
+
+            {offeneSkis.length > 0 && (
+                <FertigMailDialog
+                    auftrag={auftrag}
+                    skis={offeneSkis}
+                    trigger={
+                        <Button type="button" variant="outline" size="sm">
+                            <CheckCheck className="h-4 w-4" />
+                            Alle fertig
+                        </Button>
+                    }
+                />
+            )}
 
             <Dialog open={datumOffen} onOpenChange={(wert) => { setDatumOffen(wert); setFehler(null); if (wert) setDatum(zuIso(auftrag.abhol_date)); }}>
                 <DialogTrigger asChild>

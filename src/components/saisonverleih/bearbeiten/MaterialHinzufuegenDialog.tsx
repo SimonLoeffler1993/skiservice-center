@@ -40,6 +40,7 @@ export default function MaterialHinzufuegenDialog({ verleih, bezahlt }: Material
                     verleihId={verleih.ID}
                 >
                     <MaterialEingabe
+                        kundeId={verleih.Kunde_ID}
                         onHinzufuegen={async (material) => {
                             const antwort = await fuegeMaterialHinzu(verleih.ID, material);
                             if (!antwort.success) return antwort.error;

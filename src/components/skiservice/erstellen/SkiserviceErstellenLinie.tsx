@@ -9,10 +9,12 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Copy, Trash2 } from "lucide-react";
-import { Control, UseFormRegister, useWatch, useFormContext } from "react-hook-form";
+import { Control, Controller, UseFormRegister, useWatch, useFormContext } from "react-hook-form";
 import { FormInhalte } from "./ServiceErstellenTab";
 import { skiservicesPreiseOptions } from "@/hooks/useSkiservicesPreiseOptions";
 import { useQuery } from "@tanstack/react-query";
+import { useKundeStore } from "@/stores/useKundeStore";
+import BindungsdatenFelder from "../bindung/BindungsdatenFelder";
 
 type SkiserviceErstellenLinieProps = {
     index: number;
@@ -38,6 +40,7 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
     });
 
     const { setValue } = useFormContext<FormInhalte>();
+    const { kunde } = useKundeStore();
 
     if (isLoading) return <p>Service Preise werden geladen...</p>
 
@@ -123,6 +126,23 @@ export default function ServiceErstellenLinie({ index, register, control, onRemo
             >
                 <Trash2 className="h-4 w-4" />
             </Button>
+            {bindung_check && (
+                <div className="order-6 col-span-full">
+                    <Controller
+                        control={control}
+                        name={`skiservices.${index}.bindungsdaten`}
+                        render={({ field }) => (
+                            <BindungsdatenFelder
+                                idPrefix={`zeile-${index}`}
+                                wert={field.value}
+                                onChange={field.onChange}
+                                kundeId={kunde?.ID}
+                                deaktiviert={deaktiviert}
+                            />
+                        )}
+                    />
+                </div>
+            )}
         </div>
     );
 }

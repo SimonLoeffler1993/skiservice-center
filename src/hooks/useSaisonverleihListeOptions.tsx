@@ -1,10 +1,12 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { getSaisonVerleihList } from "@/lib/saisonverleihactions";
+import { VerleihArt } from "@/types/saisonverleihtypes";
 
-export const saisonverleihListOptions = (saisonID: number) =>
+// art: nur Saison- oder nur Tagesverleihe, ohne Angabe alle
+export const saisonverleihListOptions = (saisonID: number, art?: VerleihArt) =>
     infiniteQueryOptions({
-        queryKey: ["saisonverleihList", saisonID],
-        queryFn: ({ pageParam }) => getSaisonVerleihList(15, pageParam, saisonID),
+        queryKey: ["saisonverleihList", saisonID, art ?? "alle"],
+        queryFn: ({ pageParam }) => getSaisonVerleihList(15, pageParam, saisonID, art),
 
         // undefined = kein last_id beim ersten Aufruf
         initialPageParam: undefined as number | undefined,

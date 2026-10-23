@@ -25,7 +25,7 @@ export default function SkischuhForm() {
         formState: { errors },
     } = useForm<CreateSkiSchuh>({
         resolver: zodResolver(CreateSchuhSchema),
-        defaultValues: { Saison: "" },
+        defaultValues: { Saison: "", SchuhNr: "" },
     });
 
     const [state, action, isPending] = useActionState(createSkiSchuh, null);
@@ -94,6 +94,15 @@ export default function SkischuhForm() {
                             </div>
 
                             <div className="space-y-2">
+                                <Label htmlFor="schuhnr">Schuh-Nr. (optional)</Label>
+                                <Input id="schuhnr" type="text" placeholder="automatisch" {...register("SchuhNr")} />
+                                <p className="text-xs text-muted-foreground">Eigene Nummer, z.B. Inventur-Aufkleber. Leer = fortlaufende Nummer.</p>
+                                {errors.SchuhNr && (
+                                    <p className="text-sm text-red-500">{errors.SchuhNr.message}</p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
                                 <Label htmlFor="saison">Saison</Label>
                                 <Input id="saison" type="text" placeholder="25/26" {...register("Saison")} />
                                 {errors.Saison && (
@@ -118,6 +127,27 @@ export default function SkischuhForm() {
                                 </div>
                                 {errors.Groese && (
                                     <p className="text-sm text-red-500">{errors.Groese.message}</p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="sohle">Sohlenlänge (optional)</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="sohle"
+                                        type="number"
+                                        inputMode="numeric"
+                                        placeholder="305"
+                                        step="1"
+                                        className="pr-12"
+                                        {...register("Sohle", { setValueAs: (wert) => (wert === "" || wert === null ? undefined : Number(wert)) })}
+                                    />
+                                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                                        mm
+                                    </span>
+                                </div>
+                                {errors.Sohle && (
+                                    <p className="text-sm text-red-500">{errors.Sohle.message}</p>
                                 )}
                             </div>
 
@@ -163,7 +193,7 @@ export default function SkischuhForm() {
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                             <Button type="submit" disabled={isPending}>Skischuh speichern</Button>
                             {state?.success === true && (
-                                <p className="text-sm text-green-700">Skischuh {state.data.Groese} gespeichert.</p>
+                                <p className="text-sm text-green-700">Skischuh Nr. {state.data.SchuhNr} (Größe {state.data.Groese}) gespeichert.</p>
                             )}
                             {state?.success === false && (
                                 <p className="text-sm text-red-500">{state.error}</p>

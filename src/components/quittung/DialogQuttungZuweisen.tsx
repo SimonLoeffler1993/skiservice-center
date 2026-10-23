@@ -12,49 +12,58 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog";
 import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
-import { setExQuittungBeleg } from "@/lib/quittungactions";
+import { auftragDetailsOptions } from "@/hooks/useAuftragDetailsOptions";
+import { QuittungZiel, setExQuittungBeleg } from "@/lib/quittungactions";
 import { useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
-import { useRef, useState, useActionState, startTransition, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 
-// TODO: Beim Quittungzuweisen kommt es zu einem Fehler beim Rendern, aber es wird richtig angezeigt. Seite neu laden?
+type DialogQuittungZuweisenProps = {
+    // Saisonverleih oder Skiservice-Auftrag
+    ziel: QuittungZiel;
+}
 
-export default function DialogQuittungZuweisen() {
+export default function DialogQuittungZuweisen({ ziel }: DialogQuittungZuweisenProps) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
-    // SaisonID aus den URL-Parametern holen
-    const { id } = useParams<{ id: string }>();
 
     const [isPending, startTransition] = useTransition();
-    const [success, setSuccess] = useState<boolean | null>(null)
+    const [fehler, setFehler] = useState<string | null>(null)
 
     const queryClient = useQueryClient();
-    // const [state, action] = useActionState(setExQuittungBeleg, null);
-    
+
 
     function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const selectedVoucherNumber = formData.get("selectedBeleg") as string;
         
+        if (!selectedVoucherNumber) {
+            setFehler("Bitte einen Beleg auswählen.")
+            return
+        }
+
         startTransition(async () => {
-            const result = await setExQuittungBeleg(selectedVoucherNumber, Number(id))
-            setSuccess(result)
-            console.log("Result:", result);
-            if (result) {
-                console.log("Quittung erfolgreich zugewiesen.");
-                queryClient.invalidateQueries(saisonverleihDetailsOptions(Number(id)));
-                
+            const result = await setExQuittungBeleg(selectedVoucherNumber, ziel)
+            if (!result.success) {
+                setFehler(result.error ?? "Die Quittung konnte nicht zugewiesen werden.")
+                return
+            }
+            setFehler(null)
+            setOpen(false)
+            // Detailansicht und Liste neu laden
+            if (ziel.art === "verleih") {
+                queryClient.invalidateQueries(saisonverleihDetailsOptions(ziel.id));
+                queryClient.invalidateQueries({ queryKey: ["saisonverleihList"] });
+            } else {
+                queryClient.invalidateQueries(auftragDetailsOptions(ziel.id));
+                queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
             }
         })
-        
-        console.log("Zugewiesen:", selectedVoucherNumber);
-        console.log("SaisonID:", id);        
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(wert) => { setOpen(wert); setFehler(null); }}>
             <DialogTrigger asChild>
                 <Button variant="outline">Quittung zuweisen</Button>
             </DialogTrigger>
@@ -69,12 +78,14 @@ export default function DialogQuittungZuweisen() {
                         <Quittungsliste scrollContainerRef={scrollContainerRef} />
                     </div>
 
+                    {fehler && <p className="text-sm text-destructive">{fehler}</p>}
+
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+                        <Button type="button" variant="ghost" onClick={() => setOpen(false)} disabled={isPending}>
                             Abbrechen
                         </Button>
-                        <Button type="submit">
-                            Zuweisen
+                        <Button type="submit" disabled={isPending}>
+                            {isPending ? "Zuweisen..." : "Zuweisen"}
                         </Button>
                     </DialogFooter>
                 </form>

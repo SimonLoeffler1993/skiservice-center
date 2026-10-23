@@ -39,6 +39,12 @@ export const QuittungUpdateSchema = z.object({
 
 export const QuittungReadSchema = QuittungBaseSchema.extend({
     ID: z.number().int(),
+    // Angezeigte Quittungsnummer, z.B. "26/27Q12"
+    Nummer: z.string().nullish(),
+    // Beleg existiert nur in Lexware (zugewiesen oder direkt als Rechnung angelegt)
+    NurExtern: z.boolean().nullish(),
+    // Aktuelle Lexware Übertragung, null wenn aus
+    LexwareModus: z.enum(["pdf", "rechnung"]).nullish(),
 })
 
 // TypeScript Typen aus den Schemas ableiten
@@ -47,3 +53,40 @@ export type QuittungBase = z.infer<typeof QuittungBaseSchema>
 export type QuittungCreate = z.infer<typeof QuittungCreateSchema>
 export type QuittungUpdate = z.infer<typeof QuittungUpdateSchema>
 export type QuittungRead = z.infer<typeof QuittungReadSchema>
+
+// --- Quittungsliste (Verwalten → Quittungen) ---
+
+export const QuittungArtikelSchema = z.object({
+    bezeichnung: z.string(),
+    preis: z.number(),
+    anzahl: z.number().int(),
+})
+
+export const QuittungGruppeSchema = z.object({
+    type: z.string(),
+    toID: z.number().int(),
+    bezeichnung: z.string(),
+    artikels: z.array(QuittungArtikelSchema),
+})
+
+export const QuittungListeEintragSchema = z.object({
+    ID: z.number().int(),
+    // Angezeigte Quittungsnummer, z.B. "26/27Q12"
+    Nummer: z.string(),
+    Name: z.string().nullish(),
+    Erstellt_Am: z.string().nullish(),
+    Bezahlt_Am: z.string().nullish(),
+    Bezahlt: z.boolean(),
+    // z.B. "Bar" oder "EC, Überweisung"
+    Zahlart: z.string(),
+    Betrag: z.number(),
+    // Kundenname bzw. "Sammelkunde"
+    Kunde: z.string().nullish(),
+    Bezuege: z.array(z.object({ art: z.enum(["auftrag", "verleih"]), id: z.number().int(), name: z.string().nullish() })),
+    NurExtern: z.boolean(),
+    LexID: z.string().nullish(),
+    BuchhaltungSync: z.boolean(),
+    artikelgruppen: z.array(QuittungGruppeSchema),
+})
+export const QuittungListeSchema = z.array(QuittungListeEintragSchema)
+export type QuittungListeEintrag = z.infer<typeof QuittungListeEintragSchema>

@@ -9,6 +9,7 @@ export default function SaisonMaterialSchuhAnzeigen({schuh}: SaisonMaterialSchuh
         <div className="flex flex-row gap-2">
             <p className="text-gray-500">{schuh.Modell.Hersteller.Name} {schuh.Modell.Modell} </p>
             <p className="text-gray-500">{schuh.Groese}</p>
+            {schuh.Sohle && <p className="text-gray-500">Sohle {schuh.Sohle} mm</p>}
         </div>
     );
 }

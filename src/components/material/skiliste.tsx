@@ -1,41 +1,42 @@
 "use client"
+import { startTransition, use, useState } from "react"
+
 import { type Ski } from "@/types/materialtypes"
+import { useEigenSkiContext } from "@/context/eigenski-context"
+import { useSkiModellContext } from "@/context/skimodell-context"
 import SkiListCard from "./skilistcard"
-
-
-
+import { AusgemusterteFilter } from "./bearbeiten/MaterialAktionen"
 
 export default function SkiListe({ skis }: { skis: Ski[] }) {
-    const data = skis
+    const [mitAusgemustert, setMitAusgemustert] = useState(false)
+    const { refreshEigenSkisPromise } = useEigenSkiContext()
+    const { modellPromise } = useSkiModellContext()
+    const modelle = use(modellPromise)
 
-    if (data.length === 0) {
-        return <p>Keine Skis gefunden</p>
-    }
+    const anzahlAusgemustert = skis.filter((ski) => ski.Ausgemustert).length
+    const data = mitAusgemustert ? skis : skis.filter((ski) => !ski.Ausgemustert)
 
     return (
         <div className="space-y-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-2xl font-semibold">Ski Liste</h1>
-                {/* <div className="flex w-full gap-2 sm:w-auto">
-                    <input
-                        className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:shadow-[0_0_0_2px_hsl(var(--ring))]"
-                        placeholder="Suchen..."
-                    />
-                    <select className="rounded-md border bg-background px-3 py-2 text-sm">
-                        <option>Sortierung</option>
-                        <option value="modell">Modell</option>
-                        <option value="hersteller">Hersteller</option>
-                        <option value="laenge">Länge</option>
-                        <option value="preis">Preis</option>
-                    </select>
-                </div> */}
+                <AusgemusterteFilter wert={mitAusgemustert} onChange={setMitAusgemustert} anzahl={anzahlAusgemustert} />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {data.map((s) => (
-                    <SkiListCard key={s.ID} ski={s} />
-                ))}
-            </div>
+            {data.length === 0 ? (
+                <p>Keine Skis gefunden</p>
+            ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {data.map((s) => (
+                        <SkiListCard
+                            key={s.ID}
+                            ski={s}
+                            modelle={modelle}
+                            onGeaendert={() => startTransition(() => refreshEigenSkisPromise())}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     )
 }

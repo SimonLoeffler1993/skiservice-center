@@ -1,8 +1,9 @@
 "use client";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { quittungOptions } from "@/hooks/useQuittungOptions";
 import QuittungsBetrag from "./QuittungsBetrag";
+import QuittungLexware from "./QuittungLexware";
 
 type QuittungBezahlInfoProps = {
     quittungID: number;
@@ -12,8 +13,17 @@ type QuittungBezahlInfoProps = {
 // TODO Datum Formatierung
 
 export default function QuittungBezahlInfo({ quittungID }: QuittungBezahlInfoProps) {
-    const { data: quittung } = useSuspenseQuery(quittungOptions(quittungID));
-    // console.log(quittung);
+    // useQuery statt useSuspenseQuery: Der Abruf läuft über eine Server Action und darf nicht
+    // während des Renderns starten (sonst "Cannot update a component (Router) while rendering"),
+    // z.B. direkt nach dem Zuweisen einer neuen Quittung.
+    const { data: quittung, isPending, error } = useQuery(quittungOptions(quittungID));
+
+    if (isPending) {
+        return <div className="text-sm text-gray-500">Lade Bezahlinformationen...</div>
+    }
+    if (error) {
+        return <div className="text-sm text-destructive">Quittung konnte nicht geladen werden.</div>
+    }
     if (!quittung){
         return <div className="border border-gray-300 flex flex-col gap-2 p-4 rounded-md">
             Keine Quittungsdaten gefunden.
@@ -22,9 +32,10 @@ export default function QuittungBezahlInfo({ quittungID }: QuittungBezahlInfoPro
 
     return (
         <div className="border-t border-gray-300 flex flex-col gap-2 p-4">
-            <div className="flex items-center gap-2 ps-4">
-                <span className="font-bold">Quittung {quittung?.Name}</span>
+            <div className="flex flex-wrap items-center gap-2 ps-4">
+                <span className="font-bold">Quittung {quittung.Nummer ?? quittung.Name}</span>
                 <span className="text-sm text-gray-500">vom {quittung?.Erstellt_Am}</span>
+                <QuittungLexware quittung={quittung} />
             </div>
             <QuittungsBetrag quittungdata={quittung} />
         </div>

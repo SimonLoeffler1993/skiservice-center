@@ -1,7 +1,9 @@
 "use server";
 
-import { QuittungRead, QuittungReadSchema } from "@/types/quittungentypes";
+import { QuittungListeEintrag, QuittungListeSchema, QuittungRead, QuittungReadSchema } from "@/types/quittungentypes";
 import { config } from "./config";
+import { anfrage } from "./apianfrage";
+import { ApiAntwort } from "@/types/actiontypes";
 import { Beleg } from "@/types/belegetypes";
 import { LexPages } from "@/types/pagestypes";
 
@@ -34,20 +36,39 @@ export async function getQuittungsBelegeListe(page: number = 0): Promise<LexPage
     return data as LexPages<Beleg>;
 }
 
-export async function setExQuittungBeleg(lexBelegID: string, saisonVerleihID: number): Promise<boolean> {
-    const response = await fetch(`${config.backendUrl}/api/v1/quittungen/quittung/nurextern`, {
-        method: "POST",
-        body: JSON.stringify({
-            SaisonverleihID: saisonVerleihID,
-            LexOfficeID: lexBelegID
-        }),
-        headers: {
-            "Content-Type": "application/json"
+// Wem die externe Quittung zugewiesen wird
+export type QuittungZiel = { art: "verleih" | "auftrag"; id: number };
+
+export async function setExQuittungBeleg(lexBelegID: string, ziel: QuittungZiel): Promise<{ success: boolean; error?: string }> {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/quittungen/quittung/nurextern`, {
+            method: "POST",
+            body: JSON.stringify({
+                ...(ziel.art === "verleih" ? { SaisonverleihID: ziel.id } : { AuftragID: ziel.id }),
+                LexOfficeID: lexBelegID
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        if (!response.ok) {
+            const daten = await response.json().catch(() => null);
+            return { success: false, error: typeof daten?.detail === "string" ? daten.detail : "Die Quittung konnte nicht zugewiesen werden." };
         }
-    });
-    if (!response.ok) {
-        console.error("Fehler beim Zuweisen der Quittung zum Beleg:", response);
-        return false;
+        return { success: true };
+    } catch (error) {
+        console.error("Fehler beim Zuweisen der Quittung:", error);
+        return { success: false, error: "Server nicht erreichbar." };
     }
-    return true;
+}
+// Eigene Quittung als Beleg mit PDF nach Lexware hochladen
+export async function quittungNachLexware(quittungID: number): Promise<ApiAntwort<QuittungRead>> {
+    return anfrage(`/quittungen/quittung/${quittungID}/lexware`, "POST", QuittungReadSchema, "Quittung konnte nicht an Lexware übertragen werden.");
+}
+
+// Alle Quittungen einer Saison, neueste zuerst
+export async function getQuittungenListe(saisonID: number): Promise<QuittungListeEintrag[]> {
+    const antwort = await anfrage(`/quittungen/liste?saison=${saisonID}`, "GET", QuittungListeSchema, "Quittungen konnten nicht geladen werden.");
+    if (!antwort.success) throw new Error(antwort.error);
+    return antwort.data;
 }

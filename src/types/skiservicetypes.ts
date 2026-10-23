@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BindungsdatenReadSchema, type BindungsdatenEingabe } from "./bindungsdatentypes";
 import { kundeSchema } from "./skikundentypes";
 
 export const SkiSchema = z.object({
@@ -18,6 +19,7 @@ export const SkiSchema = z.object({
     sack: z.number().int(),
     bindung_status: z.boolean().default(false),
     gepueft: z.iso.date().nullable().optional(), // ISO date string "YYYY-MM-DD"
+    bindungsdaten: BindungsdatenReadSchema.nullish(),
 });
 
 // Wie = Status 0: in Bearbeitung 1: fertig 2: abgeholt
@@ -65,7 +67,10 @@ export const SkiserviceEintragSchema = z.object({
     bindung_preis: z.number()
 });
 
-export type SkiserviceEintrag = z.infer<typeof SkiserviceEintragSchema>;
+// Formularzeile beim Erfassen, Bindungsdaten als Texte
+export type SkiserviceEintrag = z.infer<typeof SkiserviceEintragSchema> & {
+    bindungsdaten?: BindungsdatenEingabe;
+};
 
 
 export const AntwortSchema = z.discriminatedUnion("success", [

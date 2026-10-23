@@ -20,7 +20,7 @@ import { z } from "zod";
 
     // SKI
 export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/eigen?skinr=${skiNr}`, { cache: "no-store" });
+    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/eigen?skinr=${encodeURIComponent(skiNr.trim())}`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return { success: false, error: "Fehler beim Suchen", data: null };
@@ -34,15 +34,22 @@ export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
     }
 
     if (parsedData.data.length === 0) {
-        console.error("Skis nicht gefunden");
         return { success: false, error: "Ski nicht gefunden", data: null };
     }
-    
-    return { success: true, error: null, data: parsedData.data };
+
+    // Exakten Treffer bevorzugen, sonst den ersten Ski, der mit der Nummer beginnt
+    const exakt = parsedData.data.find((ski) => ski.SkiNr.toLowerCase() === skiNr.trim().toLowerCase());
+    const treffer = exakt ? [exakt, ...parsedData.data.filter((ski) => ski !== exakt)] : parsedData.data;
+    if (treffer[0].Ausgemustert) {
+        return { success: false, error: `Ski ${treffer[0].SkiNr} ist ausgemustert`, data: null };
+    }
+
+    return { success: true, error: null, data: treffer };
 }
 
 export async function getSkiList(): Promise<SkiArray> {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/liste`, { cache: "no-store" });
+    // Materialverwaltung: auch ausgemusterte Ski laden, gefiltert wird im Center
+    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/liste?mit_ausgemustert=true`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return [];
@@ -57,31 +64,34 @@ export async function getSkiList(): Promise<SkiArray> {
     return parsedData.data || [];
 }
 
-export async function getSchuhNrCheck(previousState: unknown,schuhNr: string) {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen?schuhnr=${schuhNr}`, { cache: "no-store" });
-    if (!response.ok) {
-        console.error("Fehler beim Suchen:", response);
-        return { success: false, error: "Fehler beim Suchen", data: null };
+export async function getSchuhNrCheck(previousState: unknown, schuhNr: string) {
+    try {
+        const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen?schuhnr=${encodeURIComponent(schuhNr.trim())}`, { cache: "no-store" });
+        if (response.status === 404) {
+            return { success: false as const, error: "Schuh nicht gefunden", data: null };
+        }
+        if (!response.ok) {
+            return { success: false as const, error: "Fehler beim Suchen", data: null };
+        }
+        const parsedData = SchuhSchema.safeParse(await response.json());
+        if (!parsedData.success) {
+            console.error("Validierungsfehler:", parsedData.error);
+            return { success: false as const, error: "Validierungsfehler", data: null };
+        }
+        if (parsedData.data.Ausgemustert) {
+            return { success: false as const, error: `Schuh ${parsedData.data.SchuhNr} ist ausgemustert`, data: null };
+        }
+        return { success: true as const, error: null, data: parsedData.data };
+    } catch (error) {
+        console.error("Netzwerkfehler:", error);
+        return { success: false as const, error: "Server nicht erreichbar", data: null };
     }
-    const data = await response.json();
-
-    const parsedData = SchuhSchema.safeParse(data);
-    if (!parsedData.success) {
-        console.error("Validierungsfehler:", parsedData.error);
-        return { success: false, error: "Validierungsfehler", data: null };
-    }
-
-    if (parsedData.data == undefined) {
-        console.error("Schuh nicht gefunden");
-        return { success: false, error: "Schuh nicht gefunden", data: null };
-    }
-    
-    return { success: true, error: null, data: parsedData.data };
 }
 
-export async function getSkiStoecke(): Promise<ApiAntwort<SkistockArray>> {
+// Ohne mitAusgemustert nur verleihbare Stöcke (Auswahl im Verleih)
+export async function getSkiStoecke(mitAusgemustert: boolean = false): Promise<ApiAntwort<SkistockArray>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/material/stock/skistocke`, { cache: "no-store" });
+        const response = await fetch(`${config.backendUrl}/api/v1/material/stock/skistocke?mit_ausgemustert=${mitAusgemustert}`, { cache: "no-store" });
         if (!response.ok) {
             console.error("Fehler beim Suchen:", response);
             return { success: false, error: "Fehler beim Suchen"};
@@ -327,7 +337,8 @@ export async function createSchuhModell(previousState: unknown,SchuhModell: Schu
 
 export async function getSkiSchuhe(): Promise<ApiAntwort<SchuhArray>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen/liste`);
+        // Materialverwaltung: auch ausgemusterte Schuhe laden, gefiltert wird im Center
+        const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen/liste?mit_ausgemustert=true`, { cache: "no-store" });
 
         if (!response.ok) {
             console.error("Fehler beim Abfragen der Schuhe:", response.status);

@@ -1,15 +1,27 @@
 "use server";
 import { config } from "./config";
-import { AuftragListe, AuftragListeSchema, AuftragSchema, type SkiserviceEintrag } from "@/types/skiservicetypes";
+import { AuftragListe, AuftragListeSchema, AuftragSchema } from "@/types/skiservicetypes";
+import type { Bindungsdaten } from "@/types/bindungsdatentypes";
 
-export async function auftragFertigStellen(serviceId: number, skiIds: number[]) {
+// Ski wie ihn die API beim Anlegen erwartet
+export type SkiAnlegen = {
+    service: string;
+    preis: number;
+    bindung_check: boolean;
+    bindung_preis: number;
+    bindungsdaten: Bindungsdaten | null;
+    vorlage_id: number | null;
+};
+
+// mail = false: keine Fertig-Mail, auch wenn danach alle Ski fertig sind
+export async function auftragFertigStellen(serviceId: number, skiIds: number[], mail = true) {
     try {
         const response = await fetch(`${config.backendUrl}/api/v1/skiservice/skifertig`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ id: serviceId, ski_ids: skiIds }),
+            body: JSON.stringify({ id: serviceId, ski_ids: skiIds, mail }),
         });
         if (!response.ok) {
             console.error("Fehler beim Fertigstellen:", response);
@@ -25,7 +37,7 @@ export async function auftragFertigStellen(serviceId: number, skiIds: number[]) 
 }
 
 // fertigBis kommt bereits als "TT.MM.JJJJ" aus dem Browser
-export async function auftragAnlegen(kundeId: number, skiserviceEintraege: SkiserviceEintrag[], fertigBis: string | null) {
+export async function auftragAnlegen(kundeId: number, skiserviceEintraege: SkiAnlegen[], fertigBis: string | null) {
     try {
         const body = JSON.stringify({
             kunden_id: kundeId,

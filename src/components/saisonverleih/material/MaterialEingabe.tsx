@@ -1,36 +1,42 @@
 "use client";
 
-import { Suspense, useState } from 'react';
+import { Suspense, useRef, useState } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import SaisonMaterialPreise from './SaisonMaterialPreise';
 import SaisonMaterialSki from './SaisonMaterialSki';
 import SaisonMaterialSchuh from './SaisonMaterialSchuh';
 import SaisonMaterialStock from './SaisonMaterialStock';
-import { MaterialSchema } from '@/types/materialtypes';
+import { Material, MaterialEingabeWerte, MaterialSchema } from '@/types/materialtypes';
+import { BindungsdatenEingabe, LEERE_BINDUNGSDATEN, zuBindungsdaten } from '@/types/bindungsdatentypes';
+import { Checkbox } from '@/components/ui/checkbox';
+import BindungsdatenFelder from '@/components/skiservice/bindung/BindungsdatenFelder';
 import SaisonMaterialListe from './SaisonMaterialListe';
 import { useSaisonverleihContext } from '@/context/saisonverleih-context';
 
 // TODO: Teilweise auf Register umstellen
 
-type MaterialFormData = z.infer<typeof MaterialSchema>;
 
 type MaterialEingabeProps = {
     // Statt in die Liste des neuen Verleihs direkt speichern (bestehender Verleih).
     // Gibt eine Fehlermeldung zurück oder null bei Erfolg.
-    onHinzufuegen?: (material: MaterialFormData) => Promise<string | null>;
+    onHinzufuegen?: (material: Material) => Promise<string | null>;
+    // Kunde für "Letzte Daten abfragen", ohne Angabe der Kunde des neuen Verleihs
+    kundeId?: number;
 };
 
-export default function MaterialEingabe({ onHinzufuegen }: MaterialEingabeProps = {}) {
+export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEingabeProps = {}) {
     const [skiValid, setSkiValid] = useState<boolean | null>(null);
     const [schuhValid, setSchuhValid] = useState<boolean | null>(null);
     // Neuer Key setzt die interne Auswahl der Preis-Komponente zurück
     const [eingabeNr, setEingabeNr] = useState(0);
     const [speicherFehler, setSpeicherFehler] = useState<string | null>(null);
-    const { materialList, setMaterialList } = useSaisonverleihContext();
+    const { materialList, setMaterialList, kunde } = useSaisonverleihContext();
+    // Für die Vorbelegung der Bindungsdaten: zuletzt übernommener Fahrername und Sohle des geprüften Schuhs
+    const letzterName = useRef('');
+    const schuhSohle = useRef<number | null>(null);
 
-    const methods = useForm<MaterialFormData>({
+    const methods = useForm<MaterialEingabeWerte>({
         resolver: zodResolver(MaterialSchema),
         mode: 'onChange',
         defaultValues: {
@@ -39,26 +45,90 @@ export default function MaterialEingabe({ onHinzufuegen }: MaterialEingabeProps 
             stockbez_ID: 0,
             stocklaenge: 0,
             schuhnr: undefined,
+            schuhAnzeige: '',
             SkiFahrerName: '',
+            bindungAktiv: false,
+            bindungsEingabe: undefined,
         }
     });
 
-    const { register, handleSubmit, reset, setValue, watch, formState: { errors, isValid: isFormValid } } = methods;
+    const { register, handleSubmit, reset, setValue, getValues, watch, formState: { errors, isValid: isFormValid } } = methods;
 
-    const onSubmit: SubmitHandler<MaterialFormData> = async (data) => {
+    const bindungAktiv = watch('bindungAktiv');
+
+    function setBindung(eingabe: BindungsdatenEingabe) {
+        setValue('bindungsEingabe', eingabe);
+    }
+
+    function bindungUmschalten(aktiv: boolean) {
+        setValue('bindungAktiv', aktiv);
+        if (!aktiv) {
+            setValue('bindungsEingabe', undefined);
+            return;
+        }
+        // Fahrer vom Skifahrernamen, Sohle vom geprüften Leihschuh übernehmen
+        const name = getValues('SkiFahrerName').trim();
+        letzterName.current = name;
+        setBindung({
+            ...LEERE_BINDUNGSDATEN,
+            Fahrer: name,
+            Sohle: schuhSohle.current !== null ? String(schuhSohle.current) : '',
+        });
+    }
+
+    // Fahrer nachziehen, solange er nicht von Hand geändert wurde
+    function fahrerNameGeaendert(name: string) {
+        const eingabe = getValues('bindungsEingabe');
+        const neu = name.trim();
+        if (getValues('bindungAktiv') && eingabe && (eingabe.Fahrer === '' || eingabe.Fahrer === letzterName.current)) {
+            setBindung({ ...eingabe, Fahrer: neu });
+        }
+        letzterName.current = neu;
+    }
+
+    function schuhGefunden(schuhId: number | undefined, sohle: number | null) {
+        setValue('schuhnr', schuhId, { shouldValidate: true });
+        schuhSohle.current = sohle;
+        const eingabe = getValues('bindungsEingabe');
+        if (sohle !== null && getValues('bindungAktiv') && eingabe && eingabe.Sohle.trim() === '') {
+            setBindung({ ...eingabe, Sohle: String(sohle) });
+        }
+    }
+
+    const onSubmit: SubmitHandler<MaterialEingabeWerte> = async (data) => {
         if (skiValid === false || schuhValid === false) {
             alert('Bitte überprüfen Sie die Ski- und Schuh-Nummern auf Gültigkeit');
             return;
         }
+        // Eingegebene Schuh-Nr. muss geprüft sein, gespeichert wird die interne ID
+        if (data.schuhAnzeige?.trim() && data.schuhnr === undefined) {
+            alert('Bitte die Schuh-Nummer mit der Lupe prüfen');
+            return;
+        }
+
+        const { bindungAktiv: mitBindung, bindungsEingabe, ...werte } = data;
+        const bindung = mitBindung ? zuBindungsdaten(bindungsEingabe) : { daten: null, fehler: null };
+        if (bindung.fehler) {
+            setSpeicherFehler(bindung.fehler);
+            return;
+        }
+        const material: Material = {
+            ...werte,
+            bindungsdaten: bindung.daten,
+            vorlage_id: bindung.daten ? bindungsEingabe?.vorlage_id ?? null : null,
+        };
 
         if (onHinzufuegen) {
-            const fehler = await onHinzufuegen(data);
+            const fehler = await onHinzufuegen(material);
             setSpeicherFehler(fehler);
             if (fehler) return;
         } else {
-            setMaterialList([...materialList, data]);
+            setSpeicherFehler(null);
+            setMaterialList([...materialList, material]);
         }
         reset();
+        letzterName.current = '';
+        schuhSohle.current = null;
         setEingabeNr((nr) => nr + 1);
         setSkiValid(null);
         setSchuhValid(null);
@@ -90,7 +160,7 @@ export default function MaterialEingabe({ onHinzufuegen }: MaterialEingabeProps 
                             <input
                                 type="text"
                                 id="skifahrerName"
-                                {...register('SkiFahrerName')}
+                                {...register('SkiFahrerName', { onChange: (e) => fahrerNameGeaendert(e.target.value) })}
                                 className={`w-full px-3 py-2 border ${
                                     errors.SkiFahrerName ? 'border-red-500' : 'border-gray-300'
                                 } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
@@ -113,8 +183,9 @@ export default function MaterialEingabe({ onHinzufuegen }: MaterialEingabeProps 
 
                         <div className="min-w-0">
                             <SaisonMaterialSchuh
-                                value={watch('schuhnr') !== undefined ? String(watch('schuhnr')) : ''}
-                                onChange={(value) => setValue('schuhnr', value.trim() === '' ? undefined : Number(value), { shouldValidate: true })}
+                                value={watch('schuhAnzeige') ?? ''}
+                                onChange={(value) => setValue('schuhAnzeige', value)}
+                                onGefunden={(schuhId, schuh) => schuhGefunden(schuhId, schuh?.Sohle ?? null)}
                                 onCheck={setSchuhValid}
                                 error={errors.schuhnr?.message}
                             />
@@ -146,6 +217,26 @@ export default function MaterialEingabe({ onHinzufuegen }: MaterialEingabeProps 
                             />
                             {errors.stocklaenge && (
                                 <p className="mt-1 text-sm text-red-600">{errors.stocklaenge.message}</p>
+                            )}
+                        </div>
+
+                        {/* Optionale Bindungsdaten des Leihski */}
+                        <div className="sm:col-span-2 space-y-3">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                                <Checkbox
+                                    id="bindungAktiv"
+                                    checked={bindungAktiv}
+                                    onCheckedChange={(wert) => bindungUmschalten(wert === true)}
+                                />
+                                Bindungsdaten erfassen
+                            </label>
+                            {bindungAktiv && (
+                                <BindungsdatenFelder
+                                    idPrefix="verleih-bindung"
+                                    wert={watch('bindungsEingabe')}
+                                    onChange={setBindung}
+                                    kundeId={kundeId ?? kunde?.ID}
+                                />
                             )}
                         </div>
 

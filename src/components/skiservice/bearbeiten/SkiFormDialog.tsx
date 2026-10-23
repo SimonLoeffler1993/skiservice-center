@@ -16,13 +16,17 @@ import { skiservicesPreiseOptions } from "@/hooks/useSkiservicesPreiseOptions";
 import { aendereSki, fuegeSkiHinzu, SkiDaten } from "@/lib/bearbeitenactions";
 import { Ski } from "@/types/skiservicetypes";
 import { useAuftragAktualisieren } from "./useAuftragAktualisieren";
+import BindungsdatenFelder from "../bindung/BindungsdatenFelder";
+import { BindungsdatenEingabe, zuBindungsdaten, zuEingabe } from "@/types/bindungsdatentypes";
 
 type SkiFormDialogProps = {
     auftragId: number;
     // Ohne Ski wird ein neuer Ski hinzugefügt
     ski?: Ski;
-    // Bezahlte Aufträge: nur Kommentar änderbar
+    // Bezahlte Aufträge: nur Kommentar und Bindungsdaten änderbar
     bezahlt: boolean;
+    // Für "Letzte Daten abfragen"
+    kundeId: number;
 };
 
 type FormWerte = {
@@ -30,9 +34,10 @@ type FormWerte = {
     preis: number;
     komentar: string;
     bindung_check: boolean;
+    bindungsdaten: BindungsdatenEingabe;
 };
 
-export default function SkiFormDialog({ auftragId, ski, bezahlt }: SkiFormDialogProps) {
+export default function SkiFormDialog({ auftragId, ski, bezahlt, kundeId }: SkiFormDialogProps) {
     const [offen, setOffen] = useState(false);
     const [fehler, setFehler] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
@@ -48,15 +53,26 @@ export default function SkiFormDialog({ auftragId, ski, bezahlt }: SkiFormDialog
         preis: ski?.preis ?? 0,
         komentar: ski?.komentar ?? "",
         bindung_check: ski?.bindung_check ?? false,
+        bindungsdaten: zuEingabe(ski?.bindungsdaten),
     };
     const { register, control, handleSubmit, reset, setValue, watch } = useForm<FormWerte>({ defaultValues: standardWerte });
     const service = watch("service");
+    const bindungCheck = watch("bindung_check");
 
     function onSubmit(werte: FormWerte) {
         if (!werte.service || Number.isNaN(werte.preis) || werte.preis < 0) {
             setFehler("Bitte einen Service und einen gültigen Preis angeben.");
             return;
         }
+        const bindung = werte.bindung_check ? zuBindungsdaten(werte.bindungsdaten) : { daten: null, fehler: null };
+        if (bindung.fehler) {
+            setFehler(bindung.fehler);
+            return;
+        }
+        const bindungsdaten = {
+            bindungsdaten: bindung.daten,
+            vorlage_id: bindung.daten ? werte.bindungsdaten.vorlage_id ?? null : null,
+        };
         const daten: SkiDaten = {
             service: werte.service,
             preis: werte.preis,
@@ -67,14 +83,15 @@ export default function SkiFormDialog({ auftragId, ski, bezahlt }: SkiFormDialog
         };
         startTransition(async () => {
             const antwort = ski
-                ? await aendereSki(auftragId, ski.id, bezahlt ? { komentar: daten.komentar } : daten)
-                : await fuegeSkiHinzu(auftragId, daten);
+                ? await aendereSki(auftragId, ski.id, bezahlt ? { komentar: daten.komentar, ...bindungsdaten } : { ...daten, ...bindungsdaten })
+                : await fuegeSkiHinzu(auftragId, { ...daten, ...bindungsdaten });
             if (!antwort.success) {
                 setFehler(antwort.error);
                 return;
             }
             aktualisieren(antwort.data);
             queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
+            queryClient.invalidateQueries({ queryKey: ["bindungsdaten", kundeId] });
             setOffen(false);
         });
     }
@@ -100,13 +117,13 @@ export default function SkiFormDialog({ auftragId, ski, bezahlt }: SkiFormDialog
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>{ski ? `Ski ${ski.name ?? ""} bearbeiten` : "Ski hinzufügen"}</DialogTitle>
                 </DialogHeader>
                 <form id={`ski-form-${ski?.id ?? "neu"}`} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     {bezahlt && (
-                        <p className="text-sm text-muted-foreground">Der Auftrag ist bezahlt, nur der Kommentar kann geändert werden.</p>
+                        <p className="text-sm text-muted-foreground">Der Auftrag ist bezahlt, nur Kommentar und Bindungsdaten können geändert werden.</p>
                     )}
                     <div className="space-y-2">
                         <Label>Service</Label>
@@ -152,6 +169,20 @@ export default function SkiFormDialog({ auftragId, ski, bezahlt }: SkiFormDialog
                         />
                         <span className="text-sm">Bindung prüfen / einstellen</span>
                     </label>
+                    {bindungCheck && (
+                        <Controller
+                            control={control}
+                            name="bindungsdaten"
+                            render={({ field }) => (
+                                <BindungsdatenFelder
+                                    idPrefix={`ski-${ski?.id ?? "neu"}`}
+                                    wert={field.value}
+                                    onChange={field.onChange}
+                                    kundeId={kundeId}
+                                />
+                            )}
+                        />
+                    )}
                     <div className="space-y-2">
                         <Label htmlFor={`ski-kommentar-${ski?.id ?? "neu"}`}>Kommentar</Label>
                         <Textarea id={`ski-kommentar-${ski?.id ?? "neu"}`} rows={2} {...register("komentar")} />

@@ -16,6 +16,10 @@ const AUSWAHL_TEXTE: Record<string, string> = {
     ssl: "SSL / TLS",
     starttls: "STARTTLS",
     keine: "Keine (interner Relay)",
+    fertig: "Nur Fertig-Meldung",
+    preise: "Fertig-Meldung mit Preisauflistung",
+    pdf: "Eigene Quittung als PDF hochladen",
+    rechnung: "Rechnung direkt in Lexware anlegen",
 };
 
 type EinstellungFeldProps = {

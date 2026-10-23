@@ -23,6 +23,11 @@ export default function SaisonVerleiAnzeigeMaterialSchuh({ material }: Props) {
                 <span className="inline-flex items-center gap-1">
                     <Ruler className="h-3.5 w-3.5" /> Größe {material.Schuh.Groese}
                 </span>
+                {material.Schuh.Sohle && (
+                    <span className="inline-flex items-center gap-1">
+                        <Ruler className="h-3.5 w-3.5" /> Sohle {material.Schuh.Sohle} mm
+                    </span>
+                )}
                 <span className="inline-flex items-center gap-1">
                     <Tag className="h-3.5 w-3.5" /> {material.Schuh.Modell.Hersteller.Name + " " + material.Schuh.Modell.Modell}
                 </span>

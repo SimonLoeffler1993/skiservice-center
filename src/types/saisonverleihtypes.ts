@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MaterialSchema, MaterialReadSchema } from "./materialtypes";
+import { MaterialNeuSchema, MaterialReadSchema } from "./materialtypes";
 import { kundeSchema } from "./skikundentypes";
 
 // --- SaisonVerleihPreis ---
@@ -77,7 +77,7 @@ export const SaisonVerleihCreateSchema = z.object({
     Ende_Am: z.string().date().optional(),
     Art: VerleihArtSchema.optional(),
     QuittungID: z.number().int().optional(),
-    Material: z.array(MaterialSchema).optional().nullable(),
+    Material: z.array(MaterialNeuSchema).optional().nullable(),
 });
 
 export type SaisonVerleihCreate = z.infer<typeof SaisonVerleihCreateSchema>;
@@ -121,3 +121,14 @@ export const VerleihBelegungSchema = z.object({
 });
 export const VerleihBelegungListeSchema = z.array(VerleihBelegungSchema);
 export type VerleihBelegung = z.infer<typeof VerleihBelegungSchema>;
+
+// Etikett für einen Leihski oder Leihschuh, Schlüssel z.B. "12-ski" / "12-schuh"
+export const VerleihEtikettSchema = z.object({
+    Schluessel: z.string(),
+    Name: z.string(),
+    // SkiFahrerName, null wenn keiner angegeben ist
+    Fahrer: z.string().nullish(),
+    Teil: z.string(),
+});
+export type VerleihEtikett = z.infer<typeof VerleihEtikettSchema>;
+export const VerleihEtikettListeSchema = z.array(VerleihEtikettSchema);

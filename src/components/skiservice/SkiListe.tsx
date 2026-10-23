@@ -1,11 +1,11 @@
-import { Ski } from '@/types/skiservicetypes';
+import { Auftrag, Ski } from '@/types/skiservicetypes';
 import SkiDetail from './SkiDetail';
 import SkiAktionen from './bearbeiten/SkiAktionen';
 
 type SkiListeProps = {
     skis: Ski[]
     // Mit Angabe werden Bearbeiten-Aktionen je Ski angezeigt
-    bearbeiten?: { bezahlt: boolean }
+    bearbeiten?: { bezahlt: boolean; kundeId: number; auftrag: Auftrag }
 };
 
 export default function SkiListe({ skis, bearbeiten }: SkiListeProps) {
@@ -22,10 +22,10 @@ export default function SkiListe({ skis, bearbeiten }: SkiListeProps) {
             <ul className="divide-y divide-border">
                 {skis.map((ski) => (
                     <li key={ski.id} className="py-3 transition-colors hover:bg-muted/40 px-2">
-                        <SkiDetail ski={ski} showButtons={true} />
+                        <SkiDetail ski={ski} showButtons={true} kundeId={bearbeiten?.kundeId} />
                         {bearbeiten && (
                             <div className="flex justify-end">
-                                <SkiAktionen ski={ski} bezahlt={bearbeiten.bezahlt} letzterSki={skis.length === 1} />
+                                <SkiAktionen ski={ski} auftrag={bearbeiten.auftrag} bezahlt={bearbeiten.bezahlt} letzterSki={skis.length === 1} kundeId={bearbeiten.kundeId} />
                             </div>
                         )}
                     </li>

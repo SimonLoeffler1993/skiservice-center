@@ -8,8 +8,10 @@ import {
     SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonVerleihCreateResponseSchema,
     SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList, 
     SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse,
-    VerleihBelegung, VerleihBelegungListeSchema } from "@/types/saisonverleihtypes";
+    VerleihBelegung, VerleihBelegungListeSchema, VerleihArt,
+    VerleihEtikett, VerleihEtikettListeSchema } from "@/types/saisonverleihtypes";
 import { toApiAntwort } from "./helfer";
+import { anfrage } from "./apianfrage";
 import { SaisonverleihPreiseListe, saisonverleihPreiseListeSchema } from "@/types/saisonverleihpreisetypes";
 
 export async function getSaisonVerleihPreis(): Promise<ApiAntwort<SaisonverleihPreiseListe>> {
@@ -83,7 +85,8 @@ export async function getSaisonVerleihById(id: number | string): Promise<Saisonv
 }
 
 // SaisonVerleihliste laden
-export async function getSaisonVerleihList(limit: number = 15, letzteID?: number, saisonID?: number): Promise<SaisonverleihReadList | null> {
+// art: nur Saison- oder nur Tagesverleihe, ohne Angabe alle
+export async function getSaisonVerleihList(limit: number = 15, letzteID?: number, saisonID?: number, art?: VerleihArt): Promise<SaisonverleihReadList | null> {
 
     let url = `${config.backendUrl}/api/v1/saisonverleih/?limit=${limit}`;
     if (saisonID) {
@@ -92,6 +95,9 @@ export async function getSaisonVerleihList(limit: number = 15, letzteID?: number
 
     if (letzteID) {
         url += `&last_id=${letzteID}`;
+    }
+    if (art) {
+        url += `&art=${art}`;
     }
 
     try {
@@ -176,4 +182,21 @@ export async function getBelegung(
         console.error("Belegungsprüfung fehlgeschlagen:", error);
         return { success: false, error: "Server nicht erreichbar. Belegung konnte nicht geprüft werden." };
     }
+}
+
+
+// Etiketten eines Verleihs: je Leihski und je Leihschuh eines
+export async function getVerleihEtiketten(verleihId: number): Promise<VerleihEtikett[]> {
+    const antwort = await anfrage(`/ettiket/verleih/${verleihId}`, "GET", VerleihEtikettListeSchema, "Etiketten konnten nicht geladen werden.");
+    if (!antwort.success) throw new Error(antwort.error);
+    return antwort.data;
+}
+
+// Druckt die gewählten Etiketten, gibt die Meldung der API zurück
+export async function druckeVerleihEtiketten(verleihId: number, etiketten: string[]): Promise<ApiAntwort<string>> {
+    const antwort = await anfrage(`/ettiket/verleih/${verleihId}`, "POST", SaisonVerleihNamenEttiketResponseSchema, "Etiketten konnten nicht gedruckt werden.", { etiketten });
+    if (!antwort.success) return antwort;
+    return antwort.data.success
+        ? { success: true, data: antwort.data.message ?? "Gedruckt." }
+        : { success: false, error: antwort.data.message ?? "Etiketten konnten nicht gedruckt werden." };
 }

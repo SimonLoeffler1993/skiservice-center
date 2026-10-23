@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { SkiArtArray } from "@/types/materialtypes";
 import { getSkiArt } from "@/lib/materialactions";
 
@@ -14,9 +14,10 @@ const SkiArtContext = createContext<SkiArtContextType | null>(null);
 export function SkiArtContextProvider({ children, artPromise }: { children: React.ReactNode, artPromise: Promise<SkiArtArray> }) {
     // State stellt Reload sicher
     const [statefulPromise, setStatefulPromise] = useState<Promise<SkiArtArray>>(artPromise);
-    function refreshArtPromise() {
+    // Stabile Referenz, sonst lösen Effects mit dieser Abhängigkeit eine Endlosschleife aus
+    const refreshArtPromise = useCallback(() => {
         setStatefulPromise(getSkiArt());
-    }
+    }, []);
     
     return (
         <SkiArtContext.Provider value={{ artPromise: statefulPromise, refreshArtPromise }}>

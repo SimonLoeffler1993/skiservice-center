@@ -7,6 +7,7 @@ import SchuhHerstellerForm from "@/components/material/skischuhe/herstellerform"
 import SchuhModellForm from "@/components/material/skischuhe/modellform";
 import SkischuhForm from "@/components/material/skischuhe/schuhform";
 import SkiStoeckeForm from "@/components/material/skistoecke/stoeckeform";
+import SkiArtForm from "@/components/material/skierstellen/artform";
 
 export default function MaterialPage() {
     const searchParams = useSearchParams()
@@ -15,6 +16,8 @@ export default function MaterialPage() {
     switch (view) {
         case "skihersteller":
             return <SkiHerstellerForm />
+        case "skiart":
+            return <SkiArtForm />
         case "skimodell":
             return <SkiModellForm />
         case "skierstellen":
