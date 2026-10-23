@@ -2,6 +2,8 @@
 
 import { QuittungRead, QuittungReadSchema } from "@/types/quittungentypes";
 import { config } from "./config";
+import { anfrage } from "./apianfrage";
+import { ApiAntwort } from "@/types/actiontypes";
 import { Beleg } from "@/types/belegetypes";
 import { LexPages } from "@/types/pagestypes";
 
@@ -58,4 +60,8 @@ export async function setExQuittungBeleg(lexBelegID: string, ziel: QuittungZiel)
         console.error("Fehler beim Zuweisen der Quittung:", error);
         return { success: false, error: "Server nicht erreichbar." };
     }
+}
+// Eigene Quittung als Beleg mit PDF nach Lexware hochladen
+export async function quittungNachLexware(quittungID: number): Promise<ApiAntwort<QuittungRead>> {
+    return anfrage(`/quittungen/quittung/${quittungID}/lexware`, "POST", QuittungReadSchema, "Quittung konnte nicht an Lexware übertragen werden.");
 }

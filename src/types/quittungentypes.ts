@@ -39,6 +39,10 @@ export const QuittungUpdateSchema = z.object({
 
 export const QuittungReadSchema = QuittungBaseSchema.extend({
     ID: z.number().int(),
+    // Beleg existiert nur in Lexware (zugewiesen oder direkt als Rechnung angelegt)
+    NurExtern: z.boolean().nullish(),
+    // Aktuelle Lexware Übertragung, null wenn aus
+    LexwareModus: z.enum(["pdf", "rechnung"]).nullish(),
 })
 
 // TypeScript Typen aus den Schemas ableiten
