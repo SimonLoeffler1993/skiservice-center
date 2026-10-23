@@ -1,5 +1,5 @@
 import {
-    CalendarDays, CheckCircle2, ClipboardList, Euro, List, type LucideIcon, Package, Settings, Snowflake, Wrench,
+    CalendarDays, CheckCircle2, ClipboardList, Euro, List, type LucideIcon, Package, Receipt, Settings, Snowflake, Wrench,
 } from "lucide-react";
 
 export type MenueLink = {
@@ -51,6 +51,7 @@ export const MENUE_GRUPPEN: MenueGruppe[] = [
         links: [
             { titel: "Material", href: "/material", icon: Package, kachelTitel: "Material", beschreibung: "Ski, Schuhe, Stöcke, Hersteller und Modelle." },
             { titel: "Preise", href: "/verwalten/preise", icon: Euro, kachelTitel: "Preise", beschreibung: "Preise für Skiservice und Saisonverleih." },
+            { titel: "Quittungen", href: "/verwalten/quittungen", icon: Receipt, kachelTitel: "Quittungen", beschreibung: "Alle Quittungen einer Saison." },
             { titel: "Einstellungen", href: "/verwalten/einstellungen", icon: Settings, kachelTitel: "Einstellungen", beschreibung: "Firma, Drucker, E-Mail und Lexware." },
         ],
     },

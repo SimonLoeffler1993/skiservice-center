@@ -1,6 +1,6 @@
 "use server";
 
-import { QuittungRead, QuittungReadSchema } from "@/types/quittungentypes";
+import { QuittungListeEintrag, QuittungListeSchema, QuittungRead, QuittungReadSchema } from "@/types/quittungentypes";
 import { config } from "./config";
 import { anfrage } from "./apianfrage";
 import { ApiAntwort } from "@/types/actiontypes";
@@ -64,4 +64,11 @@ export async function setExQuittungBeleg(lexBelegID: string, ziel: QuittungZiel)
 // Eigene Quittung als Beleg mit PDF nach Lexware hochladen
 export async function quittungNachLexware(quittungID: number): Promise<ApiAntwort<QuittungRead>> {
     return anfrage(`/quittungen/quittung/${quittungID}/lexware`, "POST", QuittungReadSchema, "Quittung konnte nicht an Lexware übertragen werden.");
+}
+
+// Alle Quittungen einer Saison, neueste zuerst
+export async function getQuittungenListe(saisonID: number): Promise<QuittungListeEintrag[]> {
+    const antwort = await anfrage(`/quittungen/liste?saison=${saisonID}`, "GET", QuittungListeSchema, "Quittungen konnten nicht geladen werden.");
+    if (!antwort.success) throw new Error(antwort.error);
+    return antwort.data;
 }
