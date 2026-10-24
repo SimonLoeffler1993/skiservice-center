@@ -4,11 +4,14 @@ import { ChevronRight } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Kunde } from "@/types/skikundentypes";
+import { Kunde, SkiSuchKunde } from "@/types/skikundentypes";
 import { useKundeStore } from "@/stores/useKundeStore";
+import KundeErfassenDialog from "@/components/kunde/KundeErfassenDialog";
 
 type KundeSuchErgebnisseTabelleProps = {
     daten: Kunde[] | null;
+    // Suchbegriffe, zur Vorbelegung beim Neuanlegen
+    suche?: SkiSuchKunde;
     onKundeAuswaehlen?: (kunde: Kunde) => void;
 };
 
@@ -25,16 +28,31 @@ function telefon(kunde: Kunde) {
     return kunde.Tel?.trim() || kunde.Handy?.trim() || "–";
 }
 
-export default function KundeSuchErgebnisseTabelle({ daten, onKundeAuswaehlen }: KundeSuchErgebnisseTabelleProps) {
+export default function KundeSuchErgebnisseTabelle({ daten, suche, onKundeAuswaehlen }: KundeSuchErgebnisseTabelleProps) {
     const { setKunde } = useKundeStore();
-
-    if (!daten || daten.length === 0) {
-        return <p className="text-sm text-muted-foreground mt-4">Keine Ergebnisse gefunden...</p>;
-    }
 
     function auswaehlen(kunde: Kunde) {
         setKunde(kunde);
         onKundeAuswaehlen?.(kunde);
+    }
+
+    // Neu angelegter Kunde wird genauso übernommen wie ein gefundener
+    const neuAnlegen = (hervorheben: boolean) => (
+        <KundeErfassenDialog
+            vorname={suche?.Vorname?.trim()}
+            nachname={suche?.Nachname?.trim()}
+            onAngelegt={auswaehlen}
+            hervorheben={hervorheben}
+        />
+    );
+
+    if (!daten || daten.length === 0) {
+        return (
+            <div className="mt-6 flex flex-col items-start gap-3 rounded-lg border border-dashed p-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-muted-foreground">Kein Kunde gefunden.</p>
+                {neuAnlegen(true)}
+            </div>
+        );
     }
 
     return (
@@ -104,6 +122,8 @@ export default function KundeSuchErgebnisseTabelle({ daten, onKundeAuswaehlen }:
                         ))}
                     </TableBody>
                 </Table>
+
+                <div className="border-t pt-3">{neuAnlegen(false)}</div>
             </CardContent>
         </Card>
     );

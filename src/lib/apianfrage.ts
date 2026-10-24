@@ -9,7 +9,15 @@ import { ApiAntwort } from "@/types/actiontypes";
 
 async function fehlerText(response: Response, standard: string): Promise<string> {
     const daten = await response.json().catch(() => null);
-    return typeof daten?.detail === "string" ? daten.detail : standard;
+    if (typeof daten?.detail === "string") return daten.detail;
+    // Validierungsfehler (422): Liste mit {msg}, z.B. "Value error, Mindestens Vorname oder Nachname angeben"
+    if (Array.isArray(daten?.detail)) {
+        const meldungen = daten.detail
+            .map((fehler: { msg?: unknown }) => (typeof fehler?.msg === "string" ? fehler.msg.replace(/^Value error, /, "") : null))
+            .filter(Boolean);
+        if (meldungen.length) return meldungen.join(" ");
+    }
+    return standard;
 }
 
 export async function anfrage<T>(
