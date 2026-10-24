@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { connection } from "next/server";
 import { Providers } from "./providers";
+import { getConfig } from "@/lib/config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,15 +20,19 @@ export const metadata: Metadata = {
   description: "Simons SKiservice Center",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Zur Laufzeit lesen (Docker), nicht beim Build
+  await connection();
+  const { backendUrl } = getConfig();
+
   return (
     <html lang="de">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <Providers>
+          <Providers backendUrl={backendUrl}>
           {children}
           </Providers>
       </body>

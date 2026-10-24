@@ -9,6 +9,7 @@ import { ChevronDown, ChevronRight, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useBackendUrl } from "@/context/backend-context";
 import { getQuittungenListe } from "@/lib/quittungactions";
 import { QuittungListeEintrag } from "@/types/quittungentypes";
 
@@ -95,6 +96,7 @@ export default function QuittungenListe({ saisonID }: QuittungenListeProps) {
 }
 
 function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungListeEintrag; offen: boolean; onUmschalten: () => void }) {
+    const backendUrl = useBackendUrl();
     return (
         <Fragment>
             <TableRow className="cursor-pointer" onClick={onUmschalten} aria-expanded={offen}>
@@ -135,7 +137,7 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                 </TableCell>
                 <TableCell>
                     <a
-                        href={`/api/quittung/${quittung.ID}/pdf`}
+                        href={`${backendUrl}/api/v1/quittungen/quittung/${quittung.ID}/pdf`}
                         target="_blank"
                         rel="noopener noreferrer"
                         title="PDF öffnen"

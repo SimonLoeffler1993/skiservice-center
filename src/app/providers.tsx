@@ -5,7 +5,9 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 
 import { useState } from "react"
 
-export function Providers({ children }: { children: React.ReactNode }) {
+import { BackendUrlProvider } from "@/context/backend-context"
+
+export function Providers({ children, backendUrl }: { children: React.ReactNode; backendUrl: string }) {
     // Daten 1min im Cache behalten, damit nicht bei jedem Seitenwechsel neu geladen werden muss
     const [queryClient] = useState(() => new QueryClient({
         defaultOptions: {
@@ -16,7 +18,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     return (
         <QueryClientProvider client={queryClient}>
-            {children}
+            <BackendUrlProvider backendUrl={backendUrl}>
+                {children}
+            </BackendUrlProvider>
             <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
     )
