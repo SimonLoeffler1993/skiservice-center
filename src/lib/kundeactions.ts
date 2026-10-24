@@ -46,10 +46,10 @@ export async function getOrte(plz: string): Promise<string[]> {
 
 const ErfassenAntwortSchema = z.object({ success: z.boolean(), id: z.number().nullish() });
 
-// Legt einen neuen Kunden an und gibt ihn vollständig (mit Ort) zurück
-export async function kundeErfassen(daten: KundeErfassen): Promise<ApiAntwort<Kunde>> {
+// Formularwerte so, wie die API sie erwartet (leer -> null, PLZ als Zahl)
+function zuApiKunde(daten: KundeErfassen) {
     const leerZuNull = (wert: string) => wert.trim() || null;
-    const antwort = await anfrage("/kunden/erfassen", "POST", ErfassenAntwortSchema, "Kunde konnte nicht angelegt werden.", {
+    return {
         Vorname: leerZuNull(daten.Vorname),
         Nachname: leerZuNull(daten.Nachname),
         Strasse: leerZuNull(daten.Strasse),
@@ -57,10 +57,23 @@ export async function kundeErfassen(daten: KundeErfassen): Promise<ApiAntwort<Ku
         Tel: leerZuNull(daten.Tel),
         Handy: leerZuNull(daten.Handy),
         Email: leerZuNull(daten.Email),
-    });
+    };
+}
+
+// Legt einen neuen Kunden an und gibt ihn vollständig (mit Ort) zurück
+export async function kundeErfassen(daten: KundeErfassen): Promise<ApiAntwort<Kunde>> {
+    const antwort = await anfrage("/kunden/erfassen", "POST", ErfassenAntwortSchema, "Kunde konnte nicht angelegt werden.", zuApiKunde(daten));
     if (!antwort.success) return antwort;
     if (!antwort.data.success || !antwort.data.id) {
         return { success: false, error: "Kunde konnte nicht angelegt werden." };
     }
     return anfrage(`/kunden/${antwort.data.id}`, "GET", kundeSchema, "Kunde wurde angelegt, konnte aber nicht geladen werden.");
+}
+
+// Ändert einen Kunden und gibt ihn neu geladen (mit Ort) zurück
+export async function kundeAendern(id: number, daten: KundeErfassen): Promise<ApiAntwort<Kunde>> {
+    const antwort = await anfrage(`/kunden/${id}`, "PUT", z.object({ success: z.boolean() }).loose(), "Kunde konnte nicht gespeichert werden.", zuApiKunde(daten));
+    if (!antwort.success) return antwort;
+    if (!antwort.data.success) return { success: false, error: "Kunde konnte nicht gespeichert werden." };
+    return anfrage(`/kunden/${id}`, "GET", kundeSchema, "Kunde wurde gespeichert, konnte aber nicht neu geladen werden.");
 }

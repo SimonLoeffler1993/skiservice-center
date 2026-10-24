@@ -3,21 +3,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Kunde } from "@/types/skikundentypes";
-import { User, Mail, Phone, MapPin, Hash, X } from "lucide-react";
+import { User, Mail, Phone, Smartphone, MapPin, Hash, X } from "lucide-react";
+import KundeErfassenDialog from "./KundeErfassenDialog";
 
 type KundeFormProps = {
     kunde: Kunde;
     onClose?: () => void;
+    // Mit Angabe kann der Kunde bearbeitet werden (z.B. nach der Auswahl)
+    onGeaendert?: (kunde: Kunde) => void;
 };
 
-export default function KundeForm({ kunde, onClose }: KundeFormProps) {
+export default function KundeForm({ kunde, onClose, onGeaendert }: KundeFormProps) {
     return (
         <Card className="mt-6">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-4">
                 <CardTitle className="text-xl font-semibold flex items-center gap-2">
                     <User className="h-5 w-5" />
                     Kundendetails
                 </CardTitle>
+                <div className="flex items-center gap-1">
+                {onGeaendert && <KundeErfassenDialog kunde={kunde} onGespeichert={onGeaendert} />}
                 {onClose && (
                     <Button 
                         variant="ghost" 
@@ -28,6 +33,7 @@ export default function KundeForm({ kunde, onClose }: KundeFormProps) {
                         <X className="h-4 w-4" />
                     </Button>
                 )}
+                </div>
             </CardHeader>
             <CardContent className="space-y-6">
                 {/* Persönliche Informationen */}
@@ -110,6 +116,18 @@ export default function KundeForm({ kunde, onClose }: KundeFormProps) {
                             </p>
                         </div>
                         
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                                <Smartphone className="h-3 w-3" />
+                                Handy
+                            </label>
+                            <p className="text-base">
+                                {kunde.Handy || (
+                                    <span className="text-muted-foreground italic">Nicht angegeben</span>
+                                )}
+                            </p>
+                        </div>
+
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
                                 <Mail className="h-3 w-3" />

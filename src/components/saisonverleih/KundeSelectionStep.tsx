@@ -38,7 +38,7 @@ export default function KundeSelectionStep({
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+                <CardTitle className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                         <User className="h-5 w-5" />
                         {kunde && !showKundeSearch ? "Ausgewählter Kunde" : "Kunde auswählen"}
@@ -78,7 +78,7 @@ export default function KundeSelectionStep({
                                 <span className="text-sm font-medium text-green-800">Kunde ausgewählt</span>
                             </div>
                         </div>
-                        <KundeForm kunde={kunde} onClose={handleKundeChange} />
+                        <KundeForm kunde={kunde} onClose={handleKundeChange} onGeaendert={setKunde} />
                     </div>
                 ) : (
                     <div>

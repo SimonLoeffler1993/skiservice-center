@@ -72,7 +72,7 @@ export default function KundeSuchForm({ onKundeSelected }: KundeSuchFormProps = 
                     <KundeErfassenDialog
                         vorname={eingabeVorname.trim()}
                         nachname={eingabeNachname.trim()}
-                        onAngelegt={onKundeAuswaehlen}
+                        onGespeichert={onKundeAuswaehlen}
                         beschriftung="Neuer Kunde"
                         buttonClassName="h-10"
                     />

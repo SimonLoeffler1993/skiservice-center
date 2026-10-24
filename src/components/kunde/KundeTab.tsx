@@ -44,13 +44,13 @@ export default function KundeTab() {
 
     return (
         <div>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-wrap justify-between items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setZeigenKundeSuchen(true)}>
                     Kunde wechseln
                 </Button>
                 <KundeTerminalButton />
             </div>
-            <KundeForm kunde={kunde} />
+            <KundeForm kunde={kunde} onGeaendert={setKunde} />
         </div>
     );
 }

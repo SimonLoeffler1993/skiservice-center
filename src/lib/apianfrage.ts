@@ -22,7 +22,7 @@ async function fehlerText(response: Response, standard: string): Promise<string>
 
 export async function anfrage<T>(
     pfad: string,
-    methode: "GET" | "POST" | "PATCH" | "DELETE",
+    methode: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
     schema: z.ZodType<T>,
     fehler: string,
     body?: unknown,

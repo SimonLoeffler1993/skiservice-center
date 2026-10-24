@@ -41,7 +41,7 @@ export default function KundeSuchErgebnisseTabelle({ daten, suche, onKundeAuswae
         <KundeErfassenDialog
             vorname={suche?.Vorname?.trim()}
             nachname={suche?.Nachname?.trim()}
-            onAngelegt={auswaehlen}
+            onGespeichert={auswaehlen}
             hervorheben={hervorheben}
         />
     );
