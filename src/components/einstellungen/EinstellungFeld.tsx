@@ -22,6 +22,8 @@ const AUSWAHL_TEXTE: Record<string, string> = {
     rechnung: "Rechnung direkt in Lexware anlegen",
     vorbereitung: "In Vorbereitung",
     vorbereitet: "Vorbereitet",
+    schwarz: "Schwarz (Standard)",
+    rotschwarz: "Rot/Schwarz (z.B. DK-22251)",
     unterwegs: "Unterwegs",
 };
 
