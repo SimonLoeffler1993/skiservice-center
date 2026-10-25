@@ -69,12 +69,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
             {/* Handy: Material, dann Kunde und Quittung. Tablet hochkant: Kunde | Quittung oben, darunter Material. Ab lg: Material links, Seitenbereich rechts */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
                 <div className="md:order-2 lg:order-1 lg:col-span-2">
-                    <SaisonVerleiAnzeigeMaterial
-                        material={material}
-                        saisonverleihid={verleih.ID}
-                        bezahlt={istVerleihBezahlt(verleih)}
-                        kundeId={verleih.Kunde_ID}
-                    />
+                    <SaisonVerleiAnzeigeMaterial verleih={verleih} bezahlt={istVerleihBezahlt(verleih)} />
                 </div>
 
                 <aside className="grid grid-cols-1 items-start gap-4 md:order-1 md:grid-cols-2 lg:order-2 lg:grid-cols-1">

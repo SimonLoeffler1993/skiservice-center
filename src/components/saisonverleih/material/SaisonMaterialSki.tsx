@@ -6,6 +6,7 @@ import { useBelegungPruefung } from "@/hooks/useBelegungPruefung";
 import BelegungHinweis from "./BelegungHinweis";
 import { useActionState, startTransition, useEffect, useState } from "react";
 import { getSkiNrCheck } from "@/lib/materialactions";
+import { Ski } from "@/types/materialtypes";
 import SaisonMaterialSkiAnzeige from "./SaisonMaterialSkiAnzeige";
 
 interface SaisonMaterialSkiProps {
@@ -14,6 +15,8 @@ interface SaisonMaterialSkiProps {
     onCheck?: (isValid: boolean) => void;
     // Belegter Ski wird bewusst übernommen
     onTrotzdem?: (trotzdem: boolean) => void;
+    // Bisheriger Ski beim Bearbeiten, wird ohne erneute Prüfung angezeigt
+    vorgabe?: Ski | null;
     error?: string;
 }
 
@@ -22,6 +25,7 @@ export default function SaisonMaterialSki({
     onChange, 
     onCheck,
     onTrotzdem,
+    vorgabe,
     error 
 }: SaisonMaterialSkiProps) {
     const [state, action, isPending] = useActionState(getSkiNrCheck, null);
@@ -78,7 +82,11 @@ export default function SaisonMaterialSki({
                 <p className="mt-1 text-sm text-red-600">{error}</p>
             )}
             {isPending && <p className="mt-1 text-sm text-gray-500">Prüfe Ski-Nummer...</p>}
-            {state?.success && <SaisonMaterialSkiAnzeige ski={state.data![0]} />}
+            {state?.success ? (
+                <SaisonMaterialSkiAnzeige ski={state.data![0]} />
+            ) : (
+                vorgabe && value === vorgabe.SkiNr && <SaisonMaterialSkiAnzeige ski={vorgabe} />
+            )}
             {state?.error && !isPending && (
                 <p className="mt-1 text-sm text-red-600">{state.error}</p>
             )}

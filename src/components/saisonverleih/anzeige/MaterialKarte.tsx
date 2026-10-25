@@ -5,14 +5,14 @@ import { Footprints, MountainSnow, Package, Ruler, Slash, User, type LucideIcon 
 import { euro } from "@/lib/utils";
 import { bindungsdatenText } from "@/types/bindungsdatentypes";
 import { MaterialRead } from "@/types/materialtypes";
+import { SaisonverleihRead } from "@/types/saisonverleihtypes";
 import MaterialAktionen from "../bearbeiten/MaterialAktionen";
 import EtikettenDruckButton from "./EtikettenDruckButton";
 import SaisonVerleiAnzeigeMaterialBindung from "./MaterialBindung";
 
 type MaterialKarteProps = {
-    verleihId: number;
+    verleih: SaisonverleihRead;
     material: MaterialRead;
-    kundeId: number;
     bezahlt: boolean;
     letztesMaterial: boolean;
 };
@@ -33,7 +33,8 @@ function Teil({ icon: Icon, titel, name, details }: { icon: LucideIcon; titel: s
 }
 
 // Eine Materialzeile des Verleihs: Fahrer und Preis, ausgeliehene Teile, Bindungsdaten und Aktionen
-export default function MaterialKarte({ verleihId, material, kundeId, bezahlt, letztesMaterial }: MaterialKarteProps) {
+export default function MaterialKarte({ verleih, material, bezahlt, letztesMaterial }: MaterialKarteProps) {
+    const verleihId = verleih.ID;
     const { Ski, Schuh, Stock } = material;
     const bindung = bindungsdatenText(material.bindungsdaten);
 
@@ -50,7 +51,7 @@ export default function MaterialKarte({ verleihId, material, kundeId, bezahlt, l
                 </p>
                 <div className="-my-1 -mr-2 flex shrink-0 items-center gap-1">
                     <span className="mr-1 font-semibold tabular-nums">{euro.format(material.Preis)}</span>
-                    <MaterialAktionen verleihId={verleihId} material={material} bezahlt={bezahlt} letztesMaterial={letztesMaterial} />
+                    <MaterialAktionen verleih={verleih} material={material} bezahlt={bezahlt} letztesMaterial={letztesMaterial} />
                 </div>
             </div>
 
@@ -89,7 +90,7 @@ export default function MaterialKarte({ verleihId, material, kundeId, bezahlt, l
             </div>
 
             <div className="flex flex-wrap items-center gap-2 border-t px-4 py-3 [&_button]:h-9">
-                <SaisonVerleiAnzeigeMaterialBindung verleihId={verleihId} material={material} kundeId={kundeId} />
+                <SaisonVerleiAnzeigeMaterialBindung verleihId={verleihId} material={material} kundeId={verleih.Kunde_ID} />
                 {/* Etiketten nur für Ski und Schuh dieser Materialzeile */}
                 <EtikettenDruckButton
                     verleihId={verleihId}

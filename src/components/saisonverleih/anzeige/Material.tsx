@@ -2,18 +2,16 @@
 
 import { Snowflake } from "lucide-react";
 
-import { MaterialRead } from "@/types/materialtypes";
+import { SaisonverleihRead } from "@/types/saisonverleihtypes";
 import MaterialKarte from "./MaterialKarte";
 
 type MaterialProps = {
-    material: MaterialRead[];
-    saisonverleihid: number;
+    verleih: SaisonverleihRead;
     bezahlt: boolean;
-    // Für Vorschläge beim Erfassen der Bindungsdaten
-    kundeId: number;
 };
 
-export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid, bezahlt, kundeId }: MaterialProps) {
+export default function SaisonVerleiAnzeigeMaterial({ verleih, bezahlt }: MaterialProps) {
+    const material = verleih.Material ?? [];
     return (
         // @container: Spaltenzahl richtet sich nach der Breite des Hauptbereichs
         <section className="@container space-y-3">
@@ -29,9 +27,8 @@ export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid,
                     {material.map((a) => (
                         <MaterialKarte
                             key={a.ID}
-                            verleihId={saisonverleihid}
+                            verleih={verleih}
                             material={a}
-                            kundeId={kundeId}
                             bezahlt={bezahlt}
                             letztesMaterial={material.length === 1}
                         />

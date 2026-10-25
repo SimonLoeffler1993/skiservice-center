@@ -11,13 +11,17 @@ import { useSaisonverleihContext } from "@/context/saisonverleih-context";
 interface SaisonMaterialPreiseProps {
     name: string;
     error?: string;
+    // Beim Bearbeiten "custom", damit der bisherige Betrag im Feld steht
+    startAuswahl?: string;
+    // Preis darf nicht mehr geändert werden (Verleih bezahlt)
+    gesperrt?: boolean;
 }
 
-export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPreiseProps) {
+export default function SaisonMaterialPreise({ name, error, startAuswahl, gesperrt = false }: SaisonMaterialPreiseProps) {
     const { watch, setValue } = useFormContext();
     const { art } = useSaisonverleihContext();
     // Ausgewählte Preis-ID, damit zwei Preise mit gleichem Betrag unterscheidbar sind
-    const [auswahl, setAuswahl] = useState<string | undefined>(undefined);
+    const [auswahl, setAuswahl] = useState<string | undefined>(startAuswahl);
 
     const { data, isLoading, error: fetchError } = useQuery(saisonverleihPreiseOptions);
 
@@ -28,7 +32,7 @@ export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPrei
             : null;
 
     const preise = data?.success ? data.data.preise.filter((preis) => !preis.inaktiv) : [];
-    const disabled = isLoading || !!loadError;
+    const disabled = isLoading || !!loadError || gesperrt;
 
     // Form stores the numeric Preis
     const selectedValue = watch(name) as number | undefined;
@@ -93,11 +97,15 @@ export default function SaisonMaterialPreise({ name, error }: SaisonMaterialPrei
                             placeholder="Preis in Euro, z. B. 12.50"
                             value={typeof selectedValue === 'number' && selectedValue > 0 ? selectedValue : ''}
                             onChange={handleCustomPriceChange}
+                            disabled={gesperrt}
                             className={error ? 'border-red-500' : ''}
                         />
                     </div>
                 )}
 
+                {gesperrt && (
+                    <p className="text-sm text-muted-foreground">Verleih ist bezahlt, der Preis kann nicht mehr geändert werden.</p>
+                )}
                 {loadError && art === "saison" && (
                     <p className="text-sm text-red-600">{loadError}</p>
                 )}

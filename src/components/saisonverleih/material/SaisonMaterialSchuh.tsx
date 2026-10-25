@@ -16,6 +16,8 @@ interface SaisonMaterialSchuhProps {
     onCheck?: (isValid: boolean) => void;
     // Belegter Schuh wird bewusst übernommen
     onTrotzdem?: (trotzdem: boolean) => void;
+    // Bisheriger Schuh beim Bearbeiten, wird ohne erneute Prüfung angezeigt
+    vorgabe?: Schuh | null;
     // Interne ID des gefundenen Schuhs, wird im Verleih gespeichert. Dazu der Schuh, z.B. für die Sohlenlänge
     onGefunden?: (schuhId: number | undefined, schuh?: Schuh) => void;
     error?: string;
@@ -27,6 +29,7 @@ export default function SaisonMaterialSchuh({
     onCheck,
     onTrotzdem,
     onGefunden,
+    vorgabe,
     error
 }: SaisonMaterialSchuhProps) {
     // Ergebnis der Prüfung, gilt nur für die geprüfte Nummer
@@ -97,7 +100,11 @@ export default function SaisonMaterialSchuh({
                 <p className="mt-1 text-sm text-red-600">{error}</p>
             )}
             {isPending && <p className="mt-1 text-sm text-gray-500">Prüfe Schuh-Nummer...</p>}
-            {state?.success && <SaisonMaterialSchuhAnzeige schuh={state.data!} />}
+            {state?.success ? (
+                <SaisonMaterialSchuhAnzeige schuh={state.data!} />
+            ) : (
+                !state && vorgabe && value === vorgabe.SchuhNr && <SaisonMaterialSchuhAnzeige schuh={vorgabe} />
+            )}
             {state?.error && !isPending && (
                 <p className="mt-1 text-sm text-red-600">{state.error}</p>
             )}
