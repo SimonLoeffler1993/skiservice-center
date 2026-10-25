@@ -11,7 +11,7 @@ type SkiAuswahlZeileProps = {
     onUmschalten: () => void;
 };
 
-// Antippbare Zeile in der Fertigstellen-Ansicht: Auswahl mit Häkchen, Service, Status und Preis
+// Antippbare Zeile in der Scanner-Ansicht: Auswahl mit Häkchen, Service, Status und Preis
 export default function SkiAuswahlZeile({ ski, ausgewaehlt, onUmschalten }: SkiAuswahlZeileProps) {
     const preis = ski.preis + (ski.bindung_check ? ski.bindung_preis : 0);
 
