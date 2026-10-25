@@ -2,8 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { VerleihArt } from "@/types/saisonverleihtypes";
 
 type VerleihArtFilterProps = {
@@ -11,11 +10,18 @@ type VerleihArtFilterProps = {
     art?: VerleihArt;
 };
 
-// Filter der Verleihliste, per URL vorbelegbar (?art=saison|tag). Die Saison bleibt erhalten.
+const OPTIONEN: { wert: VerleihArt | "alle"; text: string }[] = [
+    { wert: "alle", text: "Alle" },
+    { wert: "saison", text: "Saison" },
+    { wert: "tag", text: "Tag" },
+];
+
+// Filter der Verleihliste als Segment-Umschalter, per URL vorbelegbar (?art=saison|tag). Die Saison bleibt erhalten.
 export default function VerleihArtFilter({ art }: VerleihArtFilterProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const aktuell = art ?? "alle";
 
     function wechseln(wert: string) {
         const parameter = new URLSearchParams(searchParams.toString());
@@ -26,18 +32,22 @@ export default function VerleihArtFilter({ art }: VerleihArtFilterProps) {
     }
 
     return (
-        <div className="flex items-center gap-2">
-            <Label>Art</Label>
-            <Select value={art ?? "alle"} onValueChange={wechseln}>
-                <SelectTrigger>
-                    <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="alle">Alle</SelectItem>
-                    <SelectItem value="saison">Saisonverleih</SelectItem>
-                    <SelectItem value="tag">Tagesverleih</SelectItem>
-                </SelectContent>
-            </Select>
+        <div role="radiogroup" aria-label="Art" className="inline-flex rounded-lg bg-muted p-1">
+            {OPTIONEN.map(({ wert, text }) => (
+                <button
+                    key={wert}
+                    type="button"
+                    role="radio"
+                    aria-checked={aktuell === wert}
+                    onClick={() => wechseln(wert)}
+                    className={cn(
+                        "h-8 rounded-md px-4 text-sm font-medium transition-colors",
+                        aktuell === wert ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                    )}
+                >
+                    {text}
+                </button>
+            ))}
         </div>
     );
 }

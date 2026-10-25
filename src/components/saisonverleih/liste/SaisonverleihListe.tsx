@@ -1,57 +1,60 @@
 "use client"
 
-import { useInView } from "react-intersection-observer";
-import SaisonverleihListeCard from "./SaisonverleihListeCard";
-import { Badge } from "@/components/ui/badge";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { CalendarDays, Snowflake } from "lucide-react";
+
+import ListenKopf from "@/components/liste/ListenKopf";
+import { LISTEN_RASTER, ListenFuss, ListenLeer, ListenSkeleton } from "@/components/liste/ListenTeile";
 import { saisonverleihListOptions } from "@/hooks/useSaisonverleihListeOptions";
+import { useVorausLaden } from "@/hooks/useVorausLaden";
 import { VerleihArt } from "@/types/saisonverleihtypes";
-import { useEffect } from "react";
+import SaisonverleihListeCard from "./SaisonverleihListeCard";
 
 type SaisonverleihListeProps = {
     saisonID: number;
     art?: VerleihArt;
+    // Filter (Saison, Art) für den Kopf
+    filter: React.ReactNode;
 }
 
+// Titel und Neu-Link passend zur gewählten Art
+const KOPF: Record<VerleihArt | "alle", { titel: string; neuHref: string; neuText: string }> = {
+    alle: { titel: "Verleih", neuHref: "/saisonverleih/erstellen", neuText: "Neuer Verleih" },
+    saison: { titel: "Saisonverleih", neuHref: "/saisonverleih/erstellen", neuText: "Neuer Saisonverleih" },
+    tag: { titel: "Tagesverleih", neuHref: "/saisonverleih/erstellen?art=tag", neuText: "Neuer Tagesverleih" },
+};
 
-export default function SaisonverleihListe({ saisonID, art }: SaisonverleihListeProps) {
-    const {data, hasNextPage, fetchNextPage, isFetchingNextPage} = useInfiniteQuery(saisonverleihListOptions(saisonID, art));
-    // console.log("SaisonverleihListe data:", data);
+export default function SaisonverleihListe({ saisonID, art, filter }: SaisonverleihListeProps) {
+    const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(saisonverleihListOptions(saisonID, art));
+    // Immer eine Seite voraus laden, damit das Scrollen ohne Pause läuft
+    const { items, ref, laedt, alleGeladen } = useVorausLaden({ seiten: data?.pages, hasNextPage, isFetchingNextPage, fetchNextPage });
+    const kopf = KOPF[art ?? "alle"];
+    const icon = art === "tag" ? CalendarDays : Snowflake;
 
-    const { ref, inView } = useInView();
-    
-
-    // if (!saisonverleihliste) {
-    //     return <p>Saisonverleihliste nicht gefunden</p>;
-    // }
-
-    const items = data?.pages.flat().filter((item) => item !== null) ?? []
-
-    // Automatisch die nächste Seite laden, wenn der Benutzer das Ende der Liste erreicht
-    useEffect(() => {
-        if (inView && hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-        }
-    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-    
     return (
-        <>
-            
-            <Badge variant="secondary">gefunden: {items.length}</Badge>
-            {/* {!hasNextPage && (
-                <Badge variant="secondary">Alle Verleihe geladen</Badge>
-            )} */}
-            <Badge variant="secondary">{hasNextPage ? "Es sind noch nicht alle geladen" : "Alle Verleihe geladen"}</Badge>
+        <section className="space-y-5">
+            <ListenKopf
+                titel={kopf.titel}
+                icon={icon}
+                unterzeile={isPending ? "Verleihe werden geladen..." : `${items.length}${alleGeladen ? "" : "+"} Verleihe`}
+                neuHref={kopf.neuHref}
+                neuText={kopf.neuText}
+            >
+                {filter}
+            </ListenKopf>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {items.map((saisonverleih) => (
-                    <SaisonverleihListeCard key={saisonverleih.ID} saisonverleih={saisonverleih} />
-                ))}
-            </div>
-            <div>
-                {isFetchingNextPage &&<p>Weitere Daten werden geladen...</p>}
-            </div>
-            <div ref={ref} />
-        </>
+            {isPending ? (
+                <ListenSkeleton />
+            ) : items.length === 0 ? (
+                <ListenLeer icon={icon} titel="Keine Verleihe in dieser Saison" neuHref={kopf.neuHref} neuText={kopf.neuText} />
+            ) : (
+                <div className={LISTEN_RASTER}>
+                    {items.map((saisonverleih) => (
+                        <SaisonverleihListeCard key={saisonverleih.ID} saisonverleih={saisonverleih} />
+                    ))}
+                </div>
+            )}
+            <ListenFuss sentinel={ref} laedt={laedt} alleGeladen={alleGeladen} anzahl={items.length} einheit="Verleihe" />
+        </section>
     );
 }
