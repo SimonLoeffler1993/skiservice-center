@@ -47,7 +47,7 @@ export default function MaterialAktionen({ verleihId, material, bezahlt, letztes
     }
 
     return (
-        <div className="flex justify-end gap-1 px-4 pb-2">
+        <div className="flex gap-1">
             <Dialog
                 open={offen}
                 onOpenChange={(wert) => {

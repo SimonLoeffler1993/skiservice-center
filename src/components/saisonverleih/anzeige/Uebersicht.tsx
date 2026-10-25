@@ -1,95 +1,96 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
+import { format, parseISO } from "date-fns";
+import { Info, Receipt } from "lucide-react";
 
+import DetailKopf, { DetailAktionsleiste, DetailKarte } from "@/components/detail/DetailKopf";
 import KundeForm from "@/components/kunde/KundeForm";
-import SaisonVerleiAnzeigeMaterial from "./Material";
-import SaisonVerleiAnzeigePDFButton from "./UebersichtPDFButton";
+import ButtonQuittungZuweisen from "@/components/quittung/ButtonQuittungZuweisen";
+import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
+import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
+import VerleihAktionen, { istVerleihBezahlt } from "../bearbeiten/VerleihAktionen";
 import SaisonverleihCardBezahlt from "../liste/SaisonverleihCardBezahlt";
 import SaisonverleihCardStatus from "../liste/SaisonverleihCardStatus";
-import UebersichtGesamtPreis from "./UebersichtGesamtPreis";
-import SaisonVerleiAnzeigeUebersichtBemerkung from "./UebersichtBemerkung";
-import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
-
-import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
-import ButtonQuittungZuweisen from "@/components/quittung/ButtonQuittungZuweisen";
 import VerleihArtBadge from "../liste/VerleihArtBadge";
-import VerleihAktionen, { istVerleihBezahlt } from "../bearbeiten/VerleihAktionen";
-
+import EtikettenDruckButton from "./EtikettenDruckButton";
+import SaisonVerleiAnzeigeMaterial from "./Material";
+import SaisonVerleiAnzeigePDFButton from "./UebersichtPDFButton";
+import VerleihStatusAktion from "./VerleihStatusAktion";
 
 type SaisonVeliAnzeigeUebersichtProps = {
     saisonverleihID: number;
 }
 
 export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: SaisonVeliAnzeigeUebersichtProps) {
-    // const { data: saisonVerleihDetails } = useSaisonverleihDetails({ saisonverleihID });
+    const { data: verleih, isPending, error } = useQuery(saisonverleihDetailsOptions(saisonverleihID));
 
-    const {data: saisonVerleihDetails, isPending, error} = useQuery(saisonverleihDetailsOptions(saisonverleihID));
-
-    // const { saisonverleihanzeigePromise } = useSaisonverleihanzeigeContext();
-    // const saisonverleihanzeige = use(saisonverleihanzeigePromise);
     if (error) {
         return <div className="text-destructive">Fehler beim Laden: {error.message}</div>;
     }
 
-    if (!saisonVerleihDetails || isPending) {
+    if (!verleih || isPending) {
         return <div>Saisonverleih wird geladen...</div>;
     }
 
-    // console.log(saisonverleihanzeige);
+    const material = verleih.Material ?? [];
+    const kundenname = [verleih.Kunde.Vorname, verleih.Kunde.Nachname].filter(Boolean).join(" ");
+
     return (
+        <div className="space-y-4">
+            <DetailKopf
+                zurueckHref="/saisonverleih/anzeigen"
+                zurueckText="Verleihe"
+                titel={verleih.Name}
+                unterzeile={
+                    <>
+                        {kundenname}
+                        {verleih.Abgeholt_Am && ` · abgeholt am ${format(parseISO(verleih.Abgeholt_Am), "dd.MM.yyyy")}`}
+                    </>
+                }
+                badges={
+                    <>
+                        <VerleihArtBadge art={verleih.Art} startAm={verleih.Start_Am} endeAm={verleih.Ende_Am} />
+                        <SaisonverleihCardStatus status={verleih.Status} />
+                        <SaisonverleihCardBezahlt bezahlt={verleih.Bezahlt} />
+                    </>
+                }
+                betrag={material.reduce((summe, m) => summe + m.Preis, 0)}
+                hauptaktion={<VerleihStatusAktion verleihId={verleih.ID} status={verleih.Status} />}
+            />
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            {/* Linke Spalte: Name, Preis, Status, Kunde */}
-            <div className="flex flex-col gap-4 md:col-span-4">
-                {/* Header: Name links, Preis rechts */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <p className="text-2xl font-bold text-gray-900">{saisonVerleihDetails.Name}</p>
-          
-                        <div className="w-full md:w-auto md:self-start">
-                            <UebersichtGesamtPreis Material={saisonVerleihDetails?.Material ?? []} />
-                        </div>
+            <DetailAktionsleiste>
+                <VerleihAktionen verleih={verleih}>
+                    <SaisonVerleiAnzeigePDFButton saisonverleihanzeigeID={verleih.ID} />
+                    <EtikettenDruckButton verleihId={verleih.ID} deaktiviert={!material.some((m) => m.skinr || m.schuhnr)} />
+                    <ButtonQuittungZuweisen quittungID={verleih.QuittungID} ziel={{ art: "verleih", id: verleih.ID }} />
+                </VerleihAktionen>
+            </DetailAktionsleiste>
+
+            {/* Handy: Material, dann Kunde und Quittung. Tablet hochkant: Kunde | Quittung oben, darunter Material. Ab lg: Material links, Seitenbereich rechts */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
+                <div className="md:order-2 lg:order-1 lg:col-span-2">
+                    <SaisonVerleiAnzeigeMaterial
+                        material={material}
+                        saisonverleihid={verleih.ID}
+                        bezahlt={istVerleihBezahlt(verleih)}
+                        kundeId={verleih.Kunde_ID}
+                    />
                 </div>
 
-                <VerleihAktionen verleih={saisonVerleihDetails} />
-
-                {/* Statuszeile */}
-                <div className="flex flex-wrap items-center gap-3">
-                    <VerleihArtBadge art={saisonVerleihDetails.Art} startAm={saisonVerleihDetails.Start_Am} endeAm={saisonVerleihDetails.Ende_Am} />
-                    <SaisonverleihCardStatus status={saisonVerleihDetails.Status} />
-                    <SaisonverleihCardBezahlt bezahlt={saisonVerleihDetails.Bezahlt} />
-                    <SaisonVerleiAnzeigePDFButton saisonverleihanzeigeID={saisonVerleihDetails.ID} />
-                    <ButtonQuittungZuweisen quittungID={saisonVerleihDetails.QuittungID} ziel={{ art: "verleih", id: saisonVerleihDetails.ID }}/>
-                </div>
-
-                {/* Bemerkung */}
-                {saisonVerleihDetails.Bemerkung && (
-                <div className="bg-white p-4">
-                    <SaisonVerleiAnzeigeUebersichtBemerkung bemerkung={saisonVerleihDetails.Bemerkung} />
-                </div>
-                )}
-
-  
-                < QuittungKurzInfo quittungID={saisonVerleihDetails.QuittungID} />
-      
-
-                {/* Kunde */}
-                <div className="bg-white p-4">
-                    <KundeForm kunde={saisonVerleihDetails.Kunde} />
-                </div>
-            </div>
-
-            {/* Rechte Spalte: Material */}
-            <div className="bg-white p-4 md:border-s md:h-full md:col-span-8">
-                <SaisonVerleiAnzeigeMaterial
-                    material={saisonVerleihDetails?.Material ?? []}
-                    saisonverleihid={saisonVerleihDetails?.ID}
-                    bezahlt={istVerleihBezahlt(saisonVerleihDetails)}
-                    kundeId={saisonVerleihDetails.Kunde_ID}
-                    status={saisonVerleihDetails.Status}
-                />
+                <aside className="grid grid-cols-1 items-start gap-4 md:order-1 md:grid-cols-2 lg:order-2 lg:grid-cols-1">
+                    <KundeForm kunde={verleih.Kunde} />
+                    <div className="space-y-4">
+                        <DetailKarte titel="Quittung" icon={Receipt}>
+                            <QuittungKurzInfo quittungID={verleih.QuittungID} />
+                        </DetailKarte>
+                        {verleih.Bemerkung && (
+                            <DetailKarte titel="Bemerkung" icon={Info}>
+                                <p className="whitespace-pre-line text-sm">{verleih.Bemerkung}</p>
+                            </DetailKarte>
+                        )}
+                    </div>
+                </aside>
             </div>
         </div>
-
     );
 }
-
