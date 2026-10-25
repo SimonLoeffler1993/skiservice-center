@@ -251,11 +251,11 @@ export const SkiAenderungSchema = SkiSchema.extend({
 
 /**
  * Anzeigename einer Materialzeile im Verleih: Fahrername, sonst "Ausrüstung #n".
- * Gezählt werden nur Zeilen ohne Fahrer, in Erfassungsreihenfolge (wie auf den Etiketten).
+ * n ist die Position der Zeile im Verleih (Erfassungsreihenfolge), wie die Nummer auf dem Etikett.
  */
 export function materialBezeichnung(material: MaterialRead, alle: MaterialRead[]): string {
   const fahrer = material.SkiFahrerName?.trim();
   if (fahrer) return fahrer;
-  const ohneFahrer = [...alle].sort((a, b) => a.ID - b.ID).filter((m) => !m.SkiFahrerName?.trim());
-  return `Ausrüstung #${ohneFahrer.findIndex((m) => m.ID === material.ID) + 1}`;
+  const sortiert = [...alle].sort((a, b) => a.ID - b.ID);
+  return `Ausrüstung #${sortiert.findIndex((m) => m.ID === material.ID) + 1}`;
 }
