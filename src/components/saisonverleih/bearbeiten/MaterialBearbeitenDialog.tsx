@@ -16,12 +16,14 @@ import { useVerleihAktualisieren } from "./useVerleihAktualisieren";
 type MaterialBearbeitenDialogProps = {
     verleih: SaisonverleihRead;
     material: MaterialRead;
+    // Fahrer bzw. "Ausrüstung #n" für den Titel
+    bezeichnung: string;
     bezahlt: boolean;
 };
 
 // Material ändern wie bei der Eingabe: Preis, Fahrer, Ski, Schuh, Stock und Bindungsdaten.
 // Nach dem Bezahlen kann das Material noch getauscht werden, nur der Preis ist gesperrt.
-export default function MaterialBearbeitenDialog({ verleih, material, bezahlt }: MaterialBearbeitenDialogProps) {
+export default function MaterialBearbeitenDialog({ verleih, material, bezeichnung, bezahlt }: MaterialBearbeitenDialogProps) {
     const [offen, setOffen] = useState(false);
     const aktualisieren = useVerleihAktualisieren(verleih.ID);
 
@@ -34,7 +36,7 @@ export default function MaterialBearbeitenDialog({ verleih, material, bezahlt }:
             </DialogTrigger>
             <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
                 <DialogHeader>
-                    <DialogTitle>{material.SkiFahrerName || `Ausrüstung #${material.ID}`} bearbeiten</DialogTitle>
+                    <DialogTitle>{bezeichnung} bearbeiten</DialogTitle>
                 </DialogHeader>
                 {/* Eigener Context für Preisauswahl und Belegungsprüfung (ohne den eigenen Verleih) */}
                 <SaisonverleihContextProvider

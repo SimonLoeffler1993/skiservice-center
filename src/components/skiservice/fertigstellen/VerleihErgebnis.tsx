@@ -12,7 +12,7 @@ import { useVerleihAktualisieren } from "@/components/saisonverleih/bearbeiten/u
 import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
 import { pruefeVerleihBindungen } from "@/lib/bearbeitenactions";
 import { cn } from "@/lib/utils";
-import { MaterialRead } from "@/types/materialtypes";
+import { MaterialRead, materialBezeichnung } from "@/types/materialtypes";
 import ScanMeldung, { Meldung } from "./ScanMeldung";
 
 type VerleihErgebnisProps = {
@@ -22,10 +22,6 @@ type VerleihErgebnisProps = {
     // Weitere Buttons in der Aktionsleiste, z.B. "Nächsten scannen"
     zusatz?: React.ReactNode;
 };
-
-function materialName(material: MaterialRead) {
-    return material.SkiFahrerName || `Ausrüstung #${material.ID}`;
-}
 
 // Gescannter Verleih: Kopf mit Kunde und Status, Material mit Ski zum Auswählen, "Bindung geprüft"
 // Wird pro Scan neu eingehängt (key), damit die Auswahl zurückgesetzt wird
@@ -126,7 +122,7 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz }: Verle
                                     {gewaehlt && <Check className="h-4 w-4" />}
                                 </span>
                                 <span className="min-w-0 flex-1">
-                                    <span className="block truncate font-medium">{materialName(m)}</span>
+                                    <span className="block truncate font-medium">{materialBezeichnung(m, material)}</span>
                                     <span className="block truncate text-sm text-muted-foreground">
                                         {m.Ski ? `Ski ${m.Ski.SkiNr} · ${m.Ski.Modell.Hersteller.Name} ${m.Ski.Modell.Modell} · ${m.Ski.Laenge} cm` : "Ohne Ski"}
                                     </span>

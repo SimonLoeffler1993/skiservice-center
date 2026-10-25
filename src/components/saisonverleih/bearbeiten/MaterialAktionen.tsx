@@ -10,16 +10,18 @@ import { useVerleihAktualisieren } from "./useVerleihAktualisieren";
 type MaterialAktionenProps = {
     verleih: SaisonverleihRead;
     material: MaterialRead;
+    // Fahrer bzw. "Ausrüstung #n"
+    bezeichnung: string;
     bezahlt: boolean;
     letztesMaterial: boolean;
 };
 
-export default function MaterialAktionen({ verleih, material, bezahlt, letztesMaterial }: MaterialAktionenProps) {
+export default function MaterialAktionen({ verleih, material, bezeichnung, bezahlt, letztesMaterial }: MaterialAktionenProps) {
     const aktualisieren = useVerleihAktualisieren(verleih.ID);
 
     return (
         <div className="flex gap-1">
-            <MaterialBearbeitenDialog verleih={verleih} material={material} bezahlt={bezahlt} />
+            <MaterialBearbeitenDialog verleih={verleih} material={material} bezeichnung={bezeichnung} bezahlt={bezahlt} />
             <LoeschenDialog
                 titel="Material entfernen"
                 beschreibung="Das Material wird aus dem Verleih entfernt."

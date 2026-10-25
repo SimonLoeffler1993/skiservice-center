@@ -134,6 +134,8 @@ export const VerleihEtikettSchema = z.object({
     Name: z.string(),
     // SkiFahrerName, null wenn keiner angegeben ist
     Fahrer: z.string().nullish(),
+    // Fahrer bzw. "Ausrüstung #n"
+    Bezeichnung: z.string(),
     Teil: z.string(),
 });
 export type VerleihEtikett = z.infer<typeof VerleihEtikettSchema>;

@@ -248,3 +248,14 @@ export type StammdatenVerwendung = z.infer<typeof StammdatenVerwendungSchema>;
 export const SkiAenderungSchema = SkiSchema.extend({
   UmgestellteVerleihe: z.number().default(0),
 });
+
+/**
+ * Anzeigename einer Materialzeile im Verleih: Fahrername, sonst "Ausrüstung #n".
+ * Gezählt werden nur Zeilen ohne Fahrer, in Erfassungsreihenfolge (wie auf den Etiketten).
+ */
+export function materialBezeichnung(material: MaterialRead, alle: MaterialRead[]): string {
+  const fahrer = material.SkiFahrerName?.trim();
+  if (fahrer) return fahrer;
+  const ohneFahrer = [...alle].sort((a, b) => a.ID - b.ID).filter((m) => !m.SkiFahrerName?.trim());
+  return `Ausrüstung #${ohneFahrer.findIndex((m) => m.ID === material.ID) + 1}`;
+}

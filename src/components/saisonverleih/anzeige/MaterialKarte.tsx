@@ -5,7 +5,7 @@ import { Footprints, MountainSnow, Package, Ruler, ScanLine, Slash, User, type L
 import { HERVORGEHOBEN_KLASSE, useHervorheben } from "@/hooks/useHervorheben";
 import { cn, euro } from "@/lib/utils";
 import { bindungsdatenText } from "@/types/bindungsdatentypes";
-import { MaterialRead } from "@/types/materialtypes";
+import { MaterialRead, materialBezeichnung } from "@/types/materialtypes";
 import { SaisonverleihRead } from "@/types/saisonverleihtypes";
 import MaterialAktionen from "../bearbeiten/MaterialAktionen";
 import EtikettenDruckButton from "./EtikettenDruckButton";
@@ -39,6 +39,7 @@ function Teil({ icon: Icon, titel, name, details }: { icon: LucideIcon; titel: s
 // Eine Materialzeile des Verleihs: Fahrer und Preis, ausgeliehene Teile, Bindungsdaten und Aktionen
 export default function MaterialKarte({ verleih, material, bezahlt, letztesMaterial, hervorgehoben = false }: MaterialKarteProps) {
     const verleihId = verleih.ID;
+    const bezeichnung = materialBezeichnung(material, verleih.Material ?? []);
     const ref = useHervorheben<HTMLElement>(hervorgehoben);
     const { Ski, Schuh, Stock } = material;
     const bindung = bindungsdatenText(material.bindungsdaten);
@@ -52,7 +53,7 @@ export default function MaterialKarte({ verleih, material, bezahlt, letztesMater
                     ) : (
                         <Package className="h-4 w-4 shrink-0 text-muted-foreground" />
                     )}
-                    <span className="truncate">{material.SkiFahrerName || `Ausrüstung #${material.ID}`}</span>
+                    <span className="truncate">{bezeichnung}</span>
                     {hervorgehoben && (
                         <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary px-1.5 py-0.5 text-xs font-medium text-primary-foreground">
                             <ScanLine className="h-3 w-3" />
@@ -62,7 +63,7 @@ export default function MaterialKarte({ verleih, material, bezahlt, letztesMater
                 </p>
                 <div className="-my-1 -mr-2 flex shrink-0 items-center gap-1">
                     <span className="mr-1 font-semibold tabular-nums">{euro.format(material.Preis)}</span>
-                    <MaterialAktionen verleih={verleih} material={material} bezahlt={bezahlt} letztesMaterial={letztesMaterial} />
+                    <MaterialAktionen verleih={verleih} material={material} bezeichnung={bezeichnung} bezahlt={bezahlt} letztesMaterial={letztesMaterial} />
                 </div>
             </div>
 
@@ -101,7 +102,7 @@ export default function MaterialKarte({ verleih, material, bezahlt, letztesMater
             </div>
 
             <div className="flex flex-wrap items-center gap-2 border-t px-4 py-3 [&_button]:h-9">
-                <SaisonVerleiAnzeigeMaterialBindung verleihId={verleihId} material={material} kundeId={verleih.Kunde_ID} />
+                <SaisonVerleiAnzeigeMaterialBindung verleihId={verleihId} material={material} bezeichnung={bezeichnung} kundeId={verleih.Kunde_ID} />
                 <MaterialBindungPruefen verleihId={verleihId} material={material} />
                 {/* Etiketten dieser Materialzeile: Ski und Schuh, sonst eines für die Ausrüstung */}
                 <EtikettenDruckButton

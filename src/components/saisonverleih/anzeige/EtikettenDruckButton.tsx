@@ -21,16 +21,16 @@ type EtikettenDruckButtonProps = {
 
 type Zeile = { id: string; text: React.ReactNode; schluessel: string[] };
 
-// Gesamtansicht: Ski und Schuh einer Materialzeile zusammen, nur mit Namen (ohne Namen "Material 1", "Material 2", ...)
+// Gesamtansicht: Etiketten einer Materialzeile zusammen, nur mit Namen (ohne Fahrer "Ausrüstung #1", "#2", ...)
 function nachMaterial(etiketten: VerleihEtikett[]): Zeile[] {
     const gruppen = new Map<string, VerleihEtikett[]>();
     for (const etikett of etiketten) {
         const materialId = etikett.Schluessel.split("-")[0];
         gruppen.set(materialId, [...(gruppen.get(materialId) ?? []), etikett]);
     }
-    return [...gruppen.entries()].map(([materialId, liste], index) => ({
+    return [...gruppen.entries()].map(([materialId, liste]) => ({
         id: materialId,
-        text: <span className="font-medium">{liste[0].Fahrer || `Material ${index + 1}`}</span>,
+        text: <span className="font-medium">{liste[0].Bezeichnung}</span>,
         schluessel: liste.map((e) => e.Schluessel),
     }));
 }

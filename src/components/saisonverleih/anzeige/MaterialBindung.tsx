@@ -8,16 +8,18 @@ import { useVerleihAktualisieren } from "../bearbeiten/useVerleihAktualisieren";
 type MaterialBindungProps = {
     verleihId: number;
     material: MaterialRead;
+    // Fahrer bzw. "Ausrüstung #n" für den Dialogtitel
+    bezeichnung: string;
     kundeId: number;
 };
 
 // Bindungsdaten einer Materialzeile erfassen und bearbeiten, auch nach dem Bezahlen
-export default function SaisonVerleiAnzeigeMaterialBindung({ verleihId, material, kundeId }: MaterialBindungProps) {
+export default function SaisonVerleiAnzeigeMaterialBindung({ verleihId, material, bezeichnung, kundeId }: MaterialBindungProps) {
     const aktualisieren = useVerleihAktualisieren(verleihId);
 
     return (
         <BindungsdatenBearbeitenDialog
-            titel={material.SkiFahrerName || `Ausrüstung #${material.ID}`}
+            titel={bezeichnung}
             idPrefix={`material-${material.ID}`}
             bindungsdaten={material.bindungsdaten}
             kundeId={kundeId}
