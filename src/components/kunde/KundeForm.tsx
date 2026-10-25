@@ -1,9 +1,10 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Mail, MapPin, Phone, Smartphone, X, type LucideIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Kunde } from "@/types/skikundentypes";
-import { User, Mail, Phone, Smartphone, MapPin, Hash, X } from "lucide-react";
 import KundeErfassenDialog from "./KundeErfassenDialog";
 
 type KundeFormProps = {
@@ -11,154 +12,84 @@ type KundeFormProps = {
     onClose?: () => void;
     // Mit Angabe kann der Kunde bearbeitet werden (z.B. nach der Auswahl)
     onGeaendert?: (kunde: Kunde) => void;
+    className?: string;
 };
 
-export default function KundeForm({ kunde, onClose, onGeaendert }: KundeFormProps) {
+function initialen(kunde: Kunde) {
+    const teile = [kunde.Vorname, kunde.Nachname].map((t) => t?.trim()).filter(Boolean) as string[];
+    if (teile.length >= 2) return (teile[0][0] + teile[1][0]).toUpperCase();
+    return (teile[0] ?? "?").slice(0, 2).toUpperCase();
+}
+
+function KontaktZeile({ icon: Icon, href, text, titel }: { icon: LucideIcon; href: string; text: string; titel: string }) {
     return (
-        <Card className="mt-6">
-            <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-4">
-                <CardTitle className="text-xl font-semibold flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Kundendetails
-                </CardTitle>
-                <div className="flex items-center gap-1">
-                {onGeaendert && <KundeErfassenDialog kunde={kunde} onGespeichert={onGeaendert} />}
-                {onClose && (
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={onClose}
-                        className="h-8 w-8 p-0"
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
-                )}
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                {/* Persönliche Informationen */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                        <div className="inline-flex items-center px-2 py-1 rounded-md bg-secondary text-secondary-foreground text-xs font-medium">
-                            <Hash className="h-3 w-3 mr-1" />
-                            ID: {kunde.ID}
-                        </div>
+        <a
+            href={href}
+            title={titel}
+            className="flex min-h-10 items-center gap-2 rounded-md px-2 text-sm hover:bg-muted"
+        >
+            <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <span className="truncate">{text}</span>
+        </a>
+    );
+}
+
+// Kompakte Kundenkarte: Name, Anschrift und antippbare Kontakte
+export default function KundeForm({ kunde, onClose, onGeaendert, className }: KundeFormProps) {
+    const name = [kunde.Vorname, kunde.Nachname].filter((t) => t?.trim()).join(" ") || "Ohne Namen";
+    const ort = kunde.Ort ? `${kunde.Ort.Postlz} ${kunde.Ort.Ort}` : "";
+    const hatAnschrift = !!(kunde.Strasse?.trim() || ort);
+    const kontakte = [
+        kunde.Tel?.trim() && { icon: Phone, href: `tel:${kunde.Tel.replace(/\s/g, "")}`, text: kunde.Tel, titel: "Telefon" },
+        kunde.Handy?.trim() && { icon: Smartphone, href: `tel:${kunde.Handy.replace(/\s/g, "")}`, text: kunde.Handy, titel: "Handy" },
+        kunde.Email?.trim() && { icon: Mail, href: `mailto:${kunde.Email}`, text: kunde.Email, titel: "E-Mail" },
+    ].filter(Boolean) as { icon: LucideIcon; href: string; text: string; titel: string }[];
+
+    return (
+        // @container: Anschrift und Kontakt nebeneinander, sobald die Karte breit genug ist
+        <section className={cn("@container rounded-xl border bg-card p-4 sm:p-5", className)}>
+            {/* Buttons rutschen in eine eigene Zeile, bevor der Name abgeschnitten wird */}
+            <div className="flex flex-wrap items-start gap-3">
+                <div className="flex min-w-[12rem] flex-1 items-start gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-800">
+                        {initialen(kunde)}
                     </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground">
-                                Vorname
-                            </label>
-                            <p className="text-base font-medium">{kunde.Vorname}</p>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground">
-                                Nachname
-                            </label>
-                            <p className="text-base font-medium">{kunde.Nachname}</p>
-                        </div>
+                    <div className="min-w-0 flex-1">
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Kunde</p>
+                        <p className="break-words text-lg font-semibold leading-tight">{name}</p>
+                        <p className="text-xs text-muted-foreground">Kunde #{kunde.ID}</p>
                     </div>
                 </div>
-
-                <hr className="border-t border-border" />
-
-                {/* Adresse */}
-                <div className="space-y-4">
-                    <h3 className="text-lg font-medium flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        Adresse
-                    </h3>
-                    
-                    <div className="space-y-2">
-                        <div>
-                            <label className="text-sm font-medium text-muted-foreground">
-                                Straße
-                            </label>
-                            <p className="text-base">{kunde.Strasse}</p>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Postleitzahl
-                                </label>
-                                <p className="text-base">{kunde?.Ort?.Postlz}</p>
-                            </div>
-                            
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Ort
-                                </label>
-                                <p className="text-base">{kunde?.Ort?.Ort}</p>
-                            </div>
-                        </div>
-                    </div>
+                <div className="ml-auto flex shrink-0 items-center gap-1">
+                    {onGeaendert && <KundeErfassenDialog kunde={kunde} onGespeichert={onGeaendert} />}
+                    {onClose && (
+                        <Button variant="ghost" size="icon" onClick={onClose} title="Schließen">
+                            <X className="h-4 w-4" />
+                        </Button>
+                    )}
                 </div>
+            </div>
 
-                <hr className="border-t border-border" />
-
-                {/* Kontaktinformationen */}
-                <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Kontakt</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                                <Phone className="h-3 w-3" />
-                                Telefon
-                            </label>
-                            <p className="text-base">
-                                {kunde.Tel || (
-                                    <span className="text-muted-foreground italic">Nicht angegeben</span>
-                                )}
-                            </p>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                                <Smartphone className="h-3 w-3" />
-                                Handy
-                            </label>
-                            <p className="text-base">
-                                {kunde.Handy || (
-                                    <span className="text-muted-foreground italic">Nicht angegeben</span>
-                                )}
-                            </p>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                                <Mail className="h-3 w-3" />
-                                E-Mail
-                            </label>
-                            <p className="text-base">
-                                {kunde.Email ? (
-                                    <a 
-                                        href={`mailto:${kunde.Email}`} 
-                                        className="text-blue-600 hover:underline"
-                                    >
-                                        {kunde.Email}
-                                    </a>
-                                ) : (
-                                    <span className="text-muted-foreground italic">Nicht angegeben</span>
-                                )}
-                            </p>
-                        </div>
-                    </div>
+            <div className="mt-4 grid grid-cols-1 gap-4 @md:grid-cols-2">
+                <div className="flex gap-2 px-2 text-sm">
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                    {hatAnschrift ? (
+                        <p className="leading-relaxed">
+                            {kunde.Strasse?.trim() && <>{kunde.Strasse}<br /></>}
+                            {ort}
+                        </p>
+                    ) : (
+                        <p className="text-muted-foreground">Keine Anschrift hinterlegt</p>
+                    )}
                 </div>
-
-                {/* Vollständige Adresse als Zusammenfassung */}
-                <div className="bg-muted/50 p-4 rounded-lg">
-                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Vollständige Adresse</h4>
-                    <p className="text-sm">
-                        {kunde.Vorname} {kunde.Nachname}<br />
-                        {kunde.Strasse}<br />
-                        {kunde?.Ort?.Postlz} {kunde?.Ort?.Ort}
-                    </p>
+                <div className="-my-2 space-y-0.5">
+                    {kontakte.length > 0 ? (
+                        kontakte.map((kontakt) => <KontaktZeile key={kontakt.titel} {...kontakt} />)
+                    ) : (
+                        <p className="flex min-h-10 items-center px-2 text-sm text-muted-foreground">Kein Kontakt hinterlegt</p>
+                    )}
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </section>
     );
 }

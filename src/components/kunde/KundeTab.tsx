@@ -50,7 +50,7 @@ export default function KundeTab() {
                 </Button>
                 <KundeTerminalButton />
             </div>
-            <KundeForm kunde={kunde} onGeaendert={setKunde} />
+            <KundeForm kunde={kunde} onGeaendert={setKunde} className="mt-4" />
         </div>
     );
 }
