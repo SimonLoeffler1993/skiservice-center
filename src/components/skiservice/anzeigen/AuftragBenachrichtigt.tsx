@@ -27,7 +27,7 @@ export function AuftragBenachrichtigt({ benachrichtigt, className }: AuftragBena
             ) : (
                 <CircleX className="h-3 w-3" />
             )}
-            Benachrichtigt
+            {istBenachrichtigt ? "Benachrichtigt" : "Nicht benachrichtigt"}
         </Badge>
     )
 }

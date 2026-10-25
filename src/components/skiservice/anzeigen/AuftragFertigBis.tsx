@@ -1,9 +1,10 @@
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
+// Fertig-bis-Datum als Text für die Unterzeile, mit verbleibenden Tagen
 export default function AuftragFertigBis({ fertigBis }: { fertigBis: string | null | undefined }) {
     if (!fertigBis) {
-        return <span className="text-gray-500">Kein Fertig-Datum</span>
+        return <span>kein Fertig-Datum</span>
     }
 
     const normalizedDate = fertigBis.trim();
@@ -14,7 +15,7 @@ export default function AuftragFertigBis({ fertigBis }: { fertigBis: string | nu
     const isValidDate = !Number.isNaN(parsedDate.getTime());
 
     if (!isValidDate) {
-        return <span className="text-gray-500">Ungültiges Datum</span>;
+        return <span>ungültiges Fertig-Datum</span>;
     }
 
     const weekday = format(parsedDate, "EEE", { locale: de }).replace(/\./g, "");
@@ -41,12 +42,9 @@ export default function AuftragFertigBis({ fertigBis }: { fertigBis: string | nu
     const warningClass = diffInDays < 0 ? "text-red-600" : "text-amber-600";
 
     return (
-        <div className="space-y-0.5">
-            wird abgeholt am:
-            <span className="block text-sm font-medium text-foreground">{formattedDate} </span>
-            <span className={`block text-xs ${needsAttention ? warningClass : "text-muted-foreground"}`}>
-                {remainingText}
-            </span>
-        </div>
+        <span>
+            fertig bis <span className="font-medium text-foreground">{formattedDate}</span>{" "}
+            <span className={needsAttention ? warningClass : undefined}>({remainingText})</span>
+        </span>
     )
 };
