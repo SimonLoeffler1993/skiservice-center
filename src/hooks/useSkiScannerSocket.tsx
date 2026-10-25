@@ -4,6 +4,10 @@ import { useEffect, useRef, useState } from "react";
 export function useSkiScannerSocket(backEndUrl: string) {
     const ws = useRef<WebSocket | null>(null);
     const [nachricht, setNachricht] = useState<ScannerWebSocketMessage | null>(null);
+    // Letzter echter Scan (mit Scannername), Status-Meldungen z.B. nach dem Fertigstellen zählen nicht
+    const [scan, setScan] = useState<ScannerWebSocketMessage | null>(null);
+    // Zählt jeden Scan, auch wenn derselbe Ski erneut gescannt wird
+    const [scanNr, setScanNr] = useState(0);
     const [verbunden, setVerbunden] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -25,6 +29,10 @@ export function useSkiScannerSocket(backEndUrl: string) {
                 }
              
                 setNachricht(parsedata.data);
+                if (parsedata.data.scannername) {
+                    setScan(parsedata.data);
+                    setScanNr((nr) => nr + 1);
+                }
             } catch (error) {
                 console.error('Fehler beim Parsen der WebSocket-Nachricht:', error);
                 setError('Fehler beim Parsen der WebSocket-Nachricht');
@@ -47,6 +55,6 @@ export function useSkiScannerSocket(backEndUrl: string) {
         }
     };
 
-    return { nachricht, verbunden, nachrichtSenden, error };
+    return { nachricht, scan, scanNr, verbunden, nachrichtSenden, error };
 
 }
