@@ -9,7 +9,8 @@ import SaisonVerleiAnzeigeMaterialSchuh from "./MaterialSchuh";
 import SaisonVerleiAnzeigeMaterialStock from "./MaterialStock";
 import { Card } from "@/components/ui/card";
 import EtikettenDruckButton from "./EtikettenDruckButton";
-import ButtonZurueckGegeben from "./ButtonZurueckGegeben";
+import VerleihStatusAktion from "./VerleihStatusAktion";
+import { VerleihStatus } from "@/types/saisonverleihtypes";
 import MaterialAktionen from "../bearbeiten/MaterialAktionen";
 import SaisonVerleiAnzeigeMaterialBindung from "./MaterialBindung";
 
@@ -20,9 +21,11 @@ type MaterialProps = {
     bezahlt?: boolean;
     // Mit Angabe können Bindungsdaten erfasst und bearbeitet werden
     kundeId?: number;
+    // Aktueller Status, für Abgeholt / Zurückgegeben
+    status?: VerleihStatus;
 };
 
-export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid, bezahlt, kundeId }: MaterialProps) {
+export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid, bezahlt, kundeId, status }: MaterialProps) {
 
     if (material.length === 0) {
         return (
@@ -41,7 +44,7 @@ export default function SaisonVerleiAnzeigeMaterial({ material, saisonverleihid,
                     <h2 className="text-xl font-semibold">Material</h2>
                 </div>
                 <div className="flex items-center gap-2 self-start">
-                    <ButtonZurueckGegeben saisonverleihid={saisonverleihid} />
+                    {status && <VerleihStatusAktion verleihId={saisonverleihid} status={status} />}
                     <EtikettenDruckButton verleihId={saisonverleihid} deaktiviert={!material.some((m) => m.skinr || m.schuhnr)} />
                 </div>
             </div>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { getMaterialVerwendung, loescheMaterial, MaterialArt, setMaterialAusgemustert } from "@/lib/materialbearbeitenactions";
 import { VerleihVerwendung } from "@/types/materialtypes";
+import SaisonverleihCardStatus from "@/components/saisonverleih/liste/SaisonverleihCardStatus";
 
 type MaterialEntfernenDialogProps = {
     art: MaterialArt;
@@ -45,7 +46,8 @@ export default function MaterialEntfernenDialog({ art, id, bezeichnung, onGeaend
     });
     const verleihe = data?.success ? data.data : null;
     const benutzt = !!verleihe && verleihe.length > 0;
-    const unterwegs = verleihe?.filter((v) => !v.Zurueck).length ?? 0;
+    // In Vorbereitung oder unterwegs: Material ist noch nicht zurück
+    const unterwegs = verleihe?.filter((v) => v.Status !== "zurueck").length ?? 0;
 
     function ausfuehren(aktion: "ausmustern" | "loeschen") {
         startTransition(async () => {
@@ -98,7 +100,7 @@ export default function MaterialEntfernenDialog({ art, id, bezeichnung, onGeaend
                     <div className="space-y-2">
                         {unterwegs > 0 && (
                             <p className="rounded-md bg-amber-50 p-2 text-sm text-amber-800">
-                                Achtung: {unterwegs === 1 ? "Ein Verleih ist" : `${unterwegs} Verleihe sind`} noch unterwegs.
+                                Achtung: {unterwegs === 1 ? "Ein Verleih ist" : `${unterwegs} Verleihe sind`} noch nicht zurück.
                             </p>
                         )}
                         <ul className="divide-y rounded-md border text-sm">
@@ -118,9 +120,7 @@ export default function MaterialEntfernenDialog({ art, id, bezeichnung, onGeaend
                                             {verleih.Kunde}{verleih.Fahrer ? ` · ${verleih.Fahrer}` : ""} · {zeitraum(verleih)}
                                         </p>
                                     </div>
-                                    <span className={`rounded-md px-2 py-0.5 text-xs ${verleih.Zurueck ? "bg-muted" : "bg-amber-100 text-amber-800"}`}>
-                                        {verleih.Zurueck ? "zurück" : "unterwegs"}
-                                    </span>
+                                    <SaisonverleihCardStatus status={verleih.Status} />
                                 </li>
                             ))}
                         </ul>

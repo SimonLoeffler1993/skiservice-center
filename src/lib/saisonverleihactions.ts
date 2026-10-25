@@ -144,20 +144,6 @@ export async function getSaisonVerleihNamenEttiket(previousState: unknown,id: nu
     }
 }
 
-// Saisonverleih auf zurückgegeben setzen
-export async function setSaisonVerleihZurueckgegeben(previousState: unknown,id: number): Promise<boolean> {
-    try {
-        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/zurueckgeben/${id}`, { method: "POST"});
-        if (!res.ok) {
-            console.error("Fehler beimSetzen SaisonVerleih auf zurückgegeben:", id, res.status, res.statusText);
-            return false;
-        }
-        return true;
-    } catch (e) {
-        console.error("Unerwarteter Fehler beimSetzen SaisonVerleih auf zurückgegeben:", e);
-        return false;
-    }
-}
 
 
 

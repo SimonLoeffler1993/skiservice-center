@@ -39,6 +39,10 @@ export type SaisonverleihPreise = z.infer<typeof SaisonverleihPreiseSchema>;
 export const VerleihArtSchema = z.enum(["saison", "tag"]);
 export type VerleihArt = z.infer<typeof VerleihArtSchema>;
 
+// Ablauf: vorbereitung -> unterwegs (abgeholt) -> zurueck
+export const VerleihStatusSchema = z.enum(["vorbereitung", "unterwegs", "zurueck"]);
+export type VerleihStatus = z.infer<typeof VerleihStatusSchema>;
+
 export const SaisonVerleihSchema = z.object({
     ID: z.number().int(),
     Kunde_ID: z.number().int(),
@@ -47,6 +51,8 @@ export const SaisonVerleihSchema = z.object({
     Bezahlt_Am: z.string().date().optional().nullable(), // oder z.date()
     Zurueck: z.boolean().optional().nullable(),
     Zurueck_Am: z.string().date().optional().nullable(),
+    Status: VerleihStatusSchema.default("unterwegs"),
+    Abgeholt_Am: z.string().date().nullish(),
     Bemerkung: z.string().nullish(),
     Saison_ID: z.number().int(), //nur wen es abweicht von der aktuellen Saison
     Abgerechnet: z.number().int().optional().nullable(),

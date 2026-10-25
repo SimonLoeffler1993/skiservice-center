@@ -226,6 +226,8 @@ export const VerleihVerwendungSchema = z.object({
   Kunde: z.string(),
   Fahrer: z.string().nullish(),
   Zurueck: z.boolean(),
+  // vorbereitung, unterwegs oder zurueck
+  Status: z.enum(["vorbereitung", "unterwegs", "zurueck"]).default("unterwegs"),
 });
 export const VerleihVerwendungListeSchema = z.array(VerleihVerwendungSchema);
 export type VerleihVerwendung = z.infer<typeof VerleihVerwendungSchema>;

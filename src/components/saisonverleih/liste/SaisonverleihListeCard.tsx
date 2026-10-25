@@ -32,7 +32,7 @@ export default function SaisonverleihListeCard({ saisonverleih }: SaisonverleihL
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <SaisonverleihCardBezahlt bezahlt={saisonverleih.Bezahlt} />
-                        <SaisonverleihCardStatus status={saisonverleih.Zurueck} />
+                        <SaisonverleihCardStatus status={saisonverleih.Status} />
                     </div>
                 </div>
                 <div className="flex justify-end p-2">

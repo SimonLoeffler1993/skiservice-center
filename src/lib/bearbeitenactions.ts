@@ -4,7 +4,7 @@
 
 import { anfrage, LoeschenSchema } from "./apianfrage";
 import { Auftrag, AuftragSchema } from "@/types/skiservicetypes";
-import { SaisonverleihRead, SaisonverleihReadSchema, VerleihArt } from "@/types/saisonverleihtypes";
+import { SaisonverleihRead, SaisonverleihReadSchema, VerleihArt, VerleihStatus } from "@/types/saisonverleihtypes";
 import type { Bindungsdaten } from "@/types/bindungsdatentypes";
 import { ApiAntwort } from "@/types/actiontypes";
 
@@ -80,4 +80,9 @@ export async function aendereMaterial(verleihId: number, materialId: number, dat
 
 export async function entferneMaterial(verleihId: number, materialId: number): Promise<ApiAntwort<SaisonverleihRead>> {
     return anfrage(`/saisonverleih/${verleihId}/material/${materialId}`, "DELETE", SaisonverleihReadSchema, "Material konnte nicht entfernt werden.");
+}
+
+// Status setzen: vorbereitung -> unterwegs (abgeholt) -> zurueck, auch rückwärts zum Korrigieren
+export async function setzeVerleihStatus(verleihId: number, status: VerleihStatus): Promise<ApiAntwort<SaisonverleihRead>> {
+    return anfrage(`/saisonverleih/${verleihId}/status`, "PATCH", SaisonverleihReadSchema, "Status konnte nicht geändert werden.", { Status: status });
 }

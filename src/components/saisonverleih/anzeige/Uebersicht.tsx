@@ -55,7 +55,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
                 {/* Statuszeile */}
                 <div className="flex flex-wrap items-center gap-3">
                     <VerleihArtBadge art={saisonVerleihDetails.Art} startAm={saisonVerleihDetails.Start_Am} endeAm={saisonVerleihDetails.Ende_Am} />
-                    <SaisonverleihCardStatus status={saisonVerleihDetails.Zurueck} />
+                    <SaisonverleihCardStatus status={saisonVerleihDetails.Status} />
                     <SaisonverleihCardBezahlt bezahlt={saisonVerleihDetails.Bezahlt} />
                     <SaisonVerleiAnzeigePDFButton saisonverleihanzeigeID={saisonVerleihDetails.ID} />
                     <ButtonQuittungZuweisen quittungID={saisonVerleihDetails.QuittungID} ziel={{ art: "verleih", id: saisonVerleihDetails.ID }}/>
@@ -85,6 +85,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
                     saisonverleihid={saisonVerleihDetails?.ID}
                     bezahlt={istVerleihBezahlt(saisonVerleihDetails)}
                     kundeId={saisonVerleihDetails.Kunde_ID}
+                    status={saisonVerleihDetails.Status}
                 />
             </div>
         </div>
