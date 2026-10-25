@@ -38,8 +38,8 @@ export default function BelegungHinweis({ belegungen, fehler, isPending, tagesve
             <div>
                 <p className="font-medium">{tagesverleih ? "Im gewählten Zeitraum bereits verliehen:" : "Bereits verliehen:"}</p>
                 <ul className="list-disc pl-5">
-                    {belegungen.map((b) => (
-                        <li key={`${b.ID}-${b.Material}`}>{b.Name} ({zeitraumText(b)}, {b.Kunde})</li>
+                    {belegungen.map((b, index) => (
+                        <li key={`${b.ID}-${b.Material}-${index}`}>{b.Name} ({zeitraumText(b)}, {b.Kunde})</li>
                     ))}
                 </ul>
             </div>
