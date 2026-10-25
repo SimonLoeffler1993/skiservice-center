@@ -1,6 +1,9 @@
-import { MessageSquare, Ruler } from "lucide-react";
+"use client";
 
-import { euro } from "@/lib/utils";
+import { MessageSquare, Ruler, ScanLine } from "lucide-react";
+
+import { HERVORGEHOBEN_KLASSE, useHervorheben } from "@/hooks/useHervorheben";
+import { cn, euro } from "@/lib/utils";
 import { bindungsdatenText } from "@/types/bindungsdatentypes";
 import { Auftrag, Ski } from "@/types/skiservicetypes";
 import SkiAktionen from "./bearbeiten/SkiAktionen";
@@ -14,19 +17,30 @@ type SkiKarteProps = {
     auftrag: Auftrag;
     bezahlt: boolean;
     letzterSki: boolean;
+    // Per QR-Code aufgerufen: hervorheben und hinscrollen
+    hervorgehoben?: boolean;
 };
 
 // Ein Ski in der Auftrags-Detailansicht: Service und Preis, Status, Bindung und Aktionen
-export default function SkiKarte({ ski, auftrag, bezahlt, letzterSki }: SkiKarteProps) {
+export default function SkiKarte({ ski, auftrag, bezahlt, letzterSki, hervorgehoben = false }: SkiKarteProps) {
+    const ref = useHervorheben<HTMLElement>(hervorgehoben);
     const preis = ski.preis + (ski.bindung_check ? ski.bindung_preis : 0);
     const bindungText = ski.bindung_check ? bindungsdatenText(ski.bindungsdaten) : null;
 
     return (
-        <article className="flex flex-col rounded-xl border bg-card">
+        <article ref={ref} className={cn("flex flex-col rounded-xl border bg-card", hervorgehoben && HERVORGEHOBEN_KLASSE)}>
             <div className="flex items-start justify-between gap-3 border-b px-4 py-3">
                 <div className="min-w-0">
                     <p className="truncate font-semibold">{ski.name || `Ski #${ski.id}`}</p>
-                    <p className="text-sm text-muted-foreground">{ski.service}</p>
+                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                        {ski.service}
+                        {hervorgehoben && (
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary px-1.5 py-0.5 text-xs font-medium text-primary-foreground">
+                                <ScanLine className="h-3 w-3" />
+                                Gescannt
+                            </span>
+                        )}
+                    </p>
                 </div>
                 <div className="-my-1 -mr-2 flex shrink-0 items-center gap-1">
                     <span className="mr-1 font-semibold tabular-nums">{euro.format(preis)}</span>

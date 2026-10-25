@@ -17,9 +17,11 @@ import { AuftragStatus } from "./AuftragStatus";
 
 type SkiserviceAuftragDetailsProps = {
     skiserviceAuftragID: number;
+    // Ski-ID aus dem QR-Code, dieser Ski wird hervorgehoben
+    hervorheben?: number;
 }
 
-export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID }: SkiserviceAuftragDetailsProps) {
+export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID, hervorheben }: SkiserviceAuftragDetailsProps) {
     const { data: skiserviceData, isPending, error } = useQuery(auftragDetailsOptions(skiserviceAuftragID))
 
     if (error) {
@@ -68,7 +70,7 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID }
             {/* Gleiche Anordnung wie beim Verleih: Handy Ski zuerst, Tablet hochkant Kunde | Quittung oben, ab lg Ski links */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
                 <div className="md:order-2 lg:order-1 lg:col-span-2">
-                    <SkiListe auftrag={auftrag} bezahlt={bezahlt} />
+                    <SkiListe auftrag={auftrag} bezahlt={bezahlt} hervorheben={hervorheben} />
                 </div>
 
                 <aside className="grid grid-cols-1 items-start gap-4 md:order-1 md:grid-cols-2 lg:order-2 lg:grid-cols-1">

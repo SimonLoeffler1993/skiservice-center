@@ -6,10 +6,12 @@ import SkiKarte from './SkiKarte';
 type SkiListeProps = {
     auftrag: Auftrag;
     bezahlt: boolean;
+    // Ski-ID aus dem QR-Code
+    hervorheben?: number;
 };
 
 // Ski eines Auftrags als Karten, Spaltenzahl nach Breite des Hauptbereichs
-export default function SkiListe({ auftrag, bezahlt }: SkiListeProps) {
+export default function SkiListe({ auftrag, bezahlt, hervorheben }: SkiListeProps) {
     const { skis } = auftrag;
 
     return (
@@ -24,7 +26,7 @@ export default function SkiListe({ auftrag, bezahlt }: SkiListeProps) {
             ) : (
                 <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2">
                     {skis.map((ski) => (
-                        <SkiKarte key={ski.id} ski={ski} auftrag={auftrag} bezahlt={bezahlt} letzterSki={skis.length === 1} />
+                        <SkiKarte key={ski.id} ski={ski} auftrag={auftrag} bezahlt={bezahlt} letzterSki={skis.length === 1} hervorgehoben={ski.id === hervorheben} />
                     ))}
                 </div>
             )}

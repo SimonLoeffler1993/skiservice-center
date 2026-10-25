@@ -1,8 +1,9 @@
 "use client";
 
-import { Footprints, MountainSnow, Package, Ruler, Slash, User, type LucideIcon } from "lucide-react";
+import { Footprints, MountainSnow, Package, Ruler, ScanLine, Slash, User, type LucideIcon } from "lucide-react";
 
-import { euro } from "@/lib/utils";
+import { HERVORGEHOBEN_KLASSE, useHervorheben } from "@/hooks/useHervorheben";
+import { cn, euro } from "@/lib/utils";
 import { bindungsdatenText } from "@/types/bindungsdatentypes";
 import { MaterialRead } from "@/types/materialtypes";
 import { SaisonverleihRead } from "@/types/saisonverleihtypes";
@@ -16,6 +17,8 @@ type MaterialKarteProps = {
     material: MaterialRead;
     bezahlt: boolean;
     letztesMaterial: boolean;
+    // Per QR-Code aufgerufen: hervorheben und hinscrollen
+    hervorgehoben?: boolean;
 };
 
 // Ski, Schuh oder Stock als eine kompakte Zeile
@@ -34,13 +37,14 @@ function Teil({ icon: Icon, titel, name, details }: { icon: LucideIcon; titel: s
 }
 
 // Eine Materialzeile des Verleihs: Fahrer und Preis, ausgeliehene Teile, Bindungsdaten und Aktionen
-export default function MaterialKarte({ verleih, material, bezahlt, letztesMaterial }: MaterialKarteProps) {
+export default function MaterialKarte({ verleih, material, bezahlt, letztesMaterial, hervorgehoben = false }: MaterialKarteProps) {
     const verleihId = verleih.ID;
+    const ref = useHervorheben<HTMLElement>(hervorgehoben);
     const { Ski, Schuh, Stock } = material;
     const bindung = bindungsdatenText(material.bindungsdaten);
 
     return (
-        <article className="flex flex-col rounded-xl border bg-card">
+        <article ref={ref} className={cn("flex flex-col rounded-xl border bg-card", hervorgehoben && HERVORGEHOBEN_KLASSE)}>
             <div className="flex items-start justify-between gap-3 border-b px-4 py-3">
                 <p className="flex min-w-0 items-center gap-2 font-semibold">
                     {material.SkiFahrerName ? (
@@ -49,6 +53,12 @@ export default function MaterialKarte({ verleih, material, bezahlt, letztesMater
                         <Package className="h-4 w-4 shrink-0 text-muted-foreground" />
                     )}
                     <span className="truncate">{material.SkiFahrerName || `Ausrüstung #${material.ID}`}</span>
+                    {hervorgehoben && (
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary px-1.5 py-0.5 text-xs font-medium text-primary-foreground">
+                            <ScanLine className="h-3 w-3" />
+                            Gescannt
+                        </span>
+                    )}
                 </p>
                 <div className="-my-1 -mr-2 flex shrink-0 items-center gap-1">
                     <span className="mr-1 font-semibold tabular-nums">{euro.format(material.Preis)}</span>

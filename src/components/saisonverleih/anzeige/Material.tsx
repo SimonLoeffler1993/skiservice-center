@@ -8,9 +8,11 @@ import MaterialKarte from "./MaterialKarte";
 type MaterialProps = {
     verleih: SaisonverleihRead;
     bezahlt: boolean;
+    // Material-ID aus dem QR-Code
+    hervorheben?: number;
 };
 
-export default function SaisonVerleiAnzeigeMaterial({ verleih, bezahlt }: MaterialProps) {
+export default function SaisonVerleiAnzeigeMaterial({ verleih, bezahlt, hervorheben }: MaterialProps) {
     const material = verleih.Material ?? [];
     return (
         // @container: Spaltenzahl richtet sich nach der Breite des Hauptbereichs
@@ -31,6 +33,7 @@ export default function SaisonVerleiAnzeigeMaterial({ verleih, bezahlt }: Materi
                             material={a}
                             bezahlt={bezahlt}
                             letztesMaterial={material.length === 1}
+                            hervorgehoben={a.ID === hervorheben}
                         />
                     ))}
                 </div>

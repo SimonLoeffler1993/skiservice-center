@@ -20,9 +20,11 @@ import VerleihStatusAktion from "./VerleihStatusAktion";
 
 type SaisonVeliAnzeigeUebersichtProps = {
     saisonverleihID: number;
+    // Material-ID aus dem QR-Code, diese Karte wird hervorgehoben
+    hervorheben?: number;
 }
 
-export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: SaisonVeliAnzeigeUebersichtProps) {
+export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID, hervorheben }: SaisonVeliAnzeigeUebersichtProps) {
     const { data: verleih, isPending, error } = useQuery(saisonverleihDetailsOptions(saisonverleihID));
 
     if (error) {
@@ -75,7 +77,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
             {/* Handy: Material, dann Kunde und Quittung. Tablet hochkant: Kunde | Quittung oben, darunter Material. Ab lg: Material links, Seitenbereich rechts */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
                 <div className="md:order-2 lg:order-1 lg:col-span-2">
-                    <SaisonVerleiAnzeigeMaterial verleih={verleih} bezahlt={istVerleihBezahlt(verleih)} />
+                    <SaisonVerleiAnzeigeMaterial verleih={verleih} bezahlt={istVerleihBezahlt(verleih)} hervorheben={hervorheben} />
                 </div>
 
                 <aside className="grid grid-cols-1 items-start gap-4 md:order-1 md:grid-cols-2 lg:order-2 lg:grid-cols-1">
