@@ -5,7 +5,6 @@ import { getSaisonDaten } from "@/lib/saisonactions";
 import BackendFehler from "@/components/saison/BackendFehler";
 import KeineSaison from "@/components/saison/KeineSaison";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
-import { Snowflake } from "lucide-react";
 import { Suspense } from "react";
 
 type SkiservicesAnzeigenProps = {
@@ -34,20 +33,18 @@ export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesA
     const queryClient = new QueryClient();
     await queryClient.prefetchInfiniteQuery(serviceListeOptions(saisonID))
 
+    // Neu einhängen bei Saisonwechsel, damit das Vorausladen wieder bei Seite 1 beginnt
     return (
-        <section className="space-y-4">
-            <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                    <Snowflake className="h-5 w-5 text-muted-foreground" />
-                    <h1 className="text-xl font-semibold">Skiservice</h1>
-                </div>
-            </div>
-            <Suspense fallback={<div>Lade Skiservices ...</div>}>
-                <SaisonWechseler saisons={saisonData} selectedSaisonID={saisonID} />
-            </Suspense>
-            <HydrationBoundary state={dehydrate(queryClient)}>
-                <AuftragListe saisonID={saisonID} />
-            </HydrationBoundary>
-        </section>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <AuftragListe
+                key={saisonID}
+                saisonID={saisonID}
+                filter={
+                    <Suspense fallback={null}>
+                        <SaisonWechseler saisons={saisonData} selectedSaisonID={saisonID} />
+                    </Suspense>
+                }
+            />
+        </HydrationBoundary>
     )
 }

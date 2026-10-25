@@ -25,9 +25,9 @@ export default function SaisonWechseler({ saisons, selectedSaisonID }: SaisonWec
 
     return (
         <div className="flex items-center gap-2">
-            <Label>Saison</Label>
+            <Label className="text-muted-foreground">Saison</Label>
             <Select onValueChange={wechseln} value={selectedSaisonID ? selectedSaisonID.toString() : undefined}>
-                <SelectTrigger>
+                <SelectTrigger className="min-w-32 bg-background data-[size=default]:h-10">
                     <SelectValue placeholder="Saison auswählen" />
                 </SelectTrigger>
                 <SelectContent>
