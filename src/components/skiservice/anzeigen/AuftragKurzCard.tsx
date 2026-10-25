@@ -1,41 +1,50 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { CalendarClock, Mountain } from "lucide-react";
+
+import { ListenKarte } from "@/components/liste/ListenTeile";
+import { euro } from "@/lib/utils";
 import { Auftrag } from "@/types/skiservicetypes";
-import { User } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { AuftragStatus } from "./AuftragStatus";
-import { AuftragBezahlt } from "./AuftragBezahlt";
 import { AuftragBenachrichtigt } from "./AuftragBenachrichtigt";
+import { AuftragBezahlt } from "./AuftragBezahlt";
+import AuftragFertigBis from "./AuftragFertigBis";
+import { AuftragStatus } from "./AuftragStatus";
 
 type AuftragKurzCardProps = {
     skiserviceAuftrag: Auftrag;
 }
 
-export default function AuftragKurzCard({ skiserviceAuftrag }: AuftragKurzCardProps){
-    const router = useRouter()
+// Auftrag in der Liste: Nummer und Status, Kunde, Ski und Fertig-Datum, Bezahlung und Betrag
+export default function AuftragKurzCard({ skiserviceAuftrag: auftrag }: AuftragKurzCardProps) {
+    const offen = auftrag.skis.filter((ski) => ski.status !== 1 && ski.status !== 2).length;
+    const gesamt = auftrag.skis.reduce((summe, ski) => summe + ski.preis + (ski.bindung_check ? ski.bindung_preis : 0), 0);
+    const kunde = [auftrag.kunde.Nachname, auftrag.kunde.Vorname].filter(Boolean).join(", ");
+
     return (
-        <Card>
-            <div className="p-3">
-                <p>{skiserviceAuftrag.name}</p>
-                <div className="space-y-2">
-                    <div className="space-y-1">
-                        <div className="text-base font-semibold leading-tight flex items-center gap-2">
-                            <User className="h-4 w-4 text-muted-foreground" />
-                            {skiserviceAuftrag.kunde.Nachname}, {skiserviceAuftrag.kunde.Vorname}
-                        </div>
-                        {/* TODO zusammenfassung anzahl ski, schuh, stock */}
-                        <div className="text-xs text-muted-foreground"> #{skiserviceAuftrag.skis.length} Services</div>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <AuftragStatus status={skiserviceAuftrag.wie} />
-                        <AuftragBenachrichtigt benachrichtigt={skiserviceAuftrag.benachrichtigt} />
-                        <AuftragBezahlt bezahlt={skiserviceAuftrag.bezahlt} />
-                    </div>
-                </div>
-                <div className="flex justify-end p-2">
-                    <Button variant="outline" onClick={() => { router.push(`/skiservice/anzeigen/${skiserviceAuftrag.id}`) }}>Details</Button>
-                </div>
+        <ListenKarte href={`/skiservice/anzeigen/${auftrag.id}`}>
+            <div className="flex items-start justify-between gap-2">
+                <p className="text-lg font-bold tracking-tight">{auftrag.name ?? `Auftrag #${auftrag.id}`}</p>
+                <AuftragStatus status={auftrag.wie} />
             </div>
-        </Card>
+            <p className="truncate font-semibold">{kunde || "Ohne Kunde"}</p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                    <Mountain className="h-4 w-4" />
+                    {auftrag.skis.length} Ski{offen > 0 && auftrag.skis.length > 0 ? ` · ${offen} offen` : ""}
+                </span>
+                {auftrag.wie !== "2" && (
+                    <span className="inline-flex items-center gap-1.5">
+                        <CalendarClock className="h-4 w-4" />
+                        <AuftragFertigBis fertigBis={auftrag.abhol_date} kurz warnen={auftrag.wie !== "1"} />
+                    </span>
+                )}
+            </div>
+            <div className="flex items-center justify-between gap-2 pt-1">
+                <div className="flex flex-wrap gap-1.5">
+                    <AuftragBezahlt bezahlt={auftrag.bezahlt} />
+                    {/* Benachrichtigung ist erst wichtig, wenn der Auftrag fertig ist */}
+                    {auftrag.wie === "1" && <AuftragBenachrichtigt benachrichtigt={auftrag.benachrichtigt} />}
+                </div>
+                <span className="shrink-0 font-semibold tabular-nums">{euro.format(gesamt)}</span>
+            </div>
+        </ListenKarte>
     )
 }

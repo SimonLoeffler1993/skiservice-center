@@ -1,45 +1,62 @@
-import { Card } from "@/components/ui/card";
+import { BadgeCheck, Package } from "lucide-react";
+
+import { ListenKarte } from "@/components/liste/ListenTeile";
+import { euro } from "@/lib/utils";
 import { SaisonverleihRead } from "@/types/saisonverleihtypes";
-import { User } from "lucide-react";
 import SaisonverleihCardBezahlt from "./SaisonverleihCardBezahlt";
 import SaisonverleihCardStatus from "./SaisonverleihCardStatus";
 import VerleihArtBadge from "./VerleihArtBadge";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-
 
 type SaisonverleihListeCardProps = {
     saisonverleih: SaisonverleihRead;
 }
 
-export default function SaisonverleihListeCard({ saisonverleih }: SaisonverleihListeCardProps) {
-    const router = useRouter();
-    return (
-        <Card>
-            <div className="p-3">
-                <div className="flex flex-wrap items-center gap-2">
-                    <p>{saisonverleih.Name}</p>
-                    <VerleihArtBadge art={saisonverleih.Art} startAm={saisonverleih.Start_Am} endeAm={saisonverleih.Ende_Am} />
-                </div>
-                <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1">
-                        <div className="text-base font-semibold leading-tight flex items-center gap-2">
-                            <User className="h-4 w-4 text-muted-foreground" />
-                            {saisonverleih.Kunde.Nachname}, {saisonverleih.Kunde.Vorname}
-                        </div>
-                        {/* TODO zusammenfassung anzahl ski, schuh, stock */}
-                        <div className="text-xs text-muted-foreground">Ausrüstung #{saisonverleih.ID}</div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <SaisonverleihCardBezahlt bezahlt={saisonverleih.Bezahlt} />
-                        <SaisonverleihCardStatus status={saisonverleih.Zurueck} />
-                    </div>
-                </div>
-                <div className="flex justify-end p-2">
-                    <Button variant="outline" onClick={() => { router.push(`/saisonverleih/anzeigen/${saisonverleih.ID}`) }}>Details</Button>
-                </div>
-            </div>
+// z.B. "2 Ski · 1 Schuh · 1 Stock", ohne Teile "Nur Preis"
+function materialText(verleih: SaisonverleihRead) {
+    const material = verleih.Material ?? [];
+    const teile = [
+        [material.filter((m) => m.skinr).length, "Ski"],
+        [material.filter((m) => m.schuhnr).length, "Schuh"],
+        [material.filter((m) => m.stockbez_ID).length, "Stock"],
+    ] as const;
+    const text = teile.filter(([anzahl]) => anzahl > 0).map(([anzahl, name]) => `${anzahl} ${name}`).join(" · ");
+    return text || `${material.length} × nur Preis`;
+}
 
-        </Card>
+// Verleih in der Liste: Nummer und Status, Kunde, Art und Material, Bezahlung und Betrag
+export default function SaisonverleihListeCard({ saisonverleih: verleih }: SaisonverleihListeCardProps) {
+    const material = verleih.Material ?? [];
+    const gesamt = material.reduce((summe, m) => summe + m.Preis, 0);
+    const mitSki = material.filter((m) => m.skinr);
+    const geprueft = mitSki.filter((m) => m.BindungGeprueft).length;
+    // Bindungsfortschritt nur, solange der Verleih vorbereitet wird
+    const zeigeBindung = mitSki.length > 0 && (verleih.Status === "vorbereitung" || verleih.Status === "vorbereitet");
+    const kunde = [verleih.Kunde?.Nachname, verleih.Kunde?.Vorname].filter(Boolean).join(", ");
+
+    return (
+        <ListenKarte href={`/saisonverleih/anzeigen/${verleih.ID}`}>
+            <div className="flex items-start justify-between gap-2">
+                <p className="text-lg font-bold tracking-tight">{verleih.Name}</p>
+                <SaisonverleihCardStatus status={verleih.Status} />
+            </div>
+            <p className="truncate font-semibold">{kunde || "Ohne Kunde"}</p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground">
+                <VerleihArtBadge art={verleih.Art} startAm={verleih.Start_Am} endeAm={verleih.Ende_Am} />
+                <span className="inline-flex items-center gap-1.5">
+                    <Package className="h-4 w-4" />
+                    {materialText(verleih)}
+                </span>
+                {zeigeBindung && (
+                    <span className={`inline-flex items-center gap-1.5 ${geprueft === mitSki.length ? "text-green-700" : ""}`}>
+                        <BadgeCheck className="h-4 w-4" />
+                        Bindung {geprueft}/{mitSki.length}
+                    </span>
+                )}
+            </div>
+            <div className="flex items-center justify-between gap-2 pt-1">
+                <SaisonverleihCardBezahlt bezahlt={verleih.Bezahlt} />
+                <span className="shrink-0 font-semibold tabular-nums">{euro.format(gesamt)}</span>
+            </div>
+        </ListenKarte>
     );
 }

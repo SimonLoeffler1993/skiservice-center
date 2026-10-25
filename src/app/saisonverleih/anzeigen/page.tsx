@@ -1,5 +1,4 @@
 import SaisonverleihListe from "@/components/saisonverleih/liste/SaisonverleihListe";
-import { Snowflake } from "lucide-react";
 import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { saisonverleihListOptions } from "@/hooks/useSaisonverleihListeOptions";
@@ -38,23 +37,20 @@ export default async function SaisonVerleiAnzeige({searchParams}: SaisonVerleiAn
     const queryClient = new QueryClient();
     await queryClient.prefetchInfiniteQuery(saisonverleihListOptions(saisonID, art));
 
+    // Neu einhängen bei Saison- oder Artwechsel, damit das Vorausladen wieder bei Seite 1 beginnt
     return (
-        <section className="space-y-4">
-            <div className="flex items-center justify-between gap-2">   
-                <div className="flex items-center gap-2">
-                    <Snowflake className="h-5 w-5 text-muted-foreground" />
-                    <h1 className="text-xl font-semibold">Verleih</h1>
-                </div>
-            </div>
-            <Suspense fallback={<div>Lade Saisons...</div>}>
-                <div className="flex flex-wrap items-center gap-4">
-                    <SaisonWechseler saisons={saisonsData} selectedSaisonID={saisonID}/>
-                    <VerleihArtFilter art={art} />
-                </div>
-            </Suspense>
-            <HydrationBoundary state={dehydrate(queryClient)}>
-                <SaisonverleihListe saisonID={saisonID} art={art}/>
-            </HydrationBoundary>
-        </section>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <SaisonverleihListe
+                key={`${saisonID}-${art ?? "alle"}`}
+                saisonID={saisonID}
+                art={art}
+                filter={
+                    <Suspense fallback={null}>
+                        <SaisonWechseler saisons={saisonsData} selectedSaisonID={saisonID} />
+                        <VerleihArtFilter art={art} />
+                    </Suspense>
+                }
+            />
+        </HydrationBoundary>
     )
 }

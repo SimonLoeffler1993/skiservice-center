@@ -20,6 +20,9 @@ const AUSWAHL_TEXTE: Record<string, string> = {
     preise: "Fertig-Meldung mit Preisauflistung",
     pdf: "Eigene Quittung als PDF hochladen",
     rechnung: "Rechnung direkt in Lexware anlegen",
+    vorbereitung: "In Vorbereitung",
+    vorbereitet: "Vorbereitet",
+    unterwegs: "Unterwegs",
 };
 
 type EinstellungFeldProps = {

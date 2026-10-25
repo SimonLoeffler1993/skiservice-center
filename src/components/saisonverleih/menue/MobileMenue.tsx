@@ -6,7 +6,7 @@ import { Home, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { MENUE_GRUPPEN } from "./menueeintraege";
+import { DIREKT_LINKS, MENUE_GRUPPEN } from "./menueeintraege";
 
 export default function MobileMenue() {
     const [offen, setOffen] = useState(false);
@@ -28,6 +28,20 @@ export default function MobileMenue() {
                         <SheetTitle>Menü</SheetTitle>
                     </SheetHeader>
                     <nav className="flex flex-col gap-4 px-4 pb-4">
+                        {/* Direkte Einträge ohne Gruppe ganz oben */}
+                        <div className="flex flex-col gap-1">
+                            {DIREKT_LINKS.map((link) => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={() => setOffen(false)}
+                                    className="flex items-center gap-2 rounded-md px-2 py-2 font-medium hover:bg-accent"
+                                >
+                                    <link.icon className="h-4 w-4 text-muted-foreground" />
+                                    {link.titel}
+                                </Link>
+                            ))}
+                        </div>
                         {MENUE_GRUPPEN.map((gruppe) => (
                             <div key={gruppe.titel} className="flex flex-col gap-1">
                                 <span className="text-sm font-medium text-muted-foreground">{gruppe.titel}</span>

@@ -1,5 +1,6 @@
 "use client"
 import { skiEttikettenDrucken } from "@/lib/auftragaction";
+import { Tags } from "lucide-react";
 import { Ski } from "@/types/skiservicetypes";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,10 @@ export default function SkiEttikettenDruckButton({ skis }: SkiEttikettenDruckBut
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button variant="outline">Ettiketen drucken</Button>
+                <Button variant="outline">
+                    <Tags className="h-4 w-4" />
+                    Etiketten drucken
+                </Button>
             </PopoverTrigger>
             <PopoverContent align="start" className="w-80">
                 <p>welche Ettiketten sollen gedruckt werden?</p>

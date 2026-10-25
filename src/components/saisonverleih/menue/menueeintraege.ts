@@ -1,5 +1,5 @@
 import {
-    CalendarDays, CheckCircle2, ClipboardList, Euro, List, type LucideIcon, Package, Receipt, Settings, Snowflake, Wrench,
+    CalendarDays, ClipboardList, Euro, List, type LucideIcon, Package, Receipt, ScanLine, Settings, Snowflake, Wrench,
 } from "lucide-react";
 
 export type MenueLink = {
@@ -21,13 +21,17 @@ export type MenueGruppe = {
     nurNavigation?: boolean;
 };
 
+// Direkte Einträge ohne Untermenü, gehören zu keiner Gruppe (z.B. der Scanner für Service und Verleih)
+export const DIREKT_LINKS: MenueLink[] = [
+    { titel: "Scanner", href: "/scanner", icon: ScanLine, kachelTitel: "Scanner", beschreibung: "Etiketten scannen: Ski fertig stellen und Bindungen prüfen.", startseiteUnten: true },
+];
+
 // Gemeinsame Quelle für Navigation (Desktop und Handy) und Startseite
 export const MENUE_GRUPPEN: MenueGruppe[] = [
     {
         titel: "Skiservice",
         links: [
             { titel: "Neu", href: "/skiservice/erstellen", icon: Wrench, kachelTitel: "Neuer Auftrag", beschreibung: "Skiservice-Auftrag für einen Kunden erfassen." },
-            { titel: "Fertigstellen", href: "/fertig", icon: CheckCircle2, kachelTitel: "Ski fertigmelden", beschreibung: "Ski scannen, fertigmelden und Kunden benachrichtigen.", startseiteUnten: true },
             { titel: "Anzeigen", href: "/skiservice/anzeigen", icon: ClipboardList, kachelTitel: "Alle Aufträge", beschreibung: "Aufträge der Saison ansehen und bearbeiten." },
         ],
     },

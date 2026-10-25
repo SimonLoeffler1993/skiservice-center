@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 import Kachel from "@/components/startseite/kachel";
 import MenueLeiste from "@/components/saisonverleih/menue/MenueLeiste";
-import { MENUE_GRUPPEN } from "@/components/saisonverleih/menue/menueeintraege";
+import { DIREKT_LINKS, MENUE_GRUPPEN } from "@/components/saisonverleih/menue/menueeintraege";
 import AktuelleSaison from "@/components/saison/AktuelleSaison";
 import BackendFehler from "@/components/saison/BackendFehler";
 import KeineSaison from "@/components/saison/KeineSaison";
@@ -18,7 +18,7 @@ export default async function Home() {
     const schnellzugriff = gruppen
         .map((gruppe) => ({ ...gruppe, links: gruppe.links.filter((link) => !link.startseiteUnten) }))
         .filter((gruppe) => gruppe.links.length > 0);
-    const unten = gruppen.flatMap((gruppe) => gruppe.links.filter((link) => link.startseiteUnten));
+    const unten = [...DIREKT_LINKS, ...gruppen.flatMap((gruppe) => gruppe.links)].filter((link) => link.startseiteUnten);
 
     return (
         <div className="container mx-auto p-4 space-y-6">
@@ -58,7 +58,7 @@ export default async function Home() {
                         ))}
                     </div>
 
-                    {/* Abgetrennt unten, z.B. das Fertigmelden in der Werkstatt */}
+                    {/* Abgetrennt unten, z.B. der Scanner in der Werkstatt */}
                     {unten.length > 0 && (
                         <section className="space-y-3 border-t pt-6">
                             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Werkstatt</h2>

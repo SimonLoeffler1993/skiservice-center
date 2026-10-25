@@ -1,7 +1,7 @@
-import { NavigationMenu, NavigationMenuLink, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
+import { NavigationMenu, NavigationMenuLink, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { Home } from "lucide-react";
 
-import { MENUE_GRUPPEN } from "./menueeintraege";
+import { DIREKT_LINKS, MENUE_GRUPPEN } from "./menueeintraege";
 import MobileMenue from "./MobileMenue";
 
 export default function MenueLeiste() {
@@ -18,6 +18,15 @@ export default function MenueLeiste() {
                             <Home size={18} />
                         </NavigationMenuLink>
                     </NavigationMenuItem>
+
+                    {DIREKT_LINKS.map((link) => (
+                        <NavigationMenuItem key={link.href}>
+                            <NavigationMenuLink href={link.href} className={`${navigationMenuTriggerStyle()} flex-row gap-2`}>
+                                <link.icon />
+                                {link.titel}
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                    ))}
 
                     {MENUE_GRUPPEN.map((gruppe) => (
                         <NavigationMenuItem key={gruppe.titel}>

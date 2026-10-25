@@ -28,15 +28,34 @@ const zuDeutsch = (iso: string) => {
 
 type AuftragAktionenProps = {
     auftrag: Auftrag;
+    // Weitere Aktionen vor "Löschen", z.B. Etiketten und Quittung
+    children?: React.ReactNode;
 };
 
-export default function AuftragAktionen({ auftrag }: AuftragAktionenProps) {
+// Hauptaktion im Kopf: alle offenen Ski fertig melden, mit Frage nach der Mail
+export function AlleFertigButton({ auftrag }: { auftrag: Auftrag }) {
+    const offeneSkis = auftrag.skis.filter((ski) => ski.status !== 1);
+    if (offeneSkis.length === 0) return null;
+    return (
+        <FertigMailDialog
+            auftrag={auftrag}
+            skis={offeneSkis}
+            trigger={
+                <Button type="button">
+                    <CheckCheck className="h-4 w-4" />
+                    Alle fertig
+                </Button>
+            }
+        />
+    );
+}
+
+// Buttons für die Aktionsleiste der Detailansicht, "Löschen" ganz rechts
+export default function AuftragAktionen({ auftrag, children }: AuftragAktionenProps) {
     const router = useRouter();
     const queryClient = useQueryClient();
     const aktualisieren = useAuftragAktualisieren(auftrag.id);
     const bezahlt = auftrag.bezahlt === "ja" || auftrag.quittung_id != null;
-    const offeneSkis = auftrag.skis.filter((ski) => ski.status !== 1);
-
     const [datumOffen, setDatumOffen] = useState(false);
     const [datum, setDatum] = useState(zuIso(auftrag.abhol_date));
     const [fehler, setFehler] = useState<string | null>(null);
@@ -56,21 +75,8 @@ export default function AuftragAktionen({ auftrag }: AuftragAktionenProps) {
     }
 
     return (
-        <div className="flex flex-wrap items-center gap-2">
+        <>
             <SkiFormDialog auftragId={auftrag.id} bezahlt={bezahlt} kundeId={auftrag.kunden_id} />
-
-            {offeneSkis.length > 0 && (
-                <FertigMailDialog
-                    auftrag={auftrag}
-                    skis={offeneSkis}
-                    trigger={
-                        <Button type="button" variant="outline" size="sm">
-                            <CheckCheck className="h-4 w-4" />
-                            Alle fertig
-                        </Button>
-                    }
-                />
-            )}
 
             <Dialog open={datumOffen} onOpenChange={(wert) => { setDatumOffen(wert); setFehler(null); if (wert) setDatum(zuIso(auftrag.abhol_date)); }}>
                 <DialogTrigger asChild>
@@ -96,20 +102,24 @@ export default function AuftragAktionen({ auftrag }: AuftragAktionenProps) {
                 </DialogContent>
             </Dialog>
 
-            <LoeschenDialog
-                titel={`Auftrag ${auftrag.name ?? ""} löschen`}
-                beschreibung="Der Auftrag und alle zugehörigen Ski werden endgültig gelöscht."
-                buttonText="Löschen"
-                deaktiviert={bezahlt}
-                deaktiviertGrund="Bezahlte Aufträge können nicht gelöscht werden"
-                onLoeschen={async () => {
-                    const antwort = await loescheAuftrag(auftrag.id);
-                    if (!antwort.success) return antwort.error;
-                    queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
-                    router.push("/skiservice/anzeigen");
-                    return null;
-                }}
-            />
-        </div>
+            {children}
+
+            <div className="sm:ml-auto">
+                <LoeschenDialog
+                    titel={`Auftrag ${auftrag.name ?? ""} löschen`}
+                    beschreibung="Der Auftrag und alle zugehörigen Ski werden endgültig gelöscht."
+                    buttonText="Löschen"
+                    deaktiviert={bezahlt}
+                    deaktiviertGrund="Bezahlte Aufträge können nicht gelöscht werden"
+                    onLoeschen={async () => {
+                        const antwort = await loescheAuftrag(auftrag.id);
+                        if (!antwort.success) return antwort.error;
+                        queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
+                        router.push("/skiservice/anzeigen");
+                        return null;
+                    }}
+                />
+            </div>
+        </>
     );
 }

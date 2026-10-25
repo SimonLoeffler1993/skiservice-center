@@ -4,14 +4,19 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Search } from "lucide-react";
 import { useBelegungPruefung } from "@/hooks/useBelegungPruefung";
 import BelegungHinweis from "./BelegungHinweis";
-import { useActionState, startTransition, useEffect } from "react";
+import { useActionState, startTransition, useEffect, useState } from "react";
 import { getSkiNrCheck } from "@/lib/materialactions";
+import { Ski } from "@/types/materialtypes";
 import SaisonMaterialSkiAnzeige from "./SaisonMaterialSkiAnzeige";
 
 interface SaisonMaterialSkiProps {
     value: string;
     onChange: (value: string) => void;
     onCheck?: (isValid: boolean) => void;
+    // Belegter Ski wird bewusst übernommen
+    onTrotzdem?: (trotzdem: boolean) => void;
+    // Bisheriger Ski beim Bearbeiten, wird ohne erneute Prüfung angezeigt
+    vorgabe?: Ski | null;
     error?: string;
 }
 
@@ -19,13 +24,18 @@ export default function SaisonMaterialSki({
     value, 
     onChange, 
     onCheck,
+    onTrotzdem,
+    vorgabe,
     error 
 }: SaisonMaterialSkiProps) {
     const [state, action, isPending] = useActionState(getSkiNrCheck, null);
-    // Beim Tagesverleih zusätzlich prüfen, ob im Zeitraum frei
+    // Zusätzlich prüfen, ob der Ski schon verliehen ist (Tagesverleih im Zeitraum, sonst heute)
     const belegung = useBelegungPruefung("ski");
     const belegungsErgebnis = belegung.aktuellesErgebnis(value);
     const belegt = !!belegungsErgebnis && (belegungsErgebnis.belegungen.length > 0 || !!belegungsErgebnis.fehler);
+    // "Trotzdem übernehmen" gilt nur für die Nummer, für die es bestätigt wurde
+    const [trotzdemFuer, setTrotzdemFuer] = useState<string | null>(null);
+    const trotzdem = belegt && !belegungsErgebnis?.fehler && trotzdemFuer === value;
 
     const handleSkiNrChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.value);
@@ -39,9 +49,13 @@ export default function SaisonMaterialSki({
     // Notify parent about check result
     useEffect(() => {
         if (state) {
-            onCheck?.(state.success && !belegt);
+            onCheck?.(state.success && (!belegt || trotzdem));
         }
-    }, [state, belegt, onCheck]);
+    }, [state, belegt, trotzdem, onCheck]);
+
+    useEffect(() => {
+        onTrotzdem?.(trotzdem);
+    }, [trotzdem, onTrotzdem]);
     
     return (
         <div>
@@ -68,7 +82,11 @@ export default function SaisonMaterialSki({
                 <p className="mt-1 text-sm text-red-600">{error}</p>
             )}
             {isPending && <p className="mt-1 text-sm text-gray-500">Prüfe Ski-Nummer...</p>}
-            {state?.success && <SaisonMaterialSkiAnzeige ski={state.data![0]} />}
+            {state?.success ? (
+                <SaisonMaterialSkiAnzeige ski={state.data![0]} />
+            ) : (
+                vorgabe && value === vorgabe.SkiNr && <SaisonMaterialSkiAnzeige ski={vorgabe} />
+            )}
             {state?.error && !isPending && (
                 <p className="mt-1 text-sm text-red-600">{state.error}</p>
             )}
@@ -77,6 +95,9 @@ export default function SaisonMaterialSki({
                     belegungen={belegungsErgebnis?.belegungen ?? null}
                     fehler={belegungsErgebnis?.fehler ?? null}
                     isPending={belegung.isPending}
+                    tagesverleih={belegung.tagesverleih}
+                    onTrotzdem={() => setTrotzdemFuer(value)}
+                    uebernommen={trotzdem}
                 />
             )}
         </div>

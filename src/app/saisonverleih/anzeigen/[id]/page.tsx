@@ -4,8 +4,13 @@ import SaisonverleihAnzeigeUebersicht from "@/components/saisonverleih/anzeige/U
 import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
 import { quittungOptions } from "@/hooks/useQuittungOptions";
 
-export default async function SaisonverleihAnzeigen({ params }: { params: Promise<{ id: string }> }) {
+export default async function SaisonverleihAnzeigen({ params, searchParams }: {
+    params: Promise<{ id: string }>;
+    // ?material=ID aus dem QR-Code des Etiketts
+    searchParams: Promise<{ material?: string }>;
+}) {
     const { id } = await params;
+    const { material } = await searchParams;
     // const data = getSaisonVerleihById(id);
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery(saisonverleihDetailsOptions(Number(id)));
@@ -19,7 +24,7 @@ export default async function SaisonverleihAnzeigen({ params }: { params: Promis
     return (
         <div className="container mx-auto p-4 space-y-6">
             <HydrationBoundary state={dehydrate(queryClient)}>
-                <SaisonverleihAnzeigeUebersicht saisonverleihID={Number(id)} />
+                <SaisonverleihAnzeigeUebersicht saisonverleihID={Number(id)} hervorheben={material ? Number(material) : undefined} />
             </HydrationBoundary>
         </div>
     );

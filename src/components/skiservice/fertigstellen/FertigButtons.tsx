@@ -1,64 +1,67 @@
 import { useCallback, useEffect, useTransition } from 'react';
+import { CheckCheck, X } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
 import useTimer from '@/hooks/useTimer';
 import { auftragFertigStellen } from '@/lib/auftragaction';
-import { useQueryClient } from '@tanstack/react-query';
+import { Meldung } from './ScanMeldung';
 
 type FertigButtonsProps = {
-    serviceId: number | undefined | null;
-    selectedSkiIds?: number[] | null;
+    serviceId: number;
+    selectedSkiIds: number[];
+    onErledigt: (meldung: Meldung) => void;
 };
 
-export default function FertigButtons({ serviceId, selectedSkiIds }: FertigButtonsProps) {
-    const { countdown, resetTimer, setPause } = useTimer();
-    const [, startTransition] = useTransition();
+// Hardware-Scanner: ausgewählte Ski nach 10 s Countdown fertig stellen, Abbrechen hält den Countdown an
+export default function FertigButtons({ serviceId, selectedSkiIds, onErledigt }: FertigButtonsProps) {
+    const { countdown, pause, resetTimer, setPause } = useTimer();
+    const [isPending, startTransition] = useTransition();
     const queryClient = useQueryClient();
-    const isButtonDisabled = !selectedSkiIds || selectedSkiIds.length === 0;
-
-    const skiIdsKey = selectedSkiIds;
+    const isButtonDisabled = selectedSkiIds.length === 0 || isPending;
+    const skiIdsKey = selectedSkiIds.join(",");
 
     useEffect(() => {
-        if (isButtonDisabled) {
+        if (skiIdsKey === "") {
             setPause(true);
             return;
         }
-
         setPause(false);
         resetTimer();
-    }, [skiIdsKey, resetTimer, setPause, isButtonDisabled]); // resetTimer als Dependency hinzufügen
+    }, [skiIdsKey, resetTimer, setPause]);
 
     const handleFertigstellen = useCallback(() => {
+        setPause(true);
         startTransition(async () => {
-            const data = await auftragFertigStellen(serviceId!, Array.from(selectedSkiIds || []));
+            const data = await auftragFertigStellen(serviceId, selectedSkiIds);
             if (data.success) {
                 // Status in Liste und Details aktualisieren
                 queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
-                queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails", serviceId] });
+                await queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails", serviceId] });
+                onErledigt({ ok: true, text: `${selectedSkiIds.length === 1 ? "Ski" : `${selectedSkiIds.length} Ski`} fertig gestellt` });
+            } else {
+                onErledigt({ ok: false, text: data.error ?? "Fertigstellen fehlgeschlagen" });
             }
-            // TODO: Meldung anzeeigen
         });
-    }, [serviceId, selectedSkiIds, queryClient]);
+    }, [serviceId, selectedSkiIds, queryClient, onErledigt, setPause]);
 
     useEffect(() => {
-        if (countdown === 0) {
+        if (countdown === 0 && skiIdsKey !== "") {
             handleFertigstellen();
         }
-    }, [countdown, handleFertigstellen]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [countdown]);
 
-
-    if (!serviceId) {   
-        return null; 
-    }
-
-    
+    const laeuft = !pause && !isButtonDisabled;
 
     return (
-        <div className="flex gap-4">
-            <Button className="flex-1" onClick={handleFertigstellen} disabled={isButtonDisabled}>
-                Fertigstellen in {countdown}
+        <div className="flex gap-2">
+            <Button className="h-11 flex-1 text-base" onClick={handleFertigstellen} disabled={isButtonDisabled}>
+                <CheckCheck className="h-5 w-5" />
+                {isPending ? "Wird fertig gestellt..." : laeuft ? `Fertigstellen in ${countdown} s` : "Fertigstellen"}
             </Button>
-            <Button className="flex-1" onClick={() => setPause(true)} variant="outline" disabled={isButtonDisabled}>
+            <Button className="h-11 flex-1 text-base sm:flex-none sm:px-6" onClick={() => setPause(true)} variant="outline" disabled={!laeuft}>
+                <X className="h-5 w-5" />
                 Abbrechen
             </Button>
         </div>

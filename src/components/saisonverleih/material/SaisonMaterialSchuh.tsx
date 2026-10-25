@@ -14,6 +14,10 @@ interface SaisonMaterialSchuhProps {
     value: string;
     onChange: (value: string) => void;
     onCheck?: (isValid: boolean) => void;
+    // Belegter Schuh wird bewusst übernommen
+    onTrotzdem?: (trotzdem: boolean) => void;
+    // Bisheriger Schuh beim Bearbeiten, wird ohne erneute Prüfung angezeigt
+    vorgabe?: Schuh | null;
     // Interne ID des gefundenen Schuhs, wird im Verleih gespeichert. Dazu der Schuh, z.B. für die Sohlenlänge
     onGefunden?: (schuhId: number | undefined, schuh?: Schuh) => void;
     error?: string;
@@ -23,17 +27,22 @@ export default function SaisonMaterialSchuh({
     value,
     onChange,
     onCheck,
+    onTrotzdem,
     onGefunden,
+    vorgabe,
     error
 }: SaisonMaterialSchuhProps) {
     // Ergebnis der Prüfung, gilt nur für die geprüfte Nummer
     const [pruefung, setPruefung] = useState<{ nummer: string; ergebnis: Awaited<ReturnType<typeof getSchuhNrCheck>> } | null>(null);
     const [isPending, startTransition] = useTransition();
     const state = pruefung?.nummer === value ? pruefung.ergebnis : null;
-    // Beim Tagesverleih zusätzlich prüfen, ob im Zeitraum frei (über die interne ID)
+    // Zusätzlich prüfen, ob der Schuh schon verliehen ist (über die interne ID)
     const belegung = useBelegungPruefung("schuh");
     const belegungsErgebnis = state?.success ? belegung.aktuellesErgebnis(String(state.data.ID)) : null;
     const belegt = !!belegungsErgebnis && (belegungsErgebnis.belegungen.length > 0 || !!belegungsErgebnis.fehler);
+    // "Trotzdem übernehmen" gilt nur für die Nummer, für die es bestätigt wurde
+    const [trotzdemFuer, setTrotzdemFuer] = useState<string | null>(null);
+    const trotzdem = belegt && !belegungsErgebnis?.fehler && trotzdemFuer === value;
 
     const handleSchuhNrChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         // Neue Nummer muss erneut geprüft werden
@@ -54,9 +63,13 @@ export default function SaisonMaterialSchuh({
     // Notify parent about check result
     useEffect(() => {
         if (state) {
-            onCheck?.(state.success && !belegt);
+            onCheck?.(state.success && (!belegt || trotzdem));
         }
-    }, [state, belegt, onCheck]);
+    }, [state, belegt, trotzdem, onCheck]);
+
+    useEffect(() => {
+        onTrotzdem?.(trotzdem);
+    }, [trotzdem, onTrotzdem]);
 
     return (
         <div>
@@ -87,7 +100,11 @@ export default function SaisonMaterialSchuh({
                 <p className="mt-1 text-sm text-red-600">{error}</p>
             )}
             {isPending && <p className="mt-1 text-sm text-gray-500">Prüfe Schuh-Nummer...</p>}
-            {state?.success && <SaisonMaterialSchuhAnzeige schuh={state.data!} />}
+            {state?.success ? (
+                <SaisonMaterialSchuhAnzeige schuh={state.data!} />
+            ) : (
+                !state && vorgabe && value === vorgabe.SchuhNr && <SaisonMaterialSchuhAnzeige schuh={vorgabe} />
+            )}
             {state?.error && !isPending && (
                 <p className="mt-1 text-sm text-red-600">{state.error}</p>
             )}
@@ -96,6 +113,9 @@ export default function SaisonMaterialSchuh({
                     belegungen={belegungsErgebnis?.belegungen ?? null}
                     fehler={belegungsErgebnis?.fehler ?? null}
                     isPending={belegung.isPending}
+                    tagesverleih={belegung.tagesverleih}
+                    onTrotzdem={() => setTrotzdemFuer(value)}
+                    uebernommen={trotzdem}
                 />
             )}
         </div>

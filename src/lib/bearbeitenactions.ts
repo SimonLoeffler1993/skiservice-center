@@ -4,7 +4,7 @@
 
 import { anfrage, LoeschenSchema } from "./apianfrage";
 import { Auftrag, AuftragSchema } from "@/types/skiservicetypes";
-import { SaisonverleihRead, SaisonverleihReadSchema, VerleihArt } from "@/types/saisonverleihtypes";
+import { SaisonverleihRead, SaisonverleihReadSchema, VerleihArt, VerleihStatus } from "@/types/saisonverleihtypes";
 import type { Bindungsdaten } from "@/types/bindungsdatentypes";
 import { ApiAntwort } from "@/types/actiontypes";
 
@@ -19,6 +19,8 @@ export type SkiDaten = {
     // null entfernt die Bindungsdaten
     bindungsdaten?: Bindungsdaten | null;
     vorlage_id?: number | null;
+    // Ski bzw. Schuh bewusst übernehmen, obwohl sie schon verliehen sind
+    trotz_belegung?: boolean;
 };
 
 export async function aendereAuftrag(auftragId: number, daten: { kunden_id?: number; abhol_date?: string }): Promise<ApiAntwort<Auftrag>> {
@@ -80,4 +82,14 @@ export async function aendereMaterial(verleihId: number, materialId: number, dat
 
 export async function entferneMaterial(verleihId: number, materialId: number): Promise<ApiAntwort<SaisonverleihRead>> {
     return anfrage(`/saisonverleih/${verleihId}/material/${materialId}`, "DELETE", SaisonverleihReadSchema, "Material konnte nicht entfernt werden.");
+}
+
+// Bindungen als geprüft markieren, ohne materialIds alle mit Ski. Sind alle geprüft, wird der Verleih "vorbereitet"
+export async function pruefeVerleihBindungen(verleihId: number, materialIds?: number[]): Promise<ApiAntwort<SaisonverleihRead>> {
+    return anfrage(`/saisonverleih/${verleihId}/bindung-geprueft`, "POST", SaisonverleihReadSchema, "Bindung konnte nicht als geprüft markiert werden.", { material_ids: materialIds ?? null });
+}
+
+// Status setzen: vorbereitung -> vorbereitet -> unterwegs (abgeholt) -> zurueck, auch rückwärts zum Korrigieren
+export async function setzeVerleihStatus(verleihId: number, status: VerleihStatus): Promise<ApiAntwort<SaisonverleihRead>> {
+    return anfrage(`/saisonverleih/${verleihId}/status`, "PATCH", SaisonverleihReadSchema, "Status konnte nicht geändert werden.", { Status: status });
 }

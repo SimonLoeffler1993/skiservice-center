@@ -1,36 +1,35 @@
-import { Auftrag, Ski } from '@/types/skiservicetypes';
-import SkiDetail from './SkiDetail';
-import SkiAktionen from './bearbeiten/SkiAktionen';
+import { Mountain } from 'lucide-react';
+
+import { Auftrag } from '@/types/skiservicetypes';
+import SkiKarte from './SkiKarte';
 
 type SkiListeProps = {
-    skis: Ski[]
-    // Mit Angabe werden Bearbeiten-Aktionen je Ski angezeigt
-    bearbeiten?: { bezahlt: boolean; kundeId: number; auftrag: Auftrag }
+    auftrag: Auftrag;
+    bezahlt: boolean;
+    // Ski-ID aus dem QR-Code
+    hervorheben?: number;
 };
 
-export default function SkiListe({ skis, bearbeiten }: SkiListeProps) {
-    if (skis.length === 0) {
-        return (
-            <div className="flex flex-col items-center gap-3 py-10">
-                <p className="text-sm text-muted-foreground">Keine Skiservices gefunden.</p>
-            </div>
-        );
-    }
+// Ski eines Auftrags als Karten, Spaltenzahl nach Breite des Hauptbereichs
+export default function SkiListe({ auftrag, bezahlt, hervorheben }: SkiListeProps) {
+    const { skis } = auftrag;
 
     return (
-        <div className="space-y-1">
-            <ul className="divide-y divide-border">
-                {skis.map((ski) => (
-                    <li key={ski.id} className="py-3 transition-colors hover:bg-muted/40 px-2">
-                        <SkiDetail ski={ski} showButtons={true} kundeId={bearbeiten?.kundeId} />
-                        {bearbeiten && (
-                            <div className="flex justify-end">
-                                <SkiAktionen ski={ski} auftrag={bearbeiten.auftrag} bezahlt={bearbeiten.bezahlt} letzterSki={skis.length === 1} kundeId={bearbeiten.kundeId} />
-                            </div>
-                        )}
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <section className="@container space-y-3">
+            <h2 className="flex items-center gap-2 text-lg font-semibold">
+                <Mountain className="h-5 w-5 text-muted-foreground" />
+                Ski ({skis.length})
+            </h2>
+
+            {skis.length === 0 ? (
+                <p className="rounded-xl border p-4 text-muted-foreground">Keine Skiservices gefunden.</p>
+            ) : (
+                <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2">
+                    {skis.map((ski) => (
+                        <SkiKarte key={ski.id} ski={ski} auftrag={auftrag} bezahlt={bezahlt} letzterSki={skis.length === 1} hervorgehoben={ski.id === hervorheben} />
+                    ))}
+                </div>
+            )}
+        </section>
     );
 }

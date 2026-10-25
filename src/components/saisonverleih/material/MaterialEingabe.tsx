@@ -7,8 +7,8 @@ import SaisonMaterialPreise from './SaisonMaterialPreise';
 import SaisonMaterialSki from './SaisonMaterialSki';
 import SaisonMaterialSchuh from './SaisonMaterialSchuh';
 import SaisonMaterialStock from './SaisonMaterialStock';
-import { Material, MaterialEingabeWerte, MaterialSchema } from '@/types/materialtypes';
-import { BindungsdatenEingabe, LEERE_BINDUNGSDATEN, zuBindungsdaten } from '@/types/bindungsdatentypes';
+import { Material, MaterialEingabeWerte, MaterialRead, MaterialSchema } from '@/types/materialtypes';
+import { BindungsdatenEingabe, LEERE_BINDUNGSDATEN, zuBindungsdaten, zuEingabe } from '@/types/bindungsdatentypes';
 import { Checkbox } from '@/components/ui/checkbox';
 import BindungsdatenFelder from '@/components/skiservice/bindung/BindungsdatenFelder';
 import SaisonMaterialListe from './SaisonMaterialListe';
@@ -20,26 +20,49 @@ import { useSaisonverleihContext } from '@/context/saisonverleih-context';
 type MaterialEingabeProps = {
     // Statt in die Liste des neuen Verleihs direkt speichern (bestehender Verleih).
     // Gibt eine Fehlermeldung zurück oder null bei Erfolg.
-    onHinzufuegen?: (material: Material) => Promise<string | null>;
+    onSpeichern?: (material: Material) => Promise<string | null>;
     // Kunde für "Letzte Daten abfragen", ohne Angabe der Kunde des neuen Verleihs
     kundeId?: number;
+    // Bearbeiten: vorhandenes Material, mit dessen Werten das Formular vorbelegt wird
+    vorgabe?: MaterialRead;
+    // Verleih ist bezahlt, der Preis kann nicht mehr geändert werden
+    preisGesperrt?: boolean;
 };
 
-export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEingabeProps = {}) {
+// Werte zum Bearbeiten, ohne Ski/Schuh/Stock sind die Felder leer
+function vorgabeWerte(vorgabe: MaterialRead): MaterialEingabeWerte {
+    return {
+        Preis: vorgabe.Preis,
+        skinr: vorgabe.skinr ?? '',
+        // -1 = kein Stock
+        stockbez_ID: vorgabe.stockbez_ID ?? -1,
+        stocklaenge: vorgabe.stocklaenge ?? 0,
+        schuhnr: vorgabe.schuhnr ?? undefined,
+        schuhAnzeige: vorgabe.Schuh?.SchuhNr ?? '',
+        SkiFahrerName: vorgabe.SkiFahrerName ?? '',
+        bindungAktiv: !!vorgabe.bindungsdaten,
+        bindungsEingabe: vorgabe.bindungsdaten ? zuEingabe(vorgabe.bindungsdaten) : undefined,
+    };
+}
+
+export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGesperrt = false }: MaterialEingabeProps = {}) {
     const [skiValid, setSkiValid] = useState<boolean | null>(null);
     const [schuhValid, setSchuhValid] = useState<boolean | null>(null);
+    // Bereits verliehene Teile, die bewusst übernommen werden
+    const [skiTrotzdem, setSkiTrotzdem] = useState(false);
+    const [schuhTrotzdem, setSchuhTrotzdem] = useState(false);
     // Neuer Key setzt die interne Auswahl der Preis-Komponente zurück
     const [eingabeNr, setEingabeNr] = useState(0);
     const [speicherFehler, setSpeicherFehler] = useState<string | null>(null);
     const { materialList, setMaterialList, kunde } = useSaisonverleihContext();
     // Für die Vorbelegung der Bindungsdaten: zuletzt übernommener Fahrername und Sohle des geprüften Schuhs
-    const letzterName = useRef('');
-    const schuhSohle = useRef<number | null>(null);
+    const letzterName = useRef(vorgabe?.SkiFahrerName?.trim() ?? '');
+    const schuhSohle = useRef<number | null>(vorgabe?.Schuh?.Sohle ?? null);
 
     const methods = useForm<MaterialEingabeWerte>({
         resolver: zodResolver(MaterialSchema),
         mode: 'onChange',
-        defaultValues: {
+        defaultValues: vorgabe ? vorgabeWerte(vorgabe) : {
             Preis: 0,
             skinr: '',
             stockbez_ID: 0,
@@ -97,7 +120,7 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
 
     const onSubmit: SubmitHandler<MaterialEingabeWerte> = async (data) => {
         if (skiValid === false || schuhValid === false) {
-            alert('Bitte überprüfen Sie die Ski- und Schuh-Nummern auf Gültigkeit');
+            alert('Bitte überprüfen Sie die Ski- und Schuh-Nummern. Bereits verliehenes Material mit "Trotzdem übernehmen" bestätigen.');
             return;
         }
         // Eingegebene Schuh-Nr. muss geprüft sein, gespeichert wird die interne ID
@@ -116,12 +139,14 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
             ...werte,
             bindungsdaten: bindung.daten,
             vorlage_id: bindung.daten ? bindungsEingabe?.vorlage_id ?? null : null,
+            trotz_belegung: skiTrotzdem || schuhTrotzdem,
         };
 
-        if (onHinzufuegen) {
-            const fehler = await onHinzufuegen(material);
+        if (onSpeichern) {
+            const fehler = await onSpeichern(material);
             setSpeicherFehler(fehler);
-            if (fehler) return;
+            // Beim Bearbeiten schließt der Dialog, kein Zurücksetzen
+            if (fehler || vorgabe) return;
         } else {
             setSpeicherFehler(null);
             setMaterialList([...materialList, material]);
@@ -137,7 +162,7 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
     return (
         <FormProvider {...methods}>
             <div className="p-4 sm:p-6 max-w-6xl mx-auto bg-white rounded-lg shadow-md">
-                <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-800">Material Eingabe</h1>
+                {!vorgabe && <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-800">Material Eingabe</h1>}
 
                 <form onSubmit={handleSubmit(onSubmit)} className="mb-6 sm:mb-8">
                     {/* Mobil: 1 Spalte | ab sm: 2er-Reihen */}
@@ -149,6 +174,8 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
                                     key={eingabeNr}
                                     name="Preis"
                                     error={errors.Preis?.message}
+                                    startAuswahl={vorgabe ? 'custom' : undefined}
+                                    gesperrt={preisGesperrt}
                                 />
                             </Suspense>
                         </div>
@@ -177,6 +204,8 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
                                 value={watch('skinr')}
                                 onChange={(value) => setValue('skinr', value)}
                                 onCheck={setSkiValid}
+                                onTrotzdem={setSkiTrotzdem}
+                                vorgabe={vorgabe?.Ski}
                                 error={errors.skinr?.message}
                             />
                         </div>
@@ -187,6 +216,8 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
                                 onChange={(value) => setValue('schuhAnzeige', value)}
                                 onGefunden={(schuhId, schuh) => schuhGefunden(schuhId, schuh?.Sohle ?? null)}
                                 onCheck={setSchuhValid}
+                                onTrotzdem={setSchuhTrotzdem}
+                                vorgabe={vorgabe?.Schuh}
                                 error={errors.schuhnr?.message}
                             />
                         </div>
@@ -251,7 +282,7 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
                                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}
                             >
-                                Hinzufügen
+                                {vorgabe ? 'Speichern' : 'Hinzufügen'}
                             </button>
                         </div>
                         {speicherFehler && (
@@ -261,7 +292,7 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
                 </form>
 
                 {/* Material List, nur beim Anlegen eines neuen Verleihs */}
-                {!onHinzufuegen && <div>
+                {!onSpeichern && <div>
                     <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">Ausgewähltes Material</h2>
 
                     {materialList.length === 0 ? (

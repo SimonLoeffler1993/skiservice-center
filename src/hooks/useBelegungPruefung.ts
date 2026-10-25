@@ -13,17 +13,19 @@ type Ergebnis = {
 };
 
 /**
- * Prüft beim Tagesverleih, ob Ski oder Schuh im gewählten Zeitraum schon verliehen sind.
- * Beim Saisonverleih oder ohne vollständigen Zeitraum ist die Prüfung inaktiv.
+ * Prüft, ob Ski oder Schuh schon verliehen sind:
+ * Tagesverleih im gewählten Zeitraum (ohne vollständigen Zeitraum inaktiv), Saisonverleih heute.
  */
 export function useBelegungPruefung(material: "ski" | "schuh") {
     const { art, zeitraum, verleihId } = useSaisonverleihContext();
     const [ergebnis, setErgebnis] = useState<Ergebnis | null>(null);
     const [isPending, startTransition] = useTransition();
 
-    const von = zeitraum?.from ? format(zeitraum.from, "yyyy-MM-dd") : null;
-    const bis = zeitraum?.to ? format(zeitraum.to, "yyyy-MM-dd") : null;
-    const aktiv = art === "tag" && !!von && !!bis;
+    const tagesverleih = art === "tag";
+    const heute = format(new Date(), "yyyy-MM-dd");
+    const von = tagesverleih ? (zeitraum?.from ? format(zeitraum.from, "yyyy-MM-dd") : null) : heute;
+    const bis = tagesverleih ? (zeitraum?.to ? format(zeitraum.to, "yyyy-MM-dd") : null) : heute;
+    const aktiv = !!von && !!bis;
 
     function pruefen(nummer: string) {
         if (!aktiv || !nummer.trim()) {
@@ -49,5 +51,5 @@ export function useBelegungPruefung(material: "ski" | "schuh") {
         return aktiv && ergebnis?.schluessel === `${nummer}|${von}|${bis}` ? ergebnis : null;
     }
 
-    return { aktiv, pruefen, aktuellesErgebnis, isPending };
+    return { aktiv, tagesverleih, pruefen, aktuellesErgebnis, isPending };
 }

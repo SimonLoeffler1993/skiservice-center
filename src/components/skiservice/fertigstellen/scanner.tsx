@@ -1,58 +1,32 @@
 "use client";
 
-import { useSkiScannerSocket } from "@/hooks/useSkiScannerSocket";
-import ScannerVerbindung from "../ScannerVerbindung";
-import SkiListeSelect from "./SkiListeSelect";
-import KundeKurzDetails from "@/components/kunde/KundeKurzDetails";
+import { cn } from "@/lib/utils";
+import HardwareScanner from "./HardwareScanner";
+import KameraScanner from "./KameraScanner";
+import ScanModusUmschalter, { useScanModus } from "./ScanModusUmschalter";
 
-
-type FertigstellenProps = {
+type ScannerProps = {
     backendUrl: string;
 }
 
-
-export default function SkiserviceFertigScanner({ backendUrl }: FertigstellenProps) {
-    const { nachricht, verbunden, error } = useSkiScannerSocket(backendUrl);
-
-    console.log("Kunde:", nachricht?.data);
-
+// Scanner-Ansicht: Kopf mit Modus-Umschalter, darunter Hardware-Scanner oder Kamera.
+// Ski fertig stellen und Bindungen prüfen (Service und Verleih)
+export default function SkiserviceFertigScanner({ backendUrl }: ScannerProps) {
+    const [modus, setModus] = useScanModus();
 
     return (
-        <div className="flex flex-col gap-5 p-6 max-w-2xl mx-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between">
+        <div className={cn("mx-auto flex w-full flex-col gap-4", modus === "kamera" ? "max-w-6xl" : "max-w-3xl")}>
+            <header className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">Skiservice</p>
-                    <h1 className="text-xl font-medium text-foreground">Fertigstellen</h1>
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Werkstatt</p>
+                    <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Scanner</h1>
+                    <p className="text-sm text-muted-foreground">Ski fertig stellen und Bindungen prüfen</p>
                 </div>
-                <ScannerVerbindung verbunden={verbunden} />
-            </div>
+                <ScanModusUmschalter modus={modus} onWechsel={setModus} />
+            </header>
 
-            {/* Status-Leiste */}
-            <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-4 py-2.5 text-sm text-muted-foreground">
-                {error ? (
-                    <span className="text-destructive">Fehler: {error}</span>
-                ) : (
-                    <span>
-                        Letzte Nachricht:{" "}
-                        <span className="text-foreground">
-                            {nachricht?.message || "Keine Nachricht vorhanden"}
-                        </span>
-                    </span>
-                )}
-            </div>
-
-
-            {/* Kundenkarte */}
-            <KundeKurzDetails kunde={nachricht?.data?.kunde} />
-     
-            {/* Serviceaufstellung */}
-            <div className="rounded-xl border border-border bg-card p-5">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-4">
-                    Serviceaufstellung
-                </p>
-                <SkiListeSelect skis={nachricht?.data?.skis || []} selectedSkiIds={nachricht?.ski_id} />
-            </div>
+            {/* Nur der aktive Modus ist eingehängt: WebSocket bzw. Kamera laufen nur bei Bedarf */}
+            {modus === "hardware" ? <HardwareScanner backendUrl={backendUrl} /> : <KameraScanner />}
         </div>
     )
 }
