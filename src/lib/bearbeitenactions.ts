@@ -19,6 +19,8 @@ export type SkiDaten = {
     // null entfernt die Bindungsdaten
     bindungsdaten?: Bindungsdaten | null;
     vorlage_id?: number | null;
+    // Ski bzw. Schuh bewusst übernehmen, obwohl sie schon verliehen sind
+    trotz_belegung?: boolean;
 };
 
 export async function aendereAuftrag(auftragId: number, daten: { kunden_id?: number; abhol_date?: string }): Promise<ApiAntwort<Auftrag>> {

@@ -28,6 +28,9 @@ type MaterialEingabeProps = {
 export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEingabeProps = {}) {
     const [skiValid, setSkiValid] = useState<boolean | null>(null);
     const [schuhValid, setSchuhValid] = useState<boolean | null>(null);
+    // Bereits verliehene Teile, die bewusst übernommen werden
+    const [skiTrotzdem, setSkiTrotzdem] = useState(false);
+    const [schuhTrotzdem, setSchuhTrotzdem] = useState(false);
     // Neuer Key setzt die interne Auswahl der Preis-Komponente zurück
     const [eingabeNr, setEingabeNr] = useState(0);
     const [speicherFehler, setSpeicherFehler] = useState<string | null>(null);
@@ -97,7 +100,7 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
 
     const onSubmit: SubmitHandler<MaterialEingabeWerte> = async (data) => {
         if (skiValid === false || schuhValid === false) {
-            alert('Bitte überprüfen Sie die Ski- und Schuh-Nummern auf Gültigkeit');
+            alert('Bitte überprüfen Sie die Ski- und Schuh-Nummern. Bereits verliehenes Material mit "Trotzdem übernehmen" bestätigen.');
             return;
         }
         // Eingegebene Schuh-Nr. muss geprüft sein, gespeichert wird die interne ID
@@ -116,6 +119,7 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
             ...werte,
             bindungsdaten: bindung.daten,
             vorlage_id: bindung.daten ? bindungsEingabe?.vorlage_id ?? null : null,
+            trotz_belegung: skiTrotzdem || schuhTrotzdem,
         };
 
         if (onHinzufuegen) {
@@ -177,6 +181,7 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
                                 value={watch('skinr')}
                                 onChange={(value) => setValue('skinr', value)}
                                 onCheck={setSkiValid}
+                                onTrotzdem={setSkiTrotzdem}
                                 error={errors.skinr?.message}
                             />
                         </div>
@@ -187,6 +192,7 @@ export default function MaterialEingabe({ onHinzufuegen, kundeId }: MaterialEing
                                 onChange={(value) => setValue('schuhAnzeige', value)}
                                 onGefunden={(schuhId, schuh) => schuhGefunden(schuhId, schuh?.Sohle ?? null)}
                                 onCheck={setSchuhValid}
+                                onTrotzdem={setSchuhTrotzdem}
                                 error={errors.schuhnr?.message}
                             />
                         </div>

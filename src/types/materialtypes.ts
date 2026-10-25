@@ -191,6 +191,8 @@ export const MaterialNeuSchema = MaterialSchema.omit({ bindungAktiv: true, bindu
   bindungsdaten: BindungsdatenSchema.nullable(),
   // Aus "Letzte Daten abfragen" übernommener Eintrag, wird archiviert
   vorlage_id: z.number().nullable(),
+  // Ski bzw. Schuh bewusst übernehmen, obwohl sie schon verliehen sind
+  trotz_belegung: z.boolean().optional(),
 });
 
 export type Material = z.infer<typeof MaterialNeuSchema>;
