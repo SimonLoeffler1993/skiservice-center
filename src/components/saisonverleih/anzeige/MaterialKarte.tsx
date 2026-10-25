@@ -103,12 +103,11 @@ export default function MaterialKarte({ verleih, material, bezahlt, letztesMater
             <div className="flex flex-wrap items-center gap-2 border-t px-4 py-3 [&_button]:h-9">
                 <SaisonVerleiAnzeigeMaterialBindung verleihId={verleihId} material={material} kundeId={verleih.Kunde_ID} />
                 <MaterialBindungPruefen verleihId={verleihId} material={material} />
-                {/* Etiketten nur für Ski und Schuh dieser Materialzeile */}
+                {/* Etiketten dieser Materialzeile: Ski und Schuh, sonst eines für die Ausrüstung */}
                 <EtikettenDruckButton
                     verleihId={verleihId}
                     materialId={material.ID}
                     beschriftung="Etiketten"
-                    deaktiviert={!material.skinr && !material.schuhnr}
                 />
             </div>
         </article>

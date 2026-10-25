@@ -69,7 +69,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID, hervorh
             <DetailAktionsleiste>
                 <VerleihAktionen verleih={verleih}>
                     <SaisonVerleiAnzeigePDFButton saisonverleihanzeigeID={verleih.ID} />
-                    <EtikettenDruckButton verleihId={verleih.ID} deaktiviert={!material.some((m) => m.skinr || m.schuhnr)} />
+                    <EtikettenDruckButton verleihId={verleih.ID} deaktiviert={material.length === 0} />
                     <ButtonQuittungZuweisen quittungID={verleih.QuittungID} ziel={{ art: "verleih", id: verleih.ID }} />
                 </VerleihAktionen>
             </DetailAktionsleiste>

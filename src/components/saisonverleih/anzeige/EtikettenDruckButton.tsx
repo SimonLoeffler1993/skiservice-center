@@ -45,8 +45,8 @@ function einzeln(etiketten: VerleihEtikett[]): Zeile[] {
 }
 
 /**
- * Etiketten für Leihski und Leihschuhe drucken, je Teil eines,
- * damit das Material in der Werkstatt eindeutig zugeordnet werden kann.
+ * Etiketten für Leihski und Leihschuhe drucken, je Teil eines, Material ohne Ski und Schuh
+ * bekommt eines für die Ausrüstung, damit alles in der Werkstatt eindeutig zugeordnet werden kann.
  */
 export default function EtikettenDruckButton({ verleihId, materialId, beschriftung = "Etiketten drucken", deaktiviert = false }: EtikettenDruckButtonProps) {
     const [offen, setOffen] = useState(false);
@@ -88,7 +88,7 @@ export default function EtikettenDruckButton({ verleihId, materialId, beschriftu
             }}
         >
             <PopoverTrigger asChild>
-                <Button type="button" variant="outline" size="sm" disabled={deaktiviert} title={deaktiviert ? "Kein Ski und kein Schuh vorhanden" : undefined}>
+                <Button type="button" variant="outline" size="sm" disabled={deaktiviert} title={deaktiviert ? "Kein Material vorhanden" : undefined}>
                     <Tags className="h-4 w-4" />
                     {beschriftung}
                 </Button>
@@ -98,7 +98,7 @@ export default function EtikettenDruckButton({ verleihId, materialId, beschriftu
                 {isFetching && !data && <p className="text-sm text-muted-foreground">Lade Etiketten...</p>}
                 {error && <p className="text-sm text-destructive">{error.message}</p>}
                 {data && etiketten.length === 0 && (
-                    <p className="text-sm text-muted-foreground">Kein Ski und kein Schuh vorhanden.</p>
+                    <p className="text-sm text-muted-foreground">Kein Material vorhanden.</p>
                 )}
                 {zeilen.length > 0 && (
                     <ul className="space-y-2">
