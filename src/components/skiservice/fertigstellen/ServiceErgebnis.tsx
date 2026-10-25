@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Loader2 } from "lucide-react";
+import { ExternalLink, Loader2, MailX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { auftragDetailsOptions } from "@/hooks/useAuftragDetailsOptions";
@@ -51,6 +51,9 @@ export default function ServiceErgebnis({ auftragId, skiId, aktionen }: ServiceE
     const auftrag = data.data;
     const kunde = auftrag.kunde;
     const auswahl = auftrag.skis.filter((ski) => ausgewaehlt.includes(ski.id));
+    // Ohne E-Mail kann die Fertig-Mail nicht verschickt werden
+    const ohneEmail = !kunde.Email?.trim();
+    const telefon = kunde.Handy?.trim() || kunde.Tel?.trim();
 
     function umschalten(id: number) {
         setAusgewaehlt((liste) => (liste.includes(id) ? liste.filter((x) => x !== id) : [...liste, id]));
@@ -79,6 +82,21 @@ export default function ServiceErgebnis({ auftragId, skiId, aktionen }: ServiceE
                     </Link>
                 </Button>
             </section>
+
+            {ohneEmail && (
+                <p className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+                    <MailX className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                        <span className="font-medium">Keine E-Mail hinterlegt</span> – der Kunde wird beim Fertigstellen nicht automatisch benachrichtigt.
+                        {telefon && (
+                            <>
+                                {" "}Bitte anrufen:{" "}
+                                <a href={`tel:${telefon.replace(/\s/g, "")}`} className="font-medium underline underline-offset-2">{telefon}</a>
+                            </>
+                        )}
+                    </span>
+                </p>
+            )}
 
             {/* Ski zum Auswählen */}
             <section className="space-y-2">
