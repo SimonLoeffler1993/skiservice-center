@@ -13,6 +13,7 @@ import SaisonverleihCardBezahlt from "../liste/SaisonverleihCardBezahlt";
 import SaisonverleihCardStatus from "../liste/SaisonverleihCardStatus";
 import VerleihArtBadge from "../liste/VerleihArtBadge";
 import EtikettenDruckButton from "./EtikettenDruckButton";
+import { AlleBindungenPruefenButton } from "./MaterialBindungPruefen";
 import SaisonVerleiAnzeigeMaterial from "./Material";
 import SaisonVerleiAnzeigePDFButton from "./UebersichtPDFButton";
 import VerleihStatusAktion from "./VerleihStatusAktion";
@@ -55,7 +56,12 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID }: Saiso
                     </>
                 }
                 betrag={material.reduce((summe, m) => summe + m.Preis, 0)}
-                hauptaktion={<VerleihStatusAktion verleihId={verleih.ID} status={verleih.Status} />}
+                hauptaktion={
+                    <div className="flex flex-wrap items-start gap-2 sm:justify-end">
+                        <AlleBindungenPruefenButton verleih={verleih} />
+                        <VerleihStatusAktion verleihId={verleih.ID} status={verleih.Status} />
+                    </div>
+                }
             />
 
             <DetailAktionsleiste>

@@ -84,7 +84,12 @@ export async function entferneMaterial(verleihId: number, materialId: number): P
     return anfrage(`/saisonverleih/${verleihId}/material/${materialId}`, "DELETE", SaisonverleihReadSchema, "Material konnte nicht entfernt werden.");
 }
 
-// Status setzen: vorbereitung -> unterwegs (abgeholt) -> zurueck, auch rückwärts zum Korrigieren
+// Bindungen als geprüft markieren, ohne materialIds alle mit Ski. Sind alle geprüft, wird der Verleih "vorbereitet"
+export async function pruefeVerleihBindungen(verleihId: number, materialIds?: number[]): Promise<ApiAntwort<SaisonverleihRead>> {
+    return anfrage(`/saisonverleih/${verleihId}/bindung-geprueft`, "POST", SaisonverleihReadSchema, "Bindung konnte nicht als geprüft markiert werden.", { material_ids: materialIds ?? null });
+}
+
+// Status setzen: vorbereitung -> vorbereitet -> unterwegs (abgeholt) -> zurueck, auch rückwärts zum Korrigieren
 export async function setzeVerleihStatus(verleihId: number, status: VerleihStatus): Promise<ApiAntwort<SaisonverleihRead>> {
     return anfrage(`/saisonverleih/${verleihId}/status`, "PATCH", SaisonverleihReadSchema, "Status konnte nicht geändert werden.", { Status: status });
 }

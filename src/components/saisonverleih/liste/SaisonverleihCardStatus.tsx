@@ -1,14 +1,15 @@
-import { PackageOpen, RotateCcw, Truck, type LucideIcon } from "lucide-react";
+import { ClipboardCheck, PackageOpen, RotateCcw, Truck, type LucideIcon } from "lucide-react";
 
 import { VerleihStatus } from "@/types/saisonverleihtypes";
 
 export const STATUS_ANZEIGE: Record<VerleihStatus, { text: string; icon: LucideIcon; farbe: string }> = {
     vorbereitung: { text: "In Vorbereitung", icon: PackageOpen, farbe: "bg-blue-50 text-blue-700 border-blue-200" },
+    vorbereitet: { text: "Vorbereitet", icon: ClipboardCheck, farbe: "bg-teal-50 text-teal-700 border-teal-200" },
     unterwegs: { text: "Unterwegs", icon: Truck, farbe: "bg-amber-50 text-amber-700 border-amber-200" },
     zurueck: { text: "Zurückgegeben", icon: RotateCcw, farbe: "bg-green-50 text-green-700 border-green-200" },
 };
 
-// Status eines Verleihs: In Vorbereitung -> Unterwegs -> Zurückgegeben
+// Status eines Verleihs: In Vorbereitung -> Vorbereitet -> Unterwegs -> Zurückgegeben
 export default function SaisonverleihCardStatus({ status }: { status: VerleihStatus }) {
     const { text, icon: Icon, farbe } = STATUS_ANZEIGE[status];
     return (

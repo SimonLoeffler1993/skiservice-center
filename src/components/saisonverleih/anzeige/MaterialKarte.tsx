@@ -9,6 +9,7 @@ import { SaisonverleihRead } from "@/types/saisonverleihtypes";
 import MaterialAktionen from "../bearbeiten/MaterialAktionen";
 import EtikettenDruckButton from "./EtikettenDruckButton";
 import SaisonVerleiAnzeigeMaterialBindung from "./MaterialBindung";
+import MaterialBindungPruefen from "./MaterialBindungPruefen";
 
 type MaterialKarteProps = {
     verleih: SaisonverleihRead;
@@ -91,6 +92,7 @@ export default function MaterialKarte({ verleih, material, bezahlt, letztesMater
 
             <div className="flex flex-wrap items-center gap-2 border-t px-4 py-3 [&_button]:h-9">
                 <SaisonVerleiAnzeigeMaterialBindung verleihId={verleihId} material={material} kundeId={verleih.Kunde_ID} />
+                <MaterialBindungPruefen verleihId={verleihId} material={material} />
                 {/* Etiketten nur für Ski und Schuh dieser Materialzeile */}
                 <EtikettenDruckButton
                     verleihId={verleihId}

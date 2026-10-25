@@ -26,10 +26,11 @@ type VerleihStatusAktionProps = {
 // Nächster Schritt im Ablauf als Hauptbutton
 const NAECHSTER: Partial<Record<VerleihStatus, { status: VerleihStatus; text: string; icon: typeof Undo2 }>> = {
     vorbereitung: { status: "unterwegs", text: "Abgeholt", icon: PackageCheck },
+    vorbereitet: { status: "unterwegs", text: "Abgeholt", icon: PackageCheck },
     unterwegs: { status: "zurueck", text: "Zurückgegeben", icon: Undo2 },
 };
 
-// Status weiterschalten (Vorbereitung -> Unterwegs -> Zurückgegeben) oder korrigieren
+// Status weiterschalten (Vorbereitung/Vorbereitet -> Unterwegs -> Zurückgegeben) oder korrigieren
 export default function VerleihStatusAktion({ verleihId, status }: VerleihStatusAktionProps) {
     const [fehler, setFehler] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();

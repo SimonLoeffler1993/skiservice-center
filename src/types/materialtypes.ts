@@ -211,6 +211,9 @@ export const MaterialReadSchema = z.object({
   Preis: z.number(),
   SkiFahrerName: z.string().optional().nullable(),
   bindungsdaten: BindungsdatenReadSchema.nullish(),
+  // Bindung des Leihski von der Werkstatt geprüft
+  BindungGeprueft: z.boolean().default(false),
+  BindungGeprueft_Am: z.string().nullish(),
 })
 
 export type MaterialRead = z.infer<typeof MaterialReadSchema>;
@@ -228,8 +231,8 @@ export const VerleihVerwendungSchema = z.object({
   Kunde: z.string(),
   Fahrer: z.string().nullish(),
   Zurueck: z.boolean(),
-  // vorbereitung, unterwegs oder zurueck
-  Status: z.enum(["vorbereitung", "unterwegs", "zurueck"]).default("unterwegs"),
+  // vorbereitung, vorbereitet, unterwegs oder zurueck
+  Status: z.enum(["vorbereitung", "vorbereitet", "unterwegs", "zurueck"]).default("unterwegs"),
 });
 export const VerleihVerwendungListeSchema = z.array(VerleihVerwendungSchema);
 export type VerleihVerwendung = z.infer<typeof VerleihVerwendungSchema>;

@@ -39,8 +39,8 @@ export type SaisonverleihPreise = z.infer<typeof SaisonverleihPreiseSchema>;
 export const VerleihArtSchema = z.enum(["saison", "tag"]);
 export type VerleihArt = z.infer<typeof VerleihArtSchema>;
 
-// Ablauf: vorbereitung -> unterwegs (abgeholt) -> zurueck
-export const VerleihStatusSchema = z.enum(["vorbereitung", "unterwegs", "zurueck"]);
+// Ablauf: vorbereitung -> vorbereitet (alle Bindungen geprüft) -> unterwegs (abgeholt) -> zurueck
+export const VerleihStatusSchema = z.enum(["vorbereitung", "vorbereitet", "unterwegs", "zurueck"]);
 export type VerleihStatus = z.infer<typeof VerleihStatusSchema>;
 
 export const SaisonVerleihSchema = z.object({

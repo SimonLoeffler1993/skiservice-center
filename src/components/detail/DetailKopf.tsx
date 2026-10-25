@@ -32,7 +32,7 @@ export default function DetailKopf({ zurueckHref, zurueckText, titel, unterzeile
                     {unterzeile && <p className="text-muted-foreground">{unterzeile}</p>}
                     {badges && <div className="flex flex-wrap items-center gap-2">{badges}</div>}
                 </div>
-                <div className="flex flex-col items-start gap-3 sm:items-end">
+                <div className="flex flex-col items-start gap-3 sm:ml-auto sm:items-end">
                     <div className="sm:text-right">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Gesamt</p>
                         <p className="text-3xl font-bold tabular-nums leading-tight">{euro.format(betrag)}</p>
