@@ -28,6 +28,11 @@ export async function aendereAuftrag(auftragId: number, daten: { kunden_id?: num
     return anfrage(`/skiservice/auftrag/${auftragId}`, "PATCH", AuftragSchema, "Auftrag konnte nicht geändert werden.", daten);
 }
 
+// Fertig-Mail von Hand senden (auch erneut), danach ist der Auftrag benachrichtigt
+export async function sendeFertigMail(auftragId: number): Promise<ApiAntwort<Auftrag>> {
+    return anfrage(`/skiservice/auftrag/${auftragId}/benachrichtigen`, "POST", AuftragSchema, "E-Mail konnte nicht versendet werden.");
+}
+
 export async function loescheAuftrag(auftragId: number): Promise<ApiAntwort<{ success: boolean }>> {
     return anfrage(`/skiservice/auftrag/${auftragId}`, "DELETE", LoeschenSchema, "Auftrag konnte nicht gelöscht werden.");
 }
