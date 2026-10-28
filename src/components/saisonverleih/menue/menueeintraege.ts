@@ -31,8 +31,8 @@ export const MENUE_GRUPPEN: MenueGruppe[] = [
     {
         titel: "Skiservice",
         links: [
-            { titel: "Neu", href: "/skiservice/erstellen", icon: Wrench, kachelTitel: "Neuer Auftrag", beschreibung: "Skiservice-Auftrag für einen Kunden erfassen." },
-            { titel: "Anzeigen", href: "/skiservice/anzeigen", icon: ClipboardList, kachelTitel: "Alle Aufträge", beschreibung: "Aufträge der Saison ansehen und bearbeiten." },
+            { titel: "Neu", href: "/skiservice/erstellen", icon: Wrench, kachelTitel: "Neuer Skiservice", beschreibung: "Skiservice-Auftrag für einen Kunden erfassen." },
+            { titel: "Anzeigen", href: "/skiservice/anzeigen", icon: ClipboardList, kachelTitel: "Alle Skiservice", beschreibung: "Aufträge der Saison ansehen und bearbeiten." },
         ],
     },
     {
