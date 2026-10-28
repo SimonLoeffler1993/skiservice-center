@@ -104,7 +104,7 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
         const eingabe = getValues('bindungsEingabe');
         const neu = name.trim();
         if (getValues('bindungAktiv') && eingabe && (eingabe.Fahrer === '' || eingabe.Fahrer === letzterName.current)) {
-            setBindung({ ...eingabe, Fahrer: neu });
+            setBindung({ ...eingabe, Fahrer: neu, bestaetigt: false });
         }
         letzterName.current = neu;
     }
@@ -114,7 +114,7 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
         schuhSohle.current = sohle;
         const eingabe = getValues('bindungsEingabe');
         if (sohle !== null && getValues('bindungAktiv') && eingabe && eingabe.Sohle.trim() === '') {
-            setBindung({ ...eingabe, Sohle: String(sohle) });
+            setBindung({ ...eingabe, Sohle: String(sohle), bestaetigt: false });
         }
     }
 
