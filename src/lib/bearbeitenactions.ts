@@ -60,6 +60,7 @@ export type VerleihAenderung = {
 
 export type MaterialDaten = {
     Preis?: number;
+    Preis_ID?: number | null;
     skinr?: string | null;
     schuhnr?: number | null;
     stockbez_ID?: number | null;

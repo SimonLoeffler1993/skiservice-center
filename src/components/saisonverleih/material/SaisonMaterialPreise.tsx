@@ -11,7 +11,7 @@ import { useSaisonverleihContext } from "@/context/saisonverleih-context";
 interface SaisonMaterialPreiseProps {
     name: string;
     error?: string;
-    // Beim Bearbeiten "custom", damit der bisherige Betrag im Feld steht
+    // Beim Bearbeiten die gespeicherte Preis-ID, ohne gebuchten Preis "custom"
     startAuswahl?: string;
     // Preis darf nicht mehr geändert werden (Verleih bezahlt)
     gesperrt?: boolean;
@@ -36,23 +36,32 @@ export default function SaisonMaterialPreise({ name, error, startAuswahl, gesper
 
     // Form stores the numeric Preis
     const selectedValue = watch(name) as number | undefined;
+    // Gebuchter Preis, der nicht mehr in der Liste ist (inaktiv): Betrag als individuellen Preis anzeigen,
+    // die Preis-ID bleibt bis zur Änderung erhalten
+    const angezeigteAuswahl = auswahl && auswahl !== "custom" && data?.success && !preise.some((p) => String(p.ID) === auswahl)
+        ? "custom"
+        : auswahl;
     // Beim Tagesverleih wird der Preis immer frei eingetragen
-    const isCustom = art === "tag" || auswahl === "custom";
+    const isCustom = art === "tag" || angezeigteAuswahl === "custom";
 
     const handleValueChange = (value: string) => {
         setAuswahl(value);
         if (value === 'custom') {
             // Initialize with 0 so validation will require a positive custom price
             setValue(name, 0, { shouldValidate: true });
+            setValue("Preis_ID", null);
         } else {
             const preis = preise.find((p) => String(p.ID) === value);
             setValue(name, preis?.Preis ?? 0, { shouldValidate: true });
+            setValue("Preis_ID", preis?.ID ?? null);
         }
     };
 
     const handleCustomPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const price = Number(e.target.value);
         setValue(name, isNaN(price) ? 0 : price, { shouldValidate: true });
+        // Eigener Betrag ist kein Preis aus der Liste mehr
+        setValue("Preis_ID", null);
     };
 
     return (
@@ -63,7 +72,7 @@ export default function SaisonMaterialPreise({ name, error, startAuswahl, gesper
             <div className="space-y-2">
                 {art === "saison" && (
                     <Select
-                        value={auswahl ?? ""}
+                        value={angezeigteAuswahl ?? ""}
                         onValueChange={handleValueChange}
                         disabled={disabled}
                     >

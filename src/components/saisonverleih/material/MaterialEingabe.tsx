@@ -33,6 +33,7 @@ type MaterialEingabeProps = {
 function vorgabeWerte(vorgabe: MaterialRead): MaterialEingabeWerte {
     return {
         Preis: vorgabe.Preis,
+        Preis_ID: vorgabe.Preis_ID ?? null,
         skinr: vorgabe.skinr ?? '',
         // -1 = kein Stock
         stockbez_ID: vorgabe.stockbez_ID ?? -1,
@@ -64,6 +65,7 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
         mode: 'onChange',
         defaultValues: vorgabe ? vorgabeWerte(vorgabe) : {
             Preis: 0,
+            Preis_ID: null,
             skinr: '',
             stockbez_ID: 0,
             stocklaenge: 0,
@@ -174,7 +176,7 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
                                     key={eingabeNr}
                                     name="Preis"
                                     error={errors.Preis?.message}
-                                    startAuswahl={vorgabe ? 'custom' : undefined}
+                                    startAuswahl={vorgabe ? (vorgabe.Preis_ID ? String(vorgabe.Preis_ID) : 'custom') : undefined}
                                     gesperrt={preisGesperrt}
                                 />
                             </Suspense>

@@ -49,13 +49,13 @@ export default function MaterialBearbeitenDialog({ verleih, material, bezeichnun
                         preisGesperrt={bezahlt}
                         kundeId={verleih.Kunde_ID}
                         onSpeichern={async (eingabe) => {
-                            const { Preis, schuhAnzeige, ...werte } = eingabe;
+                            const { Preis, Preis_ID, schuhAnzeige, ...werte } = eingabe;
                             void schuhAnzeige;
                             const daten: MaterialDaten = {
                                 ...werte,
                                 // Leere Schuh-Nr. entfernt den Schuh
                                 schuhnr: werte.schuhnr ?? null,
-                                ...(bezahlt ? {} : { Preis }),
+                                ...(bezahlt ? {} : { Preis, Preis_ID }),
                             };
                             const antwort = await aendereMaterial(verleih.ID, material.ID, daten);
                             if (!antwort.success) return antwort.error;

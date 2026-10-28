@@ -171,6 +171,8 @@ export type SkistockArray = z.infer<typeof SkistockArraySchema>;
 // Für MaterialEingabe
 export const MaterialSchema = z.object({
   Preis: z.number().positive('Bitte wählen oder geben Sie einen Preis ein'),
+  // Gewählter Preis aus der Preisliste, null bei individuellem Preis
+  Preis_ID: z.number().nullable(),
   skinr: z.string(),
   stockbez_ID: z.number(),
   stocklaenge: z.number(),
@@ -209,6 +211,9 @@ export const MaterialReadSchema = z.object({
   schuhnr: z.number().optional().nullable(),
   Schuh: SchuhSchema.optional().nullable(),
   Preis: z.number(),
+  Preis_ID: z.number().nullish(),
+  // Bezeichnung des gebuchten Preises, z.B. "Erwachsene Ski-Set"
+  PreisBezeichnung: z.string().nullish(),
   SkiFahrerName: z.string().optional().nullable(),
   bindungsdaten: BindungsdatenReadSchema.nullish(),
   // Bindung des Leihski von der Werkstatt geprüft
