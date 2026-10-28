@@ -12,10 +12,12 @@ import VerleihAktionen, { istVerleihBezahlt } from "../bearbeiten/VerleihAktione
 import SaisonverleihCardBezahlt from "../liste/SaisonverleihCardBezahlt";
 import SaisonverleihCardStatus from "../liste/SaisonverleihCardStatus";
 import VerleihArtBadge from "../liste/VerleihArtBadge";
+import VerleihBenachrichtigtBadge from "../liste/VerleihBenachrichtigtBadge";
 import EtikettenDruckButton from "./EtikettenDruckButton";
 import { AlleBindungenPruefenButton } from "./MaterialBindungPruefen";
 import SaisonVerleiAnzeigeMaterial from "./Material";
 import SaisonVerleiAnzeigePDFButton from "./UebersichtPDFButton";
+import VerleihBenachrichtigungAktion from "./VerleihBenachrichtigungAktion";
 import VerleihStatusAktion from "./VerleihStatusAktion";
 
 type SaisonVeliAnzeigeUebersichtProps = {
@@ -54,6 +56,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID, hervorh
                     <>
                         <VerleihArtBadge art={verleih.Art} startAm={verleih.Start_Am} endeAm={verleih.Ende_Am} />
                         <SaisonverleihCardStatus status={verleih.Status} />
+                        <VerleihBenachrichtigtBadge benachrichtigt={verleih.Benachrichtigt} am={verleih.Benachrichtigt_Am} />
                         <SaisonverleihCardBezahlt bezahlt={verleih.Bezahlt} />
                     </>
                 }
@@ -62,6 +65,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID, hervorh
                     <div className="flex flex-wrap items-start gap-2 sm:justify-end">
                         <AlleBindungenPruefenButton verleih={verleih} />
                         <VerleihStatusAktion verleihId={verleih.ID} status={verleih.Status} />
+                        <VerleihBenachrichtigungAktion verleih={verleih} />
                     </div>
                 }
             />

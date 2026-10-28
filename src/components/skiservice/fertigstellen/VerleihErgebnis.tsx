@@ -8,6 +8,7 @@ import { BadgeCheck, Check, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SaisonverleihCardStatus, { STATUS_ANZEIGE } from "@/components/saisonverleih/liste/SaisonverleihCardStatus";
 import VerleihArtBadge from "@/components/saisonverleih/liste/VerleihArtBadge";
+import VerleihBenachrichtigtBadge from "@/components/saisonverleih/liste/VerleihBenachrichtigtBadge";
 import { useVerleihAktualisieren } from "@/components/saisonverleih/bearbeiten/useVerleihAktualisieren";
 import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
 import { pruefeVerleihBindungen } from "@/lib/bearbeitenactions";
@@ -55,6 +56,7 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz }: Verle
 
     function bindungGeprueft() {
         const statusVorher = verleih!.Status;
+        const benachrichtigtVorher = verleih!.Benachrichtigt;
         startTransition(async () => {
             const antwort = await pruefeVerleihBindungen(verleihId, offen);
             if (!antwort.success) {
@@ -64,7 +66,9 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz }: Verle
             aktualisieren(antwort.data);
             setAusgewaehlt([]);
             const wechsel = antwort.data.Status !== statusVorher ? ` · Verleih ist jetzt „${STATUS_ANZEIGE[antwort.data.Status].text}“` : "";
-            setMeldung({ ok: true, text: `${offen.length === 1 ? "Bindung" : `${offen.length} Bindungen`} geprüft${wechsel}` });
+            // Beim Wechsel auf "vorbereitet" geht die Abhol-Mail automatisch raus
+            const mail = benachrichtigtVorher === "nein" && antwort.data.Benachrichtigt === "abholung" ? " · Kunde per Mail zur Abholung benachrichtigt" : "";
+            setMeldung({ ok: true, text: `${offen.length === 1 ? "Bindung" : `${offen.length} Bindungen`} geprüft${wechsel}${mail}` });
         });
     }
 
@@ -81,6 +85,7 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz }: Verle
                     <div className="flex flex-wrap gap-2">
                         <VerleihArtBadge art={verleih.Art} startAm={verleih.Start_Am} endeAm={verleih.Ende_Am} />
                         <SaisonverleihCardStatus status={verleih.Status} />
+                        <VerleihBenachrichtigtBadge benachrichtigt={verleih.Benachrichtigt} am={verleih.Benachrichtigt_Am} />
                     </div>
                 </div>
                 <Button asChild variant="outline" className="h-10">

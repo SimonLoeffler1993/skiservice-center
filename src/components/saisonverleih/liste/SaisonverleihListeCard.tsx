@@ -6,6 +6,7 @@ import { SaisonverleihRead } from "@/types/saisonverleihtypes";
 import SaisonverleihCardBezahlt from "./SaisonverleihCardBezahlt";
 import SaisonverleihCardStatus from "./SaisonverleihCardStatus";
 import VerleihArtBadge from "./VerleihArtBadge";
+import VerleihBenachrichtigtBadge from "./VerleihBenachrichtigtBadge";
 
 type SaisonverleihListeCardProps = {
     saisonverleih: SaisonverleihRead;
@@ -31,6 +32,8 @@ export default function SaisonverleihListeCard({ saisonverleih: verleih }: Saiso
     const geprueft = mitSki.filter((m) => m.BindungGeprueft).length;
     // Bindungsfortschritt nur, solange der Verleih vorbereitet wird
     const zeigeBindung = mitSki.length > 0 && (verleih.Status === "vorbereitung" || verleih.Status === "vorbereitet");
+    // "Nicht benachrichtigt" nur, wenn der Verleih abholbereit ist
+    const zeigeBenachrichtigt = verleih.Benachrichtigt !== "nein" || verleih.Status === "vorbereitet";
     const kunde = [verleih.Kunde?.Nachname, verleih.Kunde?.Vorname].filter(Boolean).join(", ");
 
     return (
@@ -54,7 +57,10 @@ export default function SaisonverleihListeCard({ saisonverleih: verleih }: Saiso
                 )}
             </div>
             <div className="flex items-center justify-between gap-2 pt-1">
-                <SaisonverleihCardBezahlt bezahlt={verleih.Bezahlt} />
+                <div className="flex flex-wrap items-center gap-2">
+                    <SaisonverleihCardBezahlt bezahlt={verleih.Bezahlt} />
+                    {zeigeBenachrichtigt && <VerleihBenachrichtigtBadge benachrichtigt={verleih.Benachrichtigt} am={verleih.Benachrichtigt_Am} />}
+                </div>
                 <span className="shrink-0 font-semibold tabular-nums">{euro.format(gesamt)}</span>
             </div>
         </ListenKarte>

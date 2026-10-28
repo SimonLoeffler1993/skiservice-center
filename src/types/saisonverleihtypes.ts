@@ -43,6 +43,10 @@ export type VerleihArt = z.infer<typeof VerleihArtSchema>;
 export const VerleihStatusSchema = z.enum(["vorbereitung", "vorbereitet", "unterwegs", "zurueck"]);
 export type VerleihStatus = z.infer<typeof VerleihStatusSchema>;
 
+// Benachrichtigung des Kunden: nein, abholung (Ski abholbereit) oder rueckgabe (Erinnerung)
+export const VerleihBenachrichtigungSchema = z.enum(["nein", "abholung", "rueckgabe"]);
+export type VerleihBenachrichtigung = z.infer<typeof VerleihBenachrichtigungSchema>;
+
 export const SaisonVerleihSchema = z.object({
     ID: z.number().int(),
     Kunde_ID: z.number().int(),
@@ -53,6 +57,8 @@ export const SaisonVerleihSchema = z.object({
     Zurueck_Am: z.string().date().optional().nullable(),
     Status: VerleihStatusSchema.default("unterwegs"),
     Abgeholt_Am: z.string().date().nullish(),
+    Benachrichtigt: VerleihBenachrichtigungSchema.default("nein"),
+    Benachrichtigt_Am: z.string().date().nullish(),
     Bemerkung: z.string().nullish(),
     Saison_ID: z.number().int(), //nur wen es abweicht von der aktuellen Saison
     Abgerechnet: z.number().int().optional().nullable(),
