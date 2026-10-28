@@ -23,7 +23,8 @@ export type SkiDaten = {
     trotz_belegung?: boolean;
 };
 
-export async function aendereAuftrag(auftragId: number, daten: { kunden_id?: number; abhol_date?: string }): Promise<ApiAntwort<Auftrag>> {
+// benachrichtigt: Kunde von Hand informiert (z.B. angerufen), false nimmt das zurück
+export async function aendereAuftrag(auftragId: number, daten: { kunden_id?: number; abhol_date?: string; benachrichtigt?: boolean }): Promise<ApiAntwort<Auftrag>> {
     return anfrage(`/skiservice/auftrag/${auftragId}`, "PATCH", AuftragSchema, "Auftrag konnte nicht geändert werden.", daten);
 }
 
