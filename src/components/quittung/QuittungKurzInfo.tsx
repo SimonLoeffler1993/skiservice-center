@@ -3,12 +3,15 @@
 import { AlertTriangleIcon } from "lucide-react"
 
 import QuittungBezahlInfo from "./QuittungBezahlInfo";
+import { QuittungZiel } from "@/lib/quittungactions";
 
 type QuttungsProps = {
     quittungID: number | null | undefined;
+    // Verleih bzw. Auftrag, zu dem die Quittung gehört (zum Ändern oder Aufheben der Zuweisung)
+    ziel?: QuittungZiel;
 }
 
-export default function QuittungKurzInfo({ quittungID }: QuttungsProps) {
+export default function QuittungKurzInfo({ quittungID, ziel }: QuttungsProps) {
     // Wenn es keine QuittungID gibt
     if (!quittungID) {
         return (
@@ -20,5 +23,5 @@ export default function QuittungKurzInfo({ quittungID }: QuttungsProps) {
     }
 
     // Wenn es ein QuittungID gibt
-    return <QuittungBezahlInfo quittungID={quittungID} />;
+    return <QuittungBezahlInfo quittungID={quittungID} ziel={ziel} />;
 }

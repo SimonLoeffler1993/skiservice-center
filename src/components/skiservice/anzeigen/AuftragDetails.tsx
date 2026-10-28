@@ -76,7 +76,7 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID, 
                 <aside className="grid grid-cols-1 items-start gap-4 md:order-1 md:grid-cols-2 lg:order-2 lg:grid-cols-1">
                     <KundeForm kunde={auftrag.kunde} />
                     <DetailKarte titel="Quittung" icon={Receipt}>
-                        <QuittungKurzInfo quittungID={auftrag.quittung_id} />
+                        <QuittungKurzInfo quittungID={auftrag.quittung_id} ziel={{ art: "auftrag", id: auftrag.id }} />
                     </DetailKarte>
                 </aside>
             </div>

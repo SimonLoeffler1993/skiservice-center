@@ -6,6 +6,7 @@ import { anfrage } from "./apianfrage";
 import { ApiAntwort } from "@/types/actiontypes";
 import { Beleg } from "@/types/belegetypes";
 import { LexPages } from "@/types/pagestypes";
+import { z } from "zod";
 
 export async function getQuittung(quittungID: number): Promise<QuittungRead | null> {
     const response = await fetch(`${config.backendUrl}/api/v1/quittungen/quittung/${quittungID}?bezahlinfo=true`);
@@ -39,13 +40,15 @@ export async function getQuittungsBelegeListe(page: number = 0): Promise<LexPage
 // Wem die externe Quittung zugewiesen wird
 export type QuittungZiel = { art: "verleih" | "auftrag"; id: number };
 
-export async function setExQuittungBeleg(lexBelegID: string, ziel: QuittungZiel): Promise<{ success: boolean; error?: string }> {
+// ersetzen: bereits von Hand zugewiesenen Beleg ändern (z.B. nach einem Vertipper)
+export async function setExQuittungBeleg(lexBelegID: string, ziel: QuittungZiel, ersetzen = false): Promise<{ success: boolean; error?: string }> {
     try {
         const response = await fetch(`${config.backendUrl}/api/v1/quittungen/quittung/nurextern`, {
             method: "POST",
             body: JSON.stringify({
                 ...(ziel.art === "verleih" ? { SaisonverleihID: ziel.id } : { AuftragID: ziel.id }),
-                LexOfficeID: lexBelegID
+                LexOfficeID: lexBelegID,
+                ersetzen,
             }),
             headers: {
                 "Content-Type": "application/json"
@@ -61,6 +64,12 @@ export async function setExQuittungBeleg(lexBelegID: string, ziel: QuittungZiel)
         return { success: false, error: "Server nicht erreichbar." };
     }
 }
+// Von Hand zugewiesenen Lexware-Beleg wieder lösen, der Beleg in Lexware bleibt unverändert
+export async function hebeQuittungZuweisungAuf(ziel: QuittungZiel): Promise<ApiAntwort<{ erfolgreich: boolean }>> {
+    const parameter = ziel.art === "verleih" ? `SaisonverleihID=${ziel.id}` : `AuftragID=${ziel.id}`;
+    return anfrage(`/quittungen/quittung/zuweisung?${parameter}`, "DELETE", z.object({ erfolgreich: z.boolean() }), "Die Zuweisung konnte nicht aufgehoben werden.");
+}
+
 // Eigene Quittung als Beleg mit PDF nach Lexware hochladen
 export async function quittungNachLexware(quittungID: number): Promise<ApiAntwort<QuittungRead>> {
     return anfrage(`/quittungen/quittung/${quittungID}/lexware`, "POST", QuittungReadSchema, "Quittung konnte nicht an Lexware übertragen werden.");
