@@ -13,6 +13,7 @@ import KundeSuchErgebnisseTabelle from "./KundeSuchErgebnisseTabelle";
 import KundeForm from "@/components/kunde/KundeForm";
 import KundeErfassenDialog from "@/components/kunde/KundeErfassenDialog";
 import { useKundeStore } from "@/stores/useKundeStore";
+import LetzteKunden, { LetzteKundenButton, useLetzteKunden } from "./LetzteKunden";
 
 type KundeSuchFormProps = {
     onKundeSelected?: (kunde: Kunde) => void;
@@ -36,17 +37,22 @@ export default function KundeSuchForm({ onKundeSelected }: KundeSuchFormProps = 
     const [ausgewaehlterKunde, setAusgewaehlterKunde] = useState<Kunde | null>(null);
     // Letzte Suche, zur Vorbelegung beim Neuanlegen
     const [suche, setSuche] = useState<SkiSuchKunde>({ Vorname: "", Nachname: "" });
+    // Zuletzt angelegte Kunden (z.B. vom Kundenterminal), nicht gleichzeitig mit den Suchergebnissen
+    const letzteKunden = useLetzteKunden();
+    const [letzteOffen, setLetzteOffen] = useState(false);
 
     // Ergebnis direkt aus der Server Action (dort bereits mit kundenArraySchema geprüft)
     const suchErgebnis = state?.success ? state.data : null;
     const suchFehler = state && !state.success ? ("error" in state && typeof state.error === "string" ? state.error : "Fehler beim Suchen") : null;
 
     function onSubmit(data: SkiSuchKunde) {
+        setLetzteOffen(false);
         setSuche(data);
         startTransition(() => action(data));
     }
 
     function onKundeAuswaehlen(kunde: Kunde) {
+        setLetzteOffen(false);
         setKunde(kunde);
         setAusgewaehlterKunde(kunde);
         onKundeSelected?.(kunde);
@@ -56,7 +62,7 @@ export default function KundeSuchForm({ onKundeSelected }: KundeSuchFormProps = 
         <div>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
                 {/* Handy untereinander, ab Tablet nebeneinander mit dem Button unten bündig */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto_auto_auto] sm:items-end">
                     <div className="space-y-1.5">
                         <Label htmlFor="vorname">Vorname</Label>
                         <Input id="vorname" className="h-10" autoComplete="off" {...register("Vorname")} />
@@ -76,12 +82,20 @@ export default function KundeSuchForm({ onKundeSelected }: KundeSuchFormProps = 
                         beschriftung="Neuer Kunde"
                         buttonClassName="h-10"
                     />
+                    <LetzteKundenButton
+                        isPending={letzteKunden.isPending}
+                        onClick={() => {
+                            setLetzteOffen(true);
+                            letzteKunden.laden();
+                        }}
+                    />
                 </div>
                 {errors.Vorname && <p className="text-sm text-destructive">{errors.Vorname.message}</p>}
                 {suchFehler && <p className="text-sm text-destructive">{suchFehler}</p>}
             </form>
             {/* Ergebnisse erst nach einer Suche */}
-            {!isPending && state?.success && <KundeSuchErgebnisseTabelle daten={suchErgebnis} suche={suche} onKundeAuswaehlen={onKundeAuswaehlen} />}
+            <LetzteKunden offen={letzteOffen} setOffen={setLetzteOffen} onKundeAuswaehlen={onKundeAuswaehlen} {...letzteKunden} />
+            {!letzteOffen && !isPending && state?.success && <KundeSuchErgebnisseTabelle daten={suchErgebnis} suche={suche} onKundeAuswaehlen={onKundeAuswaehlen} />}
             {ausgewaehlterKunde && <KundeForm kunde={ausgewaehlterKunde} />}
         </div>
     );

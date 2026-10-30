@@ -77,3 +77,13 @@ export async function kundeAendern(id: number, daten: KundeErfassen): Promise<Ap
     if (!antwort.data.success) return { success: false, error: "Kunde konnte nicht gespeichert werden." };
     return anfrage(`/kunden/${id}`, "GET", kundeSchema, "Kunde wurde gespeichert, konnte aber nicht neu geladen werden.");
 }
+
+// Zuletzt angelegte Kunden (z.B. gerade am Kundenterminal erfasst), Anzahl aus den Einstellungen
+export async function holeLetzteKunden(): Promise<ApiAntwort<Kunde[]>> {
+    return anfrage("/kunden/letzte", "GET", kundenArraySchema, "Letzte Kunden konnten nicht geladen werden.");
+}
+
+// Kunde neu laden, z.B. nachdem er seine Daten am Kundenterminal geändert hat
+export async function holeKunde(id: number): Promise<ApiAntwort<Kunde>> {
+    return anfrage(`/kunden/${id}`, "GET", kundeSchema, "Kunde konnte nicht geladen werden.");
+}

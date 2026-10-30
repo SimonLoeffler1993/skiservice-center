@@ -15,16 +15,16 @@ type KundeSuchErgebnisseTabelleProps = {
     onKundeAuswaehlen?: (kunde: Kunde) => void;
 };
 
-function name(kunde: Kunde) {
+export function name(kunde: Kunde) {
     return [kunde.Nachname, kunde.Vorname].filter((teil) => teil?.trim()).join(", ") || "–";
 }
 
-function adresse(kunde: Kunde) {
+export function adresse(kunde: Kunde) {
     const ort = kunde.Ort ? `${kunde.Ort.Postlz} ${kunde.Ort.Ort}` : "";
     return [kunde.Strasse, ort].filter((teil) => teil?.trim()).join(", ") || "–";
 }
 
-function telefon(kunde: Kunde) {
+export function telefon(kunde: Kunde) {
     return kunde.Tel?.trim() || kunde.Handy?.trim() || "–";
 }
 
