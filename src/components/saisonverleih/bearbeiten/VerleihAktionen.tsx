@@ -4,10 +4,12 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 import LoeschenDialog from "@/components/bearbeiten/LoeschenDialog";
-import { loescheVerleih } from "@/lib/bearbeitenactions";
+import BezahltUmschalten from "@/components/bearbeiten/BezahltUmschalten";
+import { loescheVerleih, setzeVerleihBezahlt } from "@/lib/bearbeitenactions";
 import { SaisonverleihRead } from "@/types/saisonverleihtypes";
 import MaterialHinzufuegenDialog from "./MaterialHinzufuegenDialog";
 import VerleihBearbeitenDialog from "./VerleihBearbeitenDialog";
+import { useVerleihAktualisieren } from "./useVerleihAktualisieren";
 
 type VerleihAktionenProps = {
     verleih: SaisonverleihRead;
@@ -23,12 +25,24 @@ export function istVerleihBezahlt(verleih: SaisonverleihRead) {
 export default function VerleihAktionen({ verleih, children }: VerleihAktionenProps) {
     const router = useRouter();
     const queryClient = useQueryClient();
+    const aktualisieren = useVerleihAktualisieren(verleih.ID);
     const bezahlt = istVerleihBezahlt(verleih);
 
     return (
         <>
             <VerleihBearbeitenDialog verleih={verleih} bezahlt={bezahlt} />
             <MaterialHinzufuegenDialog verleih={verleih} bezahlt={bezahlt} />
+            <BezahltUmschalten
+                bezahlt={verleih.Bezahlt === 1}
+                hatQuittung={verleih.QuittungID != null}
+                bezeichnung="Verleih"
+                onSetzen={async (wert, mitQuittung) => {
+                    const antwort = await setzeVerleihBezahlt(verleih.ID, wert, mitQuittung);
+                    if (!antwort.success) return antwort.error;
+                    aktualisieren(antwort.data);
+                    return null;
+                }}
+            />
             {children}
             <div className="sm:ml-auto">
                 <LoeschenDialog

@@ -47,6 +47,8 @@ export const QuittungReadSchema = QuittungBaseSchema.extend({
     ManuellZugewiesen: z.boolean().default(false),
     // Aktuelle Lexware Übertragung, null wenn aus
     LexwareModus: z.enum(["pdf", "rechnung"]).nullish(),
+    // Bezahlt-Status wurde beim Laden aus Lexware in die Datenbank übernommen
+    StatusAktualisiert: z.boolean().default(false),
 })
 
 // TypeScript Typen aus den Schemas ableiten

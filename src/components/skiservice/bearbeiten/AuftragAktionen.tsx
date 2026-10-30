@@ -10,7 +10,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import LoeschenDialog from "@/components/bearbeiten/LoeschenDialog";
-import { aendereAuftrag, loescheAuftrag } from "@/lib/bearbeitenactions";
+import BezahltUmschalten from "@/components/bearbeiten/BezahltUmschalten";
+import { aendereAuftrag, loescheAuftrag, setzeAuftragBezahlt } from "@/lib/bearbeitenactions";
 import { Auftrag } from "@/types/skiservicetypes";
 import SkiFormDialog from "./SkiFormDialog";
 import FertigMailDialog from "./FertigMailDialog";
@@ -101,6 +102,19 @@ export default function AuftragAktionen({ auftrag, children }: AuftragAktionenPr
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <BezahltUmschalten
+                bezahlt={auftrag.bezahlt === "ja"}
+                hatQuittung={auftrag.quittung_id != null}
+                bezeichnung="Auftrag"
+                onSetzen={async (wert, mitQuittung) => {
+                    const antwort = await setzeAuftragBezahlt(auftrag.id, wert, mitQuittung);
+                    if (!antwort.success) return antwort.error;
+                    aktualisieren(antwort.data);
+                    queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
+                    return null;
+                }}
+            />
 
             {children}
 
