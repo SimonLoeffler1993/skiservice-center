@@ -10,6 +10,7 @@ import { auftragDetailsOptions } from "@/hooks/useAuftragDetailsOptions";
 import { Auftrag, Ski } from "@/types/skiservicetypes";
 import { AuftragBezahlt } from "../anzeigen/AuftragBezahlt";
 import { AuftragStatus } from "../anzeigen/AuftragStatus";
+import BenachrichtigtButton from "../bearbeiten/BenachrichtigtButton";
 import ScanMeldung, { Meldung } from "./ScanMeldung";
 import SkiAuswahlZeile from "./SkiAuswahlZeile";
 
@@ -84,18 +85,22 @@ export default function ServiceErgebnis({ auftragId, skiId, aktionen }: ServiceE
             </section>
 
             {ohneEmail && (
-                <p className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+                <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
                     <MailX className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span>
-                        <span className="font-medium">Keine E-Mail hinterlegt</span> – der Kunde wird beim Fertigstellen nicht automatisch benachrichtigt.
-                        {telefon && (
-                            <>
-                                {" "}Bitte anrufen:{" "}
-                                <a href={`tel:${telefon.replace(/\s/g, "")}`} className="font-medium underline underline-offset-2">{telefon}</a>
-                            </>
-                        )}
-                    </span>
-                </p>
+                    <div className="space-y-2">
+                        <p>
+                            <span className="font-medium">Keine E-Mail hinterlegt</span> – der Kunde wird beim Fertigstellen nicht automatisch benachrichtigt.
+                            {telefon && (
+                                <>
+                                    {" "}Bitte anrufen:{" "}
+                                    <a href={`tel:${telefon.replace(/\s/g, "")}`} className="font-medium underline underline-offset-2">{telefon}</a>
+                                </>
+                            )}
+                        </p>
+                        {/* Nach dem Anruf direkt als benachrichtigt markieren */}
+                        <BenachrichtigtButton auftrag={auftrag} nurMarkieren />
+                    </div>
+                </div>
             )}
 
             {/* Ski zum Auswählen */}

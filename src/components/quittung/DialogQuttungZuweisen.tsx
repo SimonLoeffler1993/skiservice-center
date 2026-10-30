@@ -12,6 +12,7 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog";
 import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
+import { quittungOptions } from "@/hooks/useQuittungOptions";
 import { auftragDetailsOptions } from "@/hooks/useAuftragDetailsOptions";
 import { QuittungZiel, setExQuittungBeleg } from "@/lib/quittungactions";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,9 +22,14 @@ import { useRef, useState, useTransition } from "react";
 type DialogQuittungZuweisenProps = {
     // Saisonverleih oder Skiservice-Auftrag
     ziel: QuittungZiel;
+    // Bestehende, von Hand zugewiesene Quittung ändern (diese Quittung wird danach neu geladen)
+    ersetzen?: { quittungID: number };
+    // Eigener Auslöser, ohne Angabe der Button "Quittung zuweisen"
+    trigger?: React.ReactNode;
 }
 
-export default function DialogQuittungZuweisen({ ziel }: DialogQuittungZuweisenProps) {
+export default function DialogQuittungZuweisen({ ziel, ersetzen, trigger }: DialogQuittungZuweisenProps) {
+    const titel = ersetzen ? "Quittung ändern" : "Quittung zuweisen";
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -44,14 +50,15 @@ export default function DialogQuittungZuweisen({ ziel }: DialogQuittungZuweisenP
         }
 
         startTransition(async () => {
-            const result = await setExQuittungBeleg(selectedVoucherNumber, ziel)
+            const result = await setExQuittungBeleg(selectedVoucherNumber, ziel, !!ersetzen)
             if (!result.success) {
                 setFehler(result.error ?? "Die Quittung konnte nicht zugewiesen werden.")
                 return
             }
             setFehler(null)
             setOpen(false)
-            // Detailansicht und Liste neu laden
+            // Detailansicht und Liste neu laden, beim Ändern auch die Quittung selbst
+            if (ersetzen) queryClient.invalidateQueries(quittungOptions(ersetzen.quittungID));
             if (ziel.art === "verleih") {
                 queryClient.invalidateQueries(saisonverleihDetailsOptions(ziel.id));
                 queryClient.invalidateQueries({ queryKey: ["saisonverleihList"] });
@@ -65,13 +72,15 @@ export default function DialogQuittungZuweisen({ ziel }: DialogQuittungZuweisenP
     return (
         <Dialog open={open} onOpenChange={(wert) => { setOpen(wert); setFehler(null); }}>
             <DialogTrigger asChild>
-                <Button variant="outline">Quittung zuweisen</Button>
+                {trigger ?? <Button variant="outline">Quittung zuweisen</Button>}
             </DialogTrigger>
             <DialogContent className="flex flex-col max-h-[80vh]">
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4 min-h-0 flex-1">
                     <DialogHeader>
-                        <DialogTitle>Quittung zuweisen</DialogTitle>
-                        <DialogDescription>Wähle einen Beleg aus der Liste aus.</DialogDescription>
+                        <DialogTitle>{titel}</DialogTitle>
+                        <DialogDescription>
+                            {ersetzen ? "Wähle den richtigen Beleg aus der Liste aus. Er ersetzt den bisher zugewiesenen." : "Wähle einen Beleg aus der Liste aus."}
+                        </DialogDescription>
                     </DialogHeader>
 
                     <div ref={scrollContainerRef} className="overflow-y-auto flex-1 min-h-0 px-1 pb-2">
@@ -85,7 +94,7 @@ export default function DialogQuittungZuweisen({ ziel }: DialogQuittungZuweisenP
                             Abbrechen
                         </Button>
                         <Button type="submit" disabled={isPending}>
-                            {isPending ? "Zuweisen..." : "Zuweisen"}
+                            {isPending ? "Speichern..." : ersetzen ? "Ändern" : "Zuweisen"}
                         </Button>
                     </DialogFooter>
                 </form>

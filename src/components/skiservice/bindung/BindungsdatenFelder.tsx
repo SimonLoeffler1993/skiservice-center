@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BindungsdatenEingabe, FAHRKOENNEN_TEXT, groesseZuCm, LEERE_BINDUNGSDATEN, cmZuMeterText } from "@/types/bindungsdatentypes";
+import { BindungsdatenEingabe, FAHRERTYPEN, FAHRKOENNEN_TEXT, groesseZuCm, hatBindungswerte, LEERE_BINDUNGSDATEN, cmZuMeterText } from "@/types/bindungsdatentypes";
 import LetzteBindungsdatenDialog from "./LetzteBindungsdatenDialog";
 
 type BindungsdatenFelderProps = {
@@ -29,8 +30,12 @@ export default function BindungsdatenFelder({ idPrefix, wert, onChange, kundeId,
     const daten = wert ?? LEERE_BINDUNGSDATEN;
     const [hinweis, setHinweis] = useState<string | null>(null);
 
+    const mitWerten = hatBindungswerte(daten);
+
+    // Geänderte Werte müssen vom Kunden neu bestätigt werden
     function aendern(feld: keyof BindungsdatenEingabe, neu: string) {
-        onChange({ ...daten, [feld]: neu });
+        if (daten[feld] === neu) return;
+        onChange({ ...daten, [feld]: neu, bestaetigt: false });
     }
 
     // Größe beim Verlassen des Feldes als Meter anzeigen, z.B. "180" -> "1,80"
@@ -51,7 +56,8 @@ export default function BindungsdatenFelder({ idPrefix, wert, onChange, kundeId,
                     kundeId={kundeId}
                     deaktiviert={deaktiviert}
                     onUebernehmen={(eingabe, text) => {
-                        onChange(eingabe);
+                        // Übernommene Werte bestätigt der Kunde für diesen Auftrag neu
+                        onChange({ ...eingabe, bestaetigt: false });
                         setHinweis(text);
                     }}
                 />
@@ -83,7 +89,7 @@ export default function BindungsdatenFelder({ idPrefix, wert, onChange, kundeId,
                     </div>
                 ))}
                 <div className="col-span-2 space-y-1 @md:col-span-1">
-                    <Label htmlFor={`${idPrefix}-fahrkoennen`} className="text-xs">Fahrkönnen</Label>
+                    <Label htmlFor={`${idPrefix}-fahrkoennen`} className="text-xs">Fahrertyp</Label>
                     <Select
                         value={daten.Fahrkoennen}
                         onValueChange={(neu) => aendern("Fahrkoennen", neu === "leer" ? "" : neu)}
@@ -94,8 +100,8 @@ export default function BindungsdatenFelder({ idPrefix, wert, onChange, kundeId,
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="leer">keine Angabe</SelectItem>
-                            {Object.entries(FAHRKOENNEN_TEXT).map(([typ, text]) => (
-                                <SelectItem key={typ} value={typ}>{text}</SelectItem>
+                            {FAHRERTYPEN.map((typ) => (
+                                <SelectItem key={typ} value={typ}>{FAHRKOENNEN_TEXT[typ]}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
@@ -103,6 +109,25 @@ export default function BindungsdatenFelder({ idPrefix, wert, onChange, kundeId,
             </div>
             {hinweis && daten.vorlage_id !== undefined && (
                 <p className="text-xs text-muted-foreground">{hinweis}</p>
+            )}
+            {/* Pflicht, sobald ein Wert angegeben ist: der Kunde hat die Angaben geprüft */}
+            {mitWerten && (
+                <label
+                    htmlFor={`${idPrefix}-bestaetigt`}
+                    className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm ${daten.bestaetigt ? "border-green-200 bg-green-50 text-green-800" : "border-amber-300 bg-amber-50 text-amber-900"}`}
+                >
+                    <Checkbox
+                        id={`${idPrefix}-bestaetigt`}
+                        checked={daten.bestaetigt}
+                        onCheckedChange={(wert) => onChange({ ...daten, bestaetigt: wert === true })}
+                        disabled={deaktiviert}
+                        className="h-5 w-5"
+                    />
+                    <span>
+                        <span className="font-medium">Kunde hat die Angaben geprüft und bestätigt</span>
+                        {!daten.bestaetigt && <span className="block text-xs">Pflicht zum Speichern der Bindungsdaten</span>}
+                    </span>
+                </label>
             )}
         </div>
     );

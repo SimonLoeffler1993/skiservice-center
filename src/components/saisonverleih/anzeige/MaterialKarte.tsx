@@ -47,20 +47,26 @@ export default function MaterialKarte({ verleih, material, bezahlt, letztesMater
     return (
         <article ref={ref} className={cn("flex flex-col rounded-xl border bg-card", hervorgehoben && HERVORGEHOBEN_KLASSE)}>
             <div className="flex items-start justify-between gap-3 border-b px-4 py-3">
-                <p className="flex min-w-0 items-center gap-2 font-semibold">
-                    {material.SkiFahrerName ? (
-                        <User className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    ) : (
-                        <Package className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="min-w-0">
+                    <p className="flex min-w-0 items-center gap-2 font-semibold">
+                        {material.SkiFahrerName ? (
+                            <User className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        ) : (
+                            <Package className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        )}
+                        <span className="truncate">{bezeichnung}</span>
+                        {hervorgehoben && (
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary px-1.5 py-0.5 text-xs font-medium text-primary-foreground">
+                                <ScanLine className="h-3 w-3" />
+                                Gescannt
+                            </span>
+                        )}
+                    </p>
+                    {/* Gebuchter Preis aus der Preisliste */}
+                    {material.PreisBezeichnung && (
+                        <p className="truncate pl-6 text-sm text-muted-foreground">{material.PreisBezeichnung}</p>
                     )}
-                    <span className="truncate">{bezeichnung}</span>
-                    {hervorgehoben && (
-                        <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary px-1.5 py-0.5 text-xs font-medium text-primary-foreground">
-                            <ScanLine className="h-3 w-3" />
-                            Gescannt
-                        </span>
-                    )}
-                </p>
+                </div>
                 <div className="-my-1 -mr-2 flex shrink-0 items-center gap-1">
                     <span className="mr-1 font-semibold tabular-nums">{euro.format(material.Preis)}</span>
                     <MaterialAktionen verleih={verleih} material={material} bezeichnung={bezeichnung} bezahlt={bezahlt} letztesMaterial={letztesMaterial} />

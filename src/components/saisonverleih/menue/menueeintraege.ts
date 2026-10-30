@@ -1,5 +1,5 @@
 import {
-    CalendarDays, ClipboardList, Euro, List, type LucideIcon, Package, Receipt, ScanLine, Settings, Snowflake, Wrench,
+    CalendarDays, ClipboardList, Euro, List, type LucideIcon, Package, Receipt, ScanLine, Settings, ShoppingBag, Snowflake, Wrench,
 } from "lucide-react";
 
 export type MenueLink = {
@@ -31,8 +31,8 @@ export const MENUE_GRUPPEN: MenueGruppe[] = [
     {
         titel: "Skiservice",
         links: [
-            { titel: "Neu", href: "/skiservice/erstellen", icon: Wrench, kachelTitel: "Neuer Auftrag", beschreibung: "Skiservice-Auftrag für einen Kunden erfassen." },
-            { titel: "Anzeigen", href: "/skiservice/anzeigen", icon: ClipboardList, kachelTitel: "Alle Aufträge", beschreibung: "Aufträge der Saison ansehen und bearbeiten." },
+            { titel: "Neu", href: "/skiservice/erstellen", icon: Wrench, kachelTitel: "Neuer Skiservice", beschreibung: "Skiservice-Auftrag für einen Kunden erfassen." },
+            { titel: "Anzeigen", href: "/skiservice/anzeigen", icon: ClipboardList, kachelTitel: "Alle Skiservice", beschreibung: "Aufträge der Saison ansehen und bearbeiten." },
         ],
     },
     {
@@ -55,6 +55,7 @@ export const MENUE_GRUPPEN: MenueGruppe[] = [
         links: [
             { titel: "Material", href: "/material", icon: Package, kachelTitel: "Material", beschreibung: "Ski, Schuhe, Stöcke, Hersteller und Modelle." },
             { titel: "Preise", href: "/verwalten/preise", icon: Euro, kachelTitel: "Preise", beschreibung: "Preise für Skiservice und Saisonverleih." },
+            { titel: "Handware", href: "/verwalten/handware", icon: ShoppingBag, kachelTitel: "Handware", beschreibung: "Artikel für den Verkauf in der Kasse." },
             { titel: "Quittungen", href: "/verwalten/quittungen", icon: Receipt, kachelTitel: "Quittungen", beschreibung: "Alle Quittungen einer Saison." },
             { titel: "Einstellungen", href: "/verwalten/einstellungen", icon: Settings, kachelTitel: "Einstellungen", beschreibung: "Firma, Drucker, E-Mail und Lexware." },
         ],

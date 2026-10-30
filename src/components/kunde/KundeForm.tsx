@@ -1,8 +1,10 @@
 "use client";
 
-import { Mail, MapPin, Phone, Smartphone, X, type LucideIcon } from "lucide-react";
+import { useState, useTransition } from "react";
+import { Mail, MapPin, Phone, RefreshCw, Smartphone, X, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { holeKunde } from "@/lib/kundeactions";
 import { cn } from "@/lib/utils";
 import { Kunde } from "@/types/skikundentypes";
 import KundeErfassenDialog from "./KundeErfassenDialog";
@@ -36,6 +38,22 @@ function KontaktZeile({ icon: Icon, href, text, titel }: { icon: LucideIcon; hre
 
 // Kompakte Kundenkarte: Name, Anschrift und antippbare Kontakte
 export default function KundeForm({ kunde, onClose, onGeaendert, className }: KundeFormProps) {
+    const [ladeFehler, setLadeFehler] = useState<string | null>(null);
+    const [laedt, startTransition] = useTransition();
+
+    // Neu laden, z.B. nachdem der Kunde seine Daten am Kundenterminal geändert hat
+    function neuLaden() {
+        startTransition(async () => {
+            const antwort = await holeKunde(kunde.ID);
+            if (!antwort.success) {
+                setLadeFehler(antwort.error);
+                return;
+            }
+            setLadeFehler(null);
+            onGeaendert?.(antwort.data);
+        });
+    }
+
     const name = [kunde.Vorname, kunde.Nachname].filter((t) => t?.trim()).join(" ") || "Ohne Namen";
     const ort = kunde.Ort ? `${kunde.Ort.Postlz} ${kunde.Ort.Ort}` : "";
     const hatAnschrift = !!(kunde.Strasse?.trim() || ort);
@@ -61,6 +79,11 @@ export default function KundeForm({ kunde, onClose, onGeaendert, className }: Ku
                     </div>
                 </div>
                 <div className="ml-auto flex shrink-0 items-center gap-1">
+                    {onGeaendert && (
+                        <Button variant="ghost" size="icon" onClick={neuLaden} disabled={laedt} title="Neu laden">
+                            <RefreshCw className={cn("h-4 w-4", laedt && "animate-spin")} />
+                        </Button>
+                    )}
                     {onGeaendert && <KundeErfassenDialog kunde={kunde} onGespeichert={onGeaendert} />}
                     {onClose && (
                         <Button variant="ghost" size="icon" onClick={onClose} title="Schließen">
@@ -69,6 +92,8 @@ export default function KundeForm({ kunde, onClose, onGeaendert, className }: Ku
                     )}
                 </div>
             </div>
+
+            {ladeFehler && <p className="mt-2 text-sm text-destructive">{ladeFehler}</p>}
 
             <div className="mt-4 grid grid-cols-1 gap-4 @md:grid-cols-2">
                 <div className="flex gap-2 px-2 text-sm">

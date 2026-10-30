@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+// Fahrertyp mit Zwischenstufen, in dieser Reihenfolge in der Auswahl
+export const FAHRERTYPEN = ["1-", "1", "1+", "2-", "2", "2+", "3-", "3", "3+"] as const;
+export type Fahrertyp = (typeof FAHRERTYPEN)[number];
+
 // Werte wie sie die API erwartet und liefert, alles optional
 export const BindungsdatenSchema = z.object({
     Fahrer: z.string().max(100).nullable(),
@@ -9,9 +13,11 @@ export const BindungsdatenSchema = z.object({
     Gewicht: z.number().min(10).max(200).nullable(),
     // Größe in cm (1,80 m = 180)
     Groesse: z.number().int().min(80).max(230).nullable(),
-    // Typ 1 (vorsichtig) bis 3 (sportlich)
-    Fahrkoennen: z.number().int().min(1).max(3).nullable(),
+    // Typ 1- (sehr vorsichtig) bis 3+ (sehr sportlich)
+    Fahrkoennen: z.enum(FAHRERTYPEN).nullable(),
     Alter: z.number().int().min(2).max(100).nullable(),
+    // Nur beim Speichern: Kunde hat die Angaben geprüft und bestätigt
+    bestaetigt: z.boolean().optional(),
 });
 export type Bindungsdaten = z.infer<typeof BindungsdatenSchema>;
 
@@ -22,6 +28,8 @@ export const BindungsdatenReadSchema = BindungsdatenSchema.extend({
     Material_ID: z.number().int().nullish(),
     Erfasst_Am: z.iso.date(),
     Archiviert: z.boolean(),
+    // Datum der Bestätigung durch den Kunden, null wenn nicht bestätigt
+    Bestaetigt_Am: z.iso.date().nullish(),
 });
 export type BindungsdatenRead = z.infer<typeof BindungsdatenReadSchema>;
 
@@ -45,19 +53,34 @@ export type BindungsdatenEingabe = {
     Groesse: string;
     Fahrkoennen: string;
     Alter: string;
+    // Kunde hat die Angaben geprüft und bestätigt, Pflicht sobald ein Wert angegeben ist
+    bestaetigt: boolean;
     // Aus "Letzte Daten abfragen" übernommener Eintrag, wird beim Speichern archiviert
     vorlage_id?: number;
 };
 
 export const LEERE_BINDUNGSDATEN: BindungsdatenEingabe = {
-    Fahrer: "", Sohle: "", Gewicht: "", Groesse: "", Fahrkoennen: "", Alter: "",
+    Fahrer: "", Sohle: "", Gewicht: "", Groesse: "", Fahrkoennen: "", Alter: "", bestaetigt: false,
 };
 
-export const FAHRKOENNEN_TEXT: Record<number, string> = {
-    1: "Typ 1 – vorsichtig",
-    2: "Typ 2 – normal",
-    3: "Typ 3 – sportlich",
+// Anzeige in der Auswahl, Reihenfolge wie FAHRERTYPEN
+export const FAHRKOENNEN_TEXT: Record<Fahrertyp, string> = {
+    "1-": "Typ 1- – sehr vorsichtig",
+    "1": "Typ 1 – vorsichtig",
+    "1+": "Typ 1+",
+    "2-": "Typ 2-",
+    "2": "Typ 2 – normal",
+    "2+": "Typ 2+",
+    "3-": "Typ 3-",
+    "3": "Typ 3 – sportlich",
+    "3+": "Typ 3+ – sehr sportlich",
 };
+
+/** Ist mindestens ein Bindungswert eingetragen? Dann ist die Bestätigung durch den Kunden Pflicht. */
+export function hatBindungswerte(eingabe: BindungsdatenEingabe | undefined): boolean {
+    if (!eingabe) return false;
+    return [eingabe.Fahrer, eingabe.Sohle, eingabe.Gewicht, eingabe.Groesse, eingabe.Fahrkoennen, eingabe.Alter].some((wert) => wert.trim() !== "");
+}
 
 function zahl(text: string): number | null {
     const bereinigt = text.trim().replace(",", ".");
@@ -86,10 +109,9 @@ export function cmZuMeterText(cm: number): string {
     return (cm / 100).toFixed(2).replace(".", ",");
 }
 
-const GRENZEN: { feld: keyof Omit<Bindungsdaten, "Fahrer" | "Groesse">; name: string; min: number; max: number; ganz: boolean }[] = [
+const GRENZEN: { feld: "Sohle" | "Gewicht" | "Alter"; name: string; min: number; max: number; ganz: boolean }[] = [
     { feld: "Sohle", name: "Sohlenlänge (mm)", min: 150, max: 400, ganz: true },
     { feld: "Gewicht", name: "Gewicht (kg)", min: 10, max: 200, ganz: false },
-    { feld: "Fahrkoennen", name: "Fahrkönnen", min: 1, max: 3, ganz: true },
     { feld: "Alter", name: "Alter", min: 2, max: 100, ganz: true },
 ];
 
@@ -99,9 +121,14 @@ const GRENZEN: { feld: keyof Omit<Bindungsdaten, "Fahrer" | "Groesse">; name: st
  */
 export function zuBindungsdaten(eingabe: BindungsdatenEingabe | undefined): { daten: Bindungsdaten | null; fehler: string | null } {
     if (!eingabe) return { daten: null, fehler: null };
+    // Sobald ein Wert angegeben ist, muss der Kunde die Angaben bestätigen
+    if (hatBindungswerte(eingabe) && !eingabe.bestaetigt) {
+        return { daten: null, fehler: "Bitte bestätigen, dass der Kunde die Bindungsdaten geprüft hat." };
+    }
     const daten: Bindungsdaten = {
         Fahrer: eingabe.Fahrer.trim() || null,
-        Sohle: null, Gewicht: null, Groesse: null, Fahrkoennen: null, Alter: null,
+        Sohle: null, Gewicht: null, Groesse: null, Alter: null,
+        Fahrkoennen: (FAHRERTYPEN as readonly string[]).includes(eingabe.Fahrkoennen) ? (eingabe.Fahrkoennen as Fahrertyp) : null,
     };
     for (const { feld, name, min, max, ganz } of GRENZEN) {
         const wert = zahl(eingabe[feld]);
@@ -120,11 +147,11 @@ export function zuBindungsdaten(eingabe: BindungsdatenEingabe | undefined): { da
         daten.Groesse = groesse;
     }
     const leer = Object.values(daten).every((wert) => wert === null);
-    return { daten: leer ? null : daten, fehler: null };
+    return { daten: leer ? null : { ...daten, bestaetigt: eingabe.bestaetigt }, fehler: null };
 }
 
 /** Formularwerte aus gespeicherten Daten, z.B. zum Bearbeiten oder Übernehmen */
-export function zuEingabe(daten: Bindungsdaten | null | undefined): BindungsdatenEingabe {
+export function zuEingabe(daten: (Bindungsdaten & { Bestaetigt_Am?: string | null }) | null | undefined): BindungsdatenEingabe {
     if (!daten) return { ...LEERE_BINDUNGSDATEN };
     const text = (wert: number | null) => (wert === null ? "" : String(wert).replace(".", ","));
     return {
@@ -132,8 +159,9 @@ export function zuEingabe(daten: Bindungsdaten | null | undefined): Bindungsdate
         Sohle: text(daten.Sohle),
         Gewicht: text(daten.Gewicht),
         Groesse: daten.Groesse === null ? "" : cmZuMeterText(daten.Groesse),
-        Fahrkoennen: text(daten.Fahrkoennen),
+        Fahrkoennen: daten.Fahrkoennen ?? "",
         Alter: text(daten.Alter),
+        bestaetigt: !!daten.Bestaetigt_Am,
     };
 }
 

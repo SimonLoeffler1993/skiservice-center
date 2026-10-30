@@ -43,6 +43,8 @@ export const QuittungReadSchema = QuittungBaseSchema.extend({
     Nummer: z.string().nullish(),
     // Beleg existiert nur in Lexware (zugewiesen oder direkt als Rechnung angelegt)
     NurExtern: z.boolean().nullish(),
+    // Lexware-Beleg von Hand zugewiesen (nicht an der Kasse), kann geändert oder aufgehoben werden
+    ManuellZugewiesen: z.boolean().default(false),
     // Aktuelle Lexware Übertragung, null wenn aus
     LexwareModus: z.enum(["pdf", "rechnung"]).nullish(),
 })

@@ -4,15 +4,19 @@ import { useQuery } from "@tanstack/react-query";
 import { quittungOptions } from "@/hooks/useQuittungOptions";
 import QuittungsBetrag from "./QuittungsBetrag";
 import QuittungLexware from "./QuittungLexware";
+import QuittungZuweisungAktionen from "./QuittungZuweisungAktionen";
+import { QuittungZiel } from "@/lib/quittungactions";
 
 type QuittungBezahlInfoProps = {
     quittungID: number;
+    // Mit Angabe kann ein von Hand zugewiesener Beleg geändert oder aufgehoben werden
+    ziel?: QuittungZiel;
 }
 
 // TODO Bezahlt am 
 // TODO Datum Formatierung
 
-export default function QuittungBezahlInfo({ quittungID }: QuittungBezahlInfoProps) {
+export default function QuittungBezahlInfo({ quittungID, ziel }: QuittungBezahlInfoProps) {
     // useQuery statt useSuspenseQuery: Der Abruf läuft über eine Server Action und darf nicht
     // während des Renderns starten (sonst "Cannot update a component (Router) while rendering"),
     // z.B. direkt nach dem Zuweisen einer neuen Quittung.
@@ -38,6 +42,7 @@ export default function QuittungBezahlInfo({ quittungID }: QuittungBezahlInfoPro
                 <QuittungLexware quittung={quittung} />
             </div>
             <QuittungsBetrag quittungdata={quittung} />
+            {ziel && quittung.ManuellZugewiesen && <QuittungZuweisungAktionen quittungID={quittung.ID} ziel={ziel} />}
         </div>
 
     );

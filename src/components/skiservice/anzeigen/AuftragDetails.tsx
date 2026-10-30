@@ -8,6 +8,7 @@ import ButtonQuittungZuweisen from "@/components/quittung/ButtonQuittungZuweisen
 import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 import { auftragDetailsOptions } from "@/hooks/useAuftragDetailsOptions";
 import AuftragAktionen, { AlleFertigButton } from "../bearbeiten/AuftragAktionen";
+import BenachrichtigtButton, { istBenachrichtigt } from "../bearbeiten/BenachrichtigtButton";
 import SkiEttikettenDruckButton from "../SkiEttikettenDruckButton";
 import SkiListe from "../SkiListe";
 import { AuftragBenachrichtigt } from "./AuftragBenachrichtigt";
@@ -39,6 +40,8 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID, 
     const auftrag = skiserviceData.data;
     const kundenname = [auftrag.kunde.Vorname, auftrag.kunde.Nachname].filter(Boolean).join(" ");
     const bezahlt = auftrag.bezahlt === "ja" || auftrag.quittung_id != null;
+    // Fertig, aber noch nicht benachrichtigt: Button als Hauptaktion im Kopf statt in der Aktionsleiste
+    const jetztBenachrichtigen = auftrag.wie === "1" && !istBenachrichtigt(auftrag);
     const gesamt = auftrag.skis.reduce((summe, ski) => summe + ski.preis + (ski.bindung_check ? ski.bindung_preis : 0), 0);
 
     return (
@@ -56,12 +59,18 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID, 
                     </>
                 }
                 betrag={gesamt}
-                hauptaktion={<AlleFertigButton auftrag={auftrag} />}
+                hauptaktion={
+                    <div className="flex flex-wrap items-start gap-2 sm:justify-end">
+                        {jetztBenachrichtigen && <BenachrichtigtButton auftrag={auftrag} variant="default" />}
+                        <AlleFertigButton auftrag={auftrag} />
+                    </div>
+                }
             />
 
             <DetailAktionsleiste>
                 <AuftragAktionen auftrag={auftrag}>
                     <SkiEttikettenDruckButton skis={auftrag.skis} />
+                    {!jetztBenachrichtigen && <BenachrichtigtButton auftrag={auftrag} />}
                     {/* Quittung wie beim Saisonverleih: externen Beleg zuweisen */}
                     <ButtonQuittungZuweisen quittungID={auftrag.quittung_id} ziel={{ art: "auftrag", id: auftrag.id }} />
                 </AuftragAktionen>
@@ -76,7 +85,7 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID, 
                 <aside className="grid grid-cols-1 items-start gap-4 md:order-1 md:grid-cols-2 lg:order-2 lg:grid-cols-1">
                     <KundeForm kunde={auftrag.kunde} />
                     <DetailKarte titel="Quittung" icon={Receipt}>
-                        <QuittungKurzInfo quittungID={auftrag.quittung_id} />
+                        <QuittungKurzInfo quittungID={auftrag.quittung_id} ziel={{ art: "auftrag", id: auftrag.id }} />
                     </DetailKarte>
                 </aside>
             </div>

@@ -33,6 +33,7 @@ type MaterialEingabeProps = {
 function vorgabeWerte(vorgabe: MaterialRead): MaterialEingabeWerte {
     return {
         Preis: vorgabe.Preis,
+        Preis_ID: vorgabe.Preis_ID ?? null,
         skinr: vorgabe.skinr ?? '',
         // -1 = kein Stock
         stockbez_ID: vorgabe.stockbez_ID ?? -1,
@@ -64,6 +65,7 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
         mode: 'onChange',
         defaultValues: vorgabe ? vorgabeWerte(vorgabe) : {
             Preis: 0,
+            Preis_ID: null,
             skinr: '',
             stockbez_ID: 0,
             stocklaenge: 0,
@@ -104,7 +106,7 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
         const eingabe = getValues('bindungsEingabe');
         const neu = name.trim();
         if (getValues('bindungAktiv') && eingabe && (eingabe.Fahrer === '' || eingabe.Fahrer === letzterName.current)) {
-            setBindung({ ...eingabe, Fahrer: neu });
+            setBindung({ ...eingabe, Fahrer: neu, bestaetigt: false });
         }
         letzterName.current = neu;
     }
@@ -114,7 +116,7 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
         schuhSohle.current = sohle;
         const eingabe = getValues('bindungsEingabe');
         if (sohle !== null && getValues('bindungAktiv') && eingabe && eingabe.Sohle.trim() === '') {
-            setBindung({ ...eingabe, Sohle: String(sohle) });
+            setBindung({ ...eingabe, Sohle: String(sohle), bestaetigt: false });
         }
     }
 
@@ -174,7 +176,7 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
                                     key={eingabeNr}
                                     name="Preis"
                                     error={errors.Preis?.message}
-                                    startAuswahl={vorgabe ? 'custom' : undefined}
+                                    startAuswahl={vorgabe ? (vorgabe.Preis_ID ? String(vorgabe.Preis_ID) : 'custom') : undefined}
                                     gesperrt={preisGesperrt}
                                 />
                             </Suspense>

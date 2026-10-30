@@ -4,7 +4,7 @@
 
 import { anfrage, LoeschenSchema } from "./apianfrage";
 import { Auftrag, AuftragSchema } from "@/types/skiservicetypes";
-import { SaisonverleihRead, SaisonverleihReadSchema, VerleihArt, VerleihStatus } from "@/types/saisonverleihtypes";
+import { SaisonverleihRead, SaisonverleihReadSchema, VerleihArt, VerleihBenachrichtigung, VerleihStatus } from "@/types/saisonverleihtypes";
 import type { Bindungsdaten } from "@/types/bindungsdatentypes";
 import { ApiAntwort } from "@/types/actiontypes";
 
@@ -23,8 +23,14 @@ export type SkiDaten = {
     trotz_belegung?: boolean;
 };
 
-export async function aendereAuftrag(auftragId: number, daten: { kunden_id?: number; abhol_date?: string }): Promise<ApiAntwort<Auftrag>> {
+// benachrichtigt: Kunde von Hand informiert (z.B. angerufen), false nimmt das zurück
+export async function aendereAuftrag(auftragId: number, daten: { kunden_id?: number; abhol_date?: string; benachrichtigt?: boolean }): Promise<ApiAntwort<Auftrag>> {
     return anfrage(`/skiservice/auftrag/${auftragId}`, "PATCH", AuftragSchema, "Auftrag konnte nicht geändert werden.", daten);
+}
+
+// Fertig-Mail von Hand senden (auch erneut), danach ist der Auftrag benachrichtigt
+export async function sendeFertigMail(auftragId: number): Promise<ApiAntwort<Auftrag>> {
+    return anfrage(`/skiservice/auftrag/${auftragId}/benachrichtigen`, "POST", AuftragSchema, "E-Mail konnte nicht versendet werden.");
 }
 
 export async function loescheAuftrag(auftragId: number): Promise<ApiAntwort<{ success: boolean }>> {
@@ -54,6 +60,7 @@ export type VerleihAenderung = {
 
 export type MaterialDaten = {
     Preis?: number;
+    Preis_ID?: number | null;
     skinr?: string | null;
     schuhnr?: number | null;
     stockbez_ID?: number | null;
@@ -92,4 +99,14 @@ export async function pruefeVerleihBindungen(verleihId: number, materialIds?: nu
 // Status setzen: vorbereitung -> vorbereitet -> unterwegs (abgeholt) -> zurueck, auch rückwärts zum Korrigieren
 export async function setzeVerleihStatus(verleihId: number, status: VerleihStatus): Promise<ApiAntwort<SaisonverleihRead>> {
     return anfrage(`/saisonverleih/${verleihId}/status`, "PATCH", SaisonverleihReadSchema, "Status konnte nicht geändert werden.", { Status: status });
+}
+
+// Abhol- bzw. Rückgabe-Mail versenden, danach ist der Kunde entsprechend benachrichtigt
+export async function benachrichtigeVerleih(verleihId: number, art: "abholung" | "rueckgabe"): Promise<ApiAntwort<SaisonverleihRead>> {
+    return anfrage(`/saisonverleih/${verleihId}/benachrichtigen`, "POST", SaisonverleihReadSchema, "E-Mail konnte nicht versendet werden.", { art });
+}
+
+// Benachrichtigung von Hand setzen, ohne Mail (z.B. Kunde angerufen)
+export async function setzeVerleihBenachrichtigt(verleihId: number, wert: VerleihBenachrichtigung): Promise<ApiAntwort<SaisonverleihRead>> {
+    return anfrage(`/saisonverleih/${verleihId}/benachrichtigt`, "PATCH", SaisonverleihReadSchema, "Benachrichtigung konnte nicht geändert werden.", { Benachrichtigt: wert });
 }

@@ -23,7 +23,7 @@ export default function SkiserviceErstellen() {
     // Navigation je Schritt, oben unter den Tabs und unten am Ende gleich
     const navKunde: SchrittNavigationProps = {
         weiter: {
-            titel: "Ski auswählen",
+            titel: "Skiservice auswählen",
             onClick: () => gehe("ski"),
             gesperrt: !kunde,
             hinweis: kunde ? undefined : "Bitte zuerst einen Kunden auswählen.",
@@ -48,7 +48,7 @@ export default function SkiserviceErstellen() {
                         </TabsTrigger>
                         <TabsTrigger value="ski" className="flex items-center gap-2 whitespace-normal text-xs sm:text-sm" disabled={!kunde}>
                             <Mountain className="hidden h-4 w-4 sm:block" />
-                            2. Ski auswählen
+                            2. Skiservice auswählen
                         </TabsTrigger>
                         {/* <TabsTrigger value="uebersicht" className="flex items-center gap-2 whitespace-normal text-xs sm:text-sm">
                             <ClipboardList className="hidden h-4 w-4 sm:block" />
