@@ -1,8 +1,14 @@
 import { ScannerWebSocketMessage, ScannerWebSocketMessageSchema } from "@/types/skiscanner";
 import { useEffect, useRef, useState } from "react";
 
-export function useSkiScannerSocket(backEndUrl: string) {
+// scannerName: nur Scans dieses Scanners übernehmen (null = alle)
+export function useSkiScannerSocket(backEndUrl: string, scannerName: string | null = null) {
     const ws = useRef<WebSocket | null>(null);
+    // Als Ref, damit ein Wechsel des Scanners die Verbindung nicht neu aufbaut
+    const scannerNameRef = useRef(scannerName);
+    useEffect(() => {
+        scannerNameRef.current = scannerName;
+    }, [scannerName]);
     const [nachricht, setNachricht] = useState<ScannerWebSocketMessage | null>(null);
     // Letzter echter Scan (mit Scannername), Status-Meldungen z.B. nach dem Fertigstellen zählen nicht
     const [scan, setScan] = useState<ScannerWebSocketMessage | null>(null);
@@ -27,7 +33,10 @@ export function useSkiScannerSocket(backEndUrl: string) {
                     setError('Ungültige WebSocket-Nachricht');
                     return;
                 }
-             
+                // Scan eines anderen Scanners: auf diesem Tablet ignorieren
+                const name = parsedata.data.scannername;
+                if (name && scannerNameRef.current && name !== scannerNameRef.current) return;
+
                 setNachricht(parsedata.data);
                 if (parsedata.data.scannername) {
                     setScan(parsedata.data);
