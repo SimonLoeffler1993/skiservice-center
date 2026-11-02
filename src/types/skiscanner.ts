@@ -11,3 +11,19 @@ export const ScannerWebSocketMessageSchema = z.object({
 });
 
 export type ScannerWebSocketMessage = z.infer<typeof ScannerWebSocketMessageSchema>;
+
+// Hardware-Scanner, die sich beim Backend melden (Health-Check alle 30 s)
+export const ScannerGeraetSchema = z.object({
+    name: z.string(),
+    // 0 = Bearbeitung, 1 = Fertigstellen, 2 = Bindung prüfen
+    modus: z.number().int(),
+    firmware: z.string().nullable(),
+    ip: z.string().nullable(),
+    usb_scanner: z.boolean(),
+    zuletzt: z.string(),
+    verbunden: z.boolean(),
+});
+
+export const ScannerGeraetListeSchema = z.array(ScannerGeraetSchema);
+
+export type ScannerGeraet = z.infer<typeof ScannerGeraetSchema>;

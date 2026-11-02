@@ -1,5 +1,6 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { quittungOptions } from "@/hooks/useQuittungOptions";
 import QuittungsBetrag from "./QuittungsBetrag";
@@ -21,6 +22,24 @@ export default function QuittungBezahlInfo({ quittungID, ziel }: QuittungBezahlI
     // während des Renderns starten (sonst "Cannot update a component (Router) while rendering"),
     // z.B. direkt nach dem Zuweisen einer neuen Quittung.
     const { data: quittung, isPending, error } = useQuery(quittungOptions(quittungID));
+    const queryClient = useQueryClient();
+    const statusAktualisiert = quittung?.StatusAktualisiert ?? false;
+    // Einzelwerte statt des Objekts, das bei jedem Rendern neu entsteht (sonst Endlosschleife)
+    const zielArt = ziel?.art;
+    const zielId = ziel?.id;
+
+    // Lexware meldet bezahlt und die Datenbank wurde angepasst: Auftrag bzw. Verleih neu laden,
+    // damit Badge und Sperren den neuen Stand zeigen
+    useEffect(() => {
+        if (!statusAktualisiert || !zielArt) return;
+        if (zielArt === "auftrag") {
+            queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails", zielId] });
+            queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
+        } else {
+            queryClient.invalidateQueries({ queryKey: ["saisonverleihDetails", zielId] });
+            queryClient.invalidateQueries({ queryKey: ["saisonverleihList"] });
+        }
+    }, [statusAktualisiert, zielArt, zielId, queryClient]);
 
     if (isPending) {
         return <div className="text-sm text-gray-500">Lade Bezahlinformationen...</div>
