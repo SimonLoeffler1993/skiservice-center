@@ -35,6 +35,9 @@ export const CheckinStatusSchema = z.object({
     erreichbar: z.boolean(),
     offen: z.number(),
     ohne_schluessel: z.number(),
+    // Die Check-in-App bekommt den Public Key über das gemeinsame Volume
+    public_key_automatisch: z.boolean().default(false),
+    public_key_bereitgestellt: z.boolean().default(false),
 });
 
 export const CheckinSchluesselSchema = z.object({

@@ -72,6 +72,7 @@ export default function CheckinSchluessel() {
     const [fehler, setFehler] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const liste = schluessel.data ?? [];
+    const automatisch = status.data?.public_key_automatisch === true;
 
     function erzeugen() {
         setNachfragen(false);
@@ -91,8 +92,12 @@ export default function CheckinSchluessel() {
             <CardHeader>
                 <CardTitle>Check-in</CardTitle>
                 <CardDescription>
-                    Der Browser verschlüsselt die Kundendaten mit dem Public Key, nur die API kann sie mit dem privaten Schlüssel wieder lesen.
-                    Den Public Key von Hand als <code className="font-mono text-xs">CHECKIN_PUBLIC_KEY</code> in die Check-in-App eintragen und diese neu starten.
+                    Der Browser verschlüsselt die Kundendaten mit dem Public Key, nur die API kann sie mit dem privaten Schlüssel wieder lesen.{" "}
+                    {automatisch ? (
+                        "Die Check-in-App bekommt den neuesten Public Key automatisch über das gemeinsame Volume."
+                    ) : (
+                        <>Den Public Key von Hand als <code className="font-mono text-xs">CHECKIN_PUBLIC_KEY</code> in die Check-in-App eintragen und diese neu starten.</>
+                    )}
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -101,6 +106,9 @@ export default function CheckinSchluessel() {
                         {!status.data.eingerichtet && <p className="text-muted-foreground">Die Check-in-Datenbank ist nicht eingerichtet (CHECKIN_DB_HOST in der API).</p>}
                         {status.data.eingerichtet && !status.data.erreichbar && <p className="text-destructive">Die Check-in-Datenbank ist nicht erreichbar.</p>}
                         {status.data.erreichbar && <p className="text-muted-foreground">Datenbank erreichbar, {status.data.offen} offene Check-ins.</p>}
+                        {automatisch && !status.data.public_key_bereitgestellt && liste.length > 0 && (
+                            <p className="text-destructive">Der Public Key konnte nicht in den gemeinsamen Ordner geschrieben werden (CHECKIN_PUBLIC_KEY_ORDNER).</p>
+                        )}
                         {status.data.ohne_schluessel > 0 && (
                             <p className="text-destructive">
                                 {status.data.ohne_schluessel} Check-ins passen zu keinem Schlüssel hier. Stimmt der Public Key in der Check-in-App?
@@ -128,7 +136,10 @@ export default function CheckinSchluessel() {
                         <DialogHeader>
                             <DialogTitle>Neuen Schlüssel erzeugen?</DialogTitle>
                             <DialogDescription>
-                                Der neue Public Key gilt erst, wenn er von Hand in die Check-in-App eingetragen ist. Alte Schlüssel bleiben erhalten, bereits abgesendete Check-ins bleiben lesbar.
+                                {automatisch
+                                    ? "Die Check-in-App nutzt den neuen Public Key sofort. Wer das Formular gerade geöffnet hat, muss die Seite neu laden."
+                                    : "Der neue Public Key gilt erst, wenn er von Hand in die Check-in-App eingetragen ist."}{" "}
+                                Alte Schlüssel bleiben erhalten, bereits abgesendete Check-ins bleiben lesbar.
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
