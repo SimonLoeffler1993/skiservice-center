@@ -1,6 +1,7 @@
 "use server";
 import { config } from "./config";
 import { AuftragListe, AuftragListeSchema, AuftragSchema } from "@/types/skiservicetypes";
+import { ListenSortierung } from "@/types/liste";
 import type { Bindungsdaten } from "@/types/bindungsdatentypes";
 
 // Ski wie ihn die API beim Anlegen erwartet
@@ -120,7 +121,7 @@ export async function setBindungChecked(skiIds:number[]) {
 }
 
 // Skiservice Aufträge Laden
-export async function getSkiserviceListe(limit: number = 25, letzteID?: number, saisonID?: number): Promise<AuftragListe | null>{
+export async function getSkiserviceListe(limit: number = 25, letzteID?: number, saisonID?: number, sortierung?: ListenSortierung, suche?: string): Promise<AuftragListe | null>{
 
     let url = `${config.backendUrl}/api/v1/skiservice/?limit=${limit}`;
     if (saisonID) {
@@ -129,6 +130,12 @@ export async function getSkiserviceListe(limit: number = 25, letzteID?: number, 
 
     if (letzteID) {
         url += `&last_id=${letzteID}`;
+    }
+    if (sortierung) {
+        url += `&sortierung=${sortierung}`;
+    }
+    if (suche) {
+        url += `&suche=${encodeURIComponent(suche)}`;
     }
 
     try {

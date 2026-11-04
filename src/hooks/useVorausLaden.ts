@@ -9,6 +9,8 @@ type VorausLadenProps<T> = {
     hasNextPage: boolean;
     isFetchingNextPage: boolean;
     fetchNextPage: () => unknown;
+    // Ändert sich der Wert (z.B. neue Suche), beginnt die Anzeige wieder bei Seite 1
+    neuBeginnenBei?: unknown;
 };
 
 /**
@@ -16,8 +18,13 @@ type VorausLadenProps<T> = {
  * Kommt das Listenende in Sichtweite, erscheint die gepufferte Seite sofort und
  * im Hintergrund wird die nächste geholt. So entsteht beim Scrollen keine Ladepause.
  */
-export function useVorausLaden<T>({ seiten = [], hasNextPage, isFetchingNextPage, fetchNextPage }: VorausLadenProps<T>) {
+export function useVorausLaden<T>({ seiten = [], hasNextPage, isFetchingNextPage, fetchNextPage, neuBeginnenBei }: VorausLadenProps<T>) {
     const [angezeigteSeiten, setAngezeigteSeiten] = useState(1);
+    const [beginn, setBeginn] = useState(neuBeginnenBei);
+    if (beginn !== neuBeginnenBei) {
+        setBeginn(neuBeginnenBei);
+        setAngezeigteSeiten(1);
+    }
     // Schon deutlich vor dem Ende auslösen
     const { ref, inView } = useInView({ rootMargin: "800px 0px" });
     const geladen = seiten.length;

@@ -3,6 +3,7 @@
 
 
 import { ApiAntwort } from "@/types/actiontypes";
+import { ListenSortierung } from "@/types/liste";
 import { config } from "./config";
 import { 
     SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonVerleihCreateResponseSchema,
@@ -86,7 +87,7 @@ export async function getSaisonVerleihById(id: number | string): Promise<Saisonv
 
 // SaisonVerleihliste laden
 // art: nur Saison- oder nur Tagesverleihe, ohne Angabe alle
-export async function getSaisonVerleihList(limit: number = 15, letzteID?: number, saisonID?: number, art?: VerleihArt): Promise<SaisonverleihReadList | null> {
+export async function getSaisonVerleihList(limit: number = 15, letzteID?: number, saisonID?: number, art?: VerleihArt, sortierung?: ListenSortierung, suche?: string): Promise<SaisonverleihReadList | null> {
 
     let url = `${config.backendUrl}/api/v1/saisonverleih/?limit=${limit}`;
     if (saisonID) {
@@ -98,6 +99,12 @@ export async function getSaisonVerleihList(limit: number = 15, letzteID?: number
     }
     if (art) {
         url += `&art=${art}`;
+    }
+    if (sortierung) {
+        url += `&sortierung=${sortierung}`;
+    }
+    if (suche) {
+        url += `&suche=${encodeURIComponent(suche)}`;
     }
 
     try {
