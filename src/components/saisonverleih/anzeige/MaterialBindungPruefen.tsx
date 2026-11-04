@@ -31,11 +31,9 @@ function useBindungPruefen(verleihId: number) {
     return { pruefen, fehler, isPending };
 }
 
-// Bindung einer Materialzeile mit Ski: Button "Bindung prüfen" oder Hinweis "Bindung geprüft"
+// Bindung einer Materialzeile, unabhängig vom erfassten Material: Button "Bindung prüfen" oder Hinweis "Bindung geprüft"
 export default function MaterialBindungPruefen({ verleihId, material }: { verleihId: number; material: MaterialRead }) {
     const { pruefen, fehler, isPending } = useBindungPruefen(verleihId);
-
-    if (!material.Ski) return null;
 
     if (material.BindungGeprueft) {
         return (
@@ -63,7 +61,7 @@ export default function MaterialBindungPruefen({ verleihId, material }: { verlei
 // Kopf der Detailansicht: alle offenen Bindungen auf einmal als geprüft markieren
 export function AlleBindungenPruefenButton({ verleih }: { verleih: SaisonverleihRead }) {
     const { pruefen, fehler, isPending } = useBindungPruefen(verleih.ID);
-    const offen = (verleih.Material ?? []).filter((m) => m.Ski && !m.BindungGeprueft).length;
+    const offen = (verleih.Material ?? []).filter((m) => !m.BindungGeprueft).length;
 
     if (offen === 0 || (verleih.Status !== "vorbereitung" && verleih.Status !== "vorbereitet")) return null;
 
