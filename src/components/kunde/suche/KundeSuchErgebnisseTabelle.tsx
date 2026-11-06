@@ -20,7 +20,8 @@ export function name(kunde: Kunde) {
 }
 
 export function adresse(kunde: Kunde) {
-    const ort = kunde.Ort ? `${kunde.Ort.Postlz} ${kunde.Ort.Ort}` : "";
+    // PLZ ist in der Datenbank eine Zahl, führende Nullen auffüllen
+    const ort = kunde.Ort ? `${String(kunde.Ort.Postlz).padStart(5, "0")} ${kunde.Ort.Ort}` : "";
     return [kunde.Strasse, ort].filter((teil) => teil?.trim()).join(", ") || "–";
 }
 

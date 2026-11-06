@@ -24,7 +24,7 @@ type VerleihErgebnisProps = {
     zusatz?: React.ReactNode;
 };
 
-// Gescannter Verleih: Kopf mit Kunde und Status, Material mit Ski zum Auswählen, "Bindung geprüft"
+// Gescannter Verleih: Kopf mit Kunde und Status, Material zum Auswählen, "Bindung geprüft"
 // Wird pro Scan neu eingehängt (key), damit die Auswahl zurückgesetzt wird
 export default function VerleihErgebnis({ verleihId, materialId, zusatz }: VerleihErgebnisProps) {
     const { data: verleih, isPending, error } = useQuery({ ...saisonverleihDetailsOptions(verleihId), staleTime: 0 });
@@ -45,12 +45,12 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz }: Verle
     }
 
     const material = verleih.Material ?? [];
-    // Nur ungeprüfte Ski können ausgewählt werden
-    const offen = ausgewaehlt.filter((id) => material.some((m) => m.ID === id && m.Ski && !m.BindungGeprueft));
+    // Nur ungeprüftes Material kann ausgewählt werden
+    const offen = ausgewaehlt.filter((id) => material.some((m) => m.ID === id && !m.BindungGeprueft));
     const kunde = verleih.Kunde;
 
     function umschalten(m: MaterialRead) {
-        if (!m.Ski || m.BindungGeprueft) return;
+        if (m.BindungGeprueft) return;
         setAusgewaehlt((liste) => (liste.includes(m.ID) ? liste.filter((x) => x !== m.ID) : [...liste, m.ID]));
     }
 
@@ -99,12 +99,12 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz }: Verle
             <section className="space-y-2">
                 <div className="flex items-baseline justify-between gap-2">
                     <h2 className="text-lg font-semibold">Material ({material.length})</h2>
-                    <p className="text-sm text-muted-foreground">{offen.length > 0 ? `${offen.length} ausgewählt` : "Ski antippen zum Auswählen"}</p>
+                    <p className="text-sm text-muted-foreground">{offen.length > 0 ? `${offen.length} ausgewählt` : "Material antippen zum Auswählen"}</p>
                 </div>
                 <div className="space-y-2">
                     {material.map((m) => {
                         const gewaehlt = offen.includes(m.ID);
-                        const waehlbar = !!m.Ski && !m.BindungGeprueft;
+                        const waehlbar = !m.BindungGeprueft;
                         return (
                             <button
                                 key={m.ID}
@@ -129,10 +129,10 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz }: Verle
                                 <span className="min-w-0 flex-1">
                                     <span className="block truncate font-medium">{materialBezeichnung(m, material)}</span>
                                     <span className="block truncate text-sm text-muted-foreground">
-                                        {m.Ski ? `Ski ${m.Ski.SkiNr} · ${m.Ski.Modell.Hersteller.Name} ${m.Ski.Modell.Modell} · ${m.Ski.Laenge} cm` : "Ohne Ski"}
+                                        {m.Ski ? `Ski ${m.Ski.SkiNr} · ${m.Ski.Modell.Hersteller.Name} ${m.Ski.Modell.Modell} · ${m.Ski.Laenge} cm` : m.Schuh ? `Schuh ${m.Schuh.SchuhNr ?? m.Schuh.ID} · Gr. ${m.Schuh.Groese}` : m.Stock ? `Stock ${m.Stock.Bezeichnung}` : "Noch kein Material"}
                                     </span>
                                 </span>
-                                {m.Ski && m.BindungGeprueft && (
+                                {m.BindungGeprueft && (
                                     <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-green-200 bg-green-50 px-2 py-1 text-xs font-medium text-green-700">
                                         <BadgeCheck className="h-3.5 w-3.5" /> Geprüft
                                     </span>

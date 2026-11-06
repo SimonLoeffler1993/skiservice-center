@@ -1,3 +1,5 @@
+import ListenSortierung from "@/components/liste/ListenSortierung";
+import ListenSuche from "@/components/liste/ListenSuche";
 import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
 import AuftragListe from "@/components/skiservice/anzeigen/AuftragListe";
 import { serviceListeOptions } from "@/hooks/useServiceListeOptions";
@@ -6,9 +8,10 @@ import BackendFehler from "@/components/saison/BackendFehler";
 import KeineSaison from "@/components/saison/KeineSaison";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { Suspense } from "react";
+import { ListenSortierungSchema } from "@/types/liste";
 
 type SkiservicesAnzeigenProps = {
-    searchParams: Promise<{ saison?: string }>
+    searchParams: Promise<{ saison?: string; sortierung?: string; suche?: string }>
 }
 
 export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesAnzeigenProps) {
@@ -21,7 +24,10 @@ export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesA
     const saisonData = saisonDaten.data.saisons;
 
     // Saison aus URL, falls nicht vorhanden wird die aktuelle verwendet
-    const { saison } = await searchParams;
+    const { saison, sortierung: sortierungParameter, suche: sucheParameter } = await searchParams;
+    // Ungültige Sortierung gilt als Standard
+    const sortierung = ListenSortierungSchema.safeParse(sortierungParameter).data ?? "neueste";
+    const suche = typeof sucheParameter === "string" ? sucheParameter.trim().slice(0, 100) : "";
     const saisonID = saison ? parseInt(saison) : saisonDaten.data.aktuelle?.ID;
 
     // Fehler falls keine Saison gibt
@@ -31,17 +37,22 @@ export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesA
 
     // Service in Cache laden
     const queryClient = new QueryClient();
-    await queryClient.prefetchInfiniteQuery(serviceListeOptions(saisonID))
+    await queryClient.prefetchInfiniteQuery(serviceListeOptions(saisonID, sortierung, suche))
 
-    // Neu einhängen bei Saisonwechsel, damit das Vorausladen wieder bei Seite 1 beginnt
+    // Neu einhängen bei Saison- oder Sortierungswechsel, damit das Vorausladen wieder bei Seite 1 beginnt.
+    // Nicht bei der Suche, sonst verliert das Eingabefeld beim Tippen den Fokus
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <AuftragListe
-                key={saisonID}
+                key={`${saisonID}-${sortierung}`}
                 saisonID={saisonID}
+                sortierung={sortierung}
+                suche={suche}
                 filter={
                     <Suspense fallback={null}>
                         <SaisonWechseler saisons={saisonData} selectedSaisonID={saisonID} />
+                        <ListenSortierung sortierung={sortierung} standard="neueste" />
+                        <ListenSuche suche={suche} />
                     </Suspense>
                 }
             />

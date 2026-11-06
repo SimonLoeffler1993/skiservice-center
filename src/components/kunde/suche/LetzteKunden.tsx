@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { History, RefreshCw, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { checkinStatusOptions } from "@/hooks/useCheckinOptions";
 import { holeLetzteKunden } from "@/lib/kundeactions";
 import { cn } from "@/lib/utils";
 import { Kunde } from "@/types/skikundentypes";
+import CheckinListe from "./CheckinListe";
 import { adresse, name, telefon } from "./KundeSuchErgebnisseTabelle";
 
 type LetzteKundenProps = {
@@ -17,10 +20,18 @@ type LetzteKundenProps = {
 };
 
 export function LetzteKundenButton({ onClick, isPending }: { onClick: () => void; isPending: boolean }) {
+    const { data: status } = useQuery(checkinStatusOptions);
+    const offen = status?.offen ?? 0;
+
     return (
         <Button type="button" variant="outline" className="h-10" onClick={onClick} disabled={isPending}>
             <History className="h-4 w-4" />
             Letzte Kunden
+            {offen > 0 && (
+                <span className="rounded-full bg-primary px-1.5 text-xs font-medium text-primary-foreground" title={`${offen} offene Check-ins`}>
+                    {offen}
+                </span>
+            )}
         </Button>
     );
 }
@@ -51,7 +62,14 @@ export function useLetzteKunden() {
 
 export default function LetzteKunden({ offen, setOffen, onKundeAuswaehlen, ...daten }: LetzteKundenProps & ReturnType<typeof useLetzteKunden>) {
     const { kunden, fehler, auswahl, setAuswahl, isPending, laden } = daten;
+    const queryClient = useQueryClient();
+    const { data: status } = useQuery(checkinStatusOptions);
+    const [ansicht, setAnsicht] = useState<"letzte" | "checkin">("letzte");
     if (!offen) return null;
+
+    // Ohne eingerichteten Check-in gibt es keinen Umschalter
+    const mitCheckin = status?.eingerichtet === true;
+    const zeigeCheckin = mitCheckin && ansicht === "checkin";
 
     const ausgewaehlt = kunden?.find((k) => k.ID === auswahl) ?? null;
 
@@ -59,9 +77,35 @@ export default function LetzteKunden({ offen, setOffen, onKundeAuswaehlen, ...da
         <Card className="mt-6">
             <CardContent className="space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="font-semibold">Letzte Kunden</h3>
+                    {mitCheckin ? (
+                        <div role="radiogroup" aria-label="Ansicht" className="inline-flex rounded-lg bg-muted p-1">
+                            {([["letzte", "Letzte Kunden"], ["checkin", `Check-in (${status.offen})`]] as const).map(([wert, text]) => (
+                                <button
+                                    key={wert}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={ansicht === wert}
+                                    onClick={() => setAnsicht(wert)}
+                                    className={cn(
+                                        "h-8 whitespace-nowrap rounded-md px-3 text-sm font-medium transition-colors",
+                                        ansicht === wert ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                                    )}
+                                >
+                                    {text}
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <h3 className="font-semibold">Letzte Kunden</h3>
+                    )}
                     <div className="flex gap-1">
-                        <Button type="button" variant="ghost" size="sm" onClick={laden} disabled={isPending}>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => (zeigeCheckin ? queryClient.invalidateQueries({ queryKey: ["checkin"] }) : laden())}
+                            disabled={isPending}
+                        >
                             <RefreshCw className={cn("h-4 w-4", isPending && "animate-spin")} />
                             Aktualisieren
                         </Button>
@@ -71,11 +115,13 @@ export default function LetzteKunden({ offen, setOffen, onKundeAuswaehlen, ...da
                     </div>
                 </div>
 
-                {fehler && <p className="text-sm text-destructive">{fehler}</p>}
-                {!fehler && kunden && kunden.length === 0 && <p className="text-sm text-muted-foreground">Noch keine Kunden vorhanden.</p>}
-                {!kunden && isPending && <p className="text-sm text-muted-foreground">Wird geladen...</p>}
+                {zeigeCheckin && <CheckinListe onKundeAuswaehlen={onKundeAuswaehlen} />}
 
-                {kunden && kunden.length > 0 && (
+                {!zeigeCheckin && fehler && <p className="text-sm text-destructive">{fehler}</p>}
+                {!zeigeCheckin && !fehler && kunden && kunden.length === 0 && <p className="text-sm text-muted-foreground">Noch keine Kunden vorhanden.</p>}
+                {!zeigeCheckin && !kunden && isPending && <p className="text-sm text-muted-foreground">Wird geladen...</p>}
+
+                {!zeigeCheckin && kunden && kunden.length > 0 && (
                     <>
                         <div role="radiogroup" aria-label="Letzte Kunden" className="space-y-2">
                             {kunden.map((kunde, index) => {

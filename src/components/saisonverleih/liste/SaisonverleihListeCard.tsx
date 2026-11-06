@@ -28,10 +28,9 @@ function materialText(verleih: SaisonverleihRead) {
 export default function SaisonverleihListeCard({ saisonverleih: verleih }: SaisonverleihListeCardProps) {
     const material = verleih.Material ?? [];
     const gesamt = material.reduce((summe, m) => summe + m.Preis, 0);
-    const mitSki = material.filter((m) => m.skinr);
-    const geprueft = mitSki.filter((m) => m.BindungGeprueft).length;
+    const geprueft = material.filter((m) => m.BindungGeprueft).length;
     // Bindungsfortschritt nur, solange der Verleih vorbereitet wird
-    const zeigeBindung = mitSki.length > 0 && (verleih.Status === "vorbereitung" || verleih.Status === "vorbereitet");
+    const zeigeBindung = material.length > 0 && (verleih.Status === "vorbereitung" || verleih.Status === "vorbereitet");
     // "Nicht benachrichtigt" nur, wenn der Verleih abholbereit ist
     const zeigeBenachrichtigt = verleih.Benachrichtigt !== "nein" || verleih.Status === "vorbereitet";
     const kunde = [verleih.Kunde?.Nachname, verleih.Kunde?.Vorname].filter(Boolean).join(", ");
@@ -50,9 +49,9 @@ export default function SaisonverleihListeCard({ saisonverleih: verleih }: Saiso
                     {materialText(verleih)}
                 </span>
                 {zeigeBindung && (
-                    <span className={`inline-flex items-center gap-1.5 ${geprueft === mitSki.length ? "text-green-700" : ""}`}>
+                    <span className={`inline-flex items-center gap-1.5 ${geprueft === material.length ? "text-green-700" : ""}`}>
                         <BadgeCheck className="h-4 w-4" />
-                        Bindung {geprueft}/{mitSki.length}
+                        Bindung {geprueft}/{material.length}
                     </span>
                 )}
             </div>

@@ -7,18 +7,22 @@ import ListenKopf from "@/components/liste/ListenKopf";
 import { LISTEN_RASTER, ListenFuss, ListenLeer, ListenSkeleton } from "@/components/liste/ListenTeile";
 import { serviceListeOptions } from "@/hooks/useServiceListeOptions";
 import { useVorausLaden } from "@/hooks/useVorausLaden";
+import { ListenSortierung } from "@/types/liste";
 import AuftragKurzCard from "./AuftragKurzCard";
 
 type SkiAuftragListeProps = {
     saisonID: number;
-    // Filter (Saison) für den Kopf
+    sortierung: ListenSortierung;
+    // Suche nach dem Kundennamen, leer = alle
+    suche: string;
+    // Filter (Saison, Sortierung, Suche) für den Kopf
     filter: React.ReactNode;
 }
 
-export default function AuftragListe({ saisonID, filter }: SkiAuftragListeProps) {
-    const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(serviceListeOptions(saisonID));
+export default function AuftragListe({ saisonID, sortierung, suche, filter }: SkiAuftragListeProps) {
+    const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(serviceListeOptions(saisonID, sortierung, suche));
     // Immer eine Seite voraus laden, damit das Scrollen ohne Pause läuft
-    const { items, ref, laedt, alleGeladen } = useVorausLaden({ seiten: data?.pages, hasNextPage, isFetchingNextPage, fetchNextPage });
+    const { items, ref, laedt, alleGeladen } = useVorausLaden({ seiten: data?.pages, hasNextPage, isFetchingNextPage, fetchNextPage, neuBeginnenBei: suche });
 
     return (
         <section className="space-y-5">
@@ -35,7 +39,7 @@ export default function AuftragListe({ saisonID, filter }: SkiAuftragListeProps)
             {isPending ? (
                 <ListenSkeleton />
             ) : items.length === 0 ? (
-                <ListenLeer icon={Wrench} titel="Keine Aufträge in dieser Saison" neuHref="/skiservice/erstellen" neuText="Neuer Auftrag" />
+                <ListenLeer icon={Wrench} titel={suche ? `Keine Treffer für „${suche}“` : "Keine Aufträge in dieser Saison"} neuHref="/skiservice/erstellen" neuText="Neuer Auftrag" />
             ) : (
                 <div className={LISTEN_RASTER}>
                     {items.map((skiAuftrag) => (

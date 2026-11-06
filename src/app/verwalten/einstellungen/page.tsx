@@ -1,5 +1,6 @@
 import { Settings } from "lucide-react";
 
+import CheckinSchluessel from "@/components/einstellungen/CheckinSchluessel";
 import EinstellungenFormular from "@/components/einstellungen/EinstellungenFormular";
 
 export default function EinstellungenPage() {
@@ -10,6 +11,7 @@ export default function EinstellungenPage() {
                 <h1 className="text-xl font-semibold">Einstellungen</h1>
             </div>
             <EinstellungenFormular />
+            <CheckinSchluessel />
         </section>
     );
 }
