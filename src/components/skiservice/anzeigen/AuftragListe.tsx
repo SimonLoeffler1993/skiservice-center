@@ -8,6 +8,7 @@ import { LISTEN_RASTER, ListenFuss, ListenLeer, ListenSkeleton } from "@/compone
 import { serviceListeOptions } from "@/hooks/useServiceListeOptions";
 import { useVorausLaden } from "@/hooks/useVorausLaden";
 import { ListenSortierung } from "@/types/liste";
+import { ServiceListenFilter } from "@/types/skiservicetypes";
 import AuftragKurzCard from "./AuftragKurzCard";
 
 type SkiAuftragListeProps = {
@@ -15,12 +16,15 @@ type SkiAuftragListeProps = {
     sortierung: ListenSortierung;
     // Suche nach dem Kundennamen, leer = alle
     suche: string;
-    // Filter (Saison, Sortierung, Suche) für den Kopf
+    // Status, Bezahlt, Benachrichtigt
+    listenFilter: ServiceListenFilter;
+    // Filter (Saison, Sortierung, Suche, weitere) für den Kopf
     filter: React.ReactNode;
 }
 
-export default function AuftragListe({ saisonID, sortierung, suche, filter }: SkiAuftragListeProps) {
-    const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(serviceListeOptions(saisonID, sortierung, suche));
+export default function AuftragListe({ saisonID, sortierung, suche, listenFilter, filter }: SkiAuftragListeProps) {
+    const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(serviceListeOptions(saisonID, sortierung, suche, listenFilter));
+    const gefiltert = Object.values(listenFilter).some(Boolean);
     // Immer eine Seite voraus laden, damit das Scrollen ohne Pause läuft
     const { items, ref, laedt, alleGeladen } = useVorausLaden({ seiten: data?.pages, hasNextPage, isFetchingNextPage, fetchNextPage, neuBeginnenBei: suche });
 
@@ -39,7 +43,7 @@ export default function AuftragListe({ saisonID, sortierung, suche, filter }: Sk
             {isPending ? (
                 <ListenSkeleton />
             ) : items.length === 0 ? (
-                <ListenLeer icon={Wrench} titel={suche ? `Keine Treffer für „${suche}“` : "Keine Aufträge in dieser Saison"} neuHref="/skiservice/erstellen" neuText="Neuer Auftrag" />
+                <ListenLeer icon={Wrench} titel={suche ? `Keine Treffer für „${suche}“` : gefiltert ? "Keine Aufträge passend zum Filter" : "Keine Aufträge in dieser Saison"} neuHref="/skiservice/erstellen" neuText="Neuer Auftrag" />
             ) : (
                 <div className={LISTEN_RASTER}>
                     {items.map((skiAuftrag) => (

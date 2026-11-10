@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { BindungsdatenReadSchema, type BindungsdatenEingabe } from "./bindungsdatentypes";
 import { kundeSchema } from "./skikundentypes";
+import { type JaNein } from "./liste";
 
 export const SkiSchema = z.object({
     id: z.number().int(),
@@ -21,6 +22,16 @@ export const SkiSchema = z.object({
     gepueft: z.iso.date().nullable().optional(), // ISO date string "YYYY-MM-DD"
     bindungsdaten: BindungsdatenReadSchema.nullish(),
 });
+
+// Filter der Serviceliste, URL-Werte statt Wie (bearbeitung = 0/leer, fertig = 1, abgeholt = 2)
+export const AuftragStatusFilterSchema = z.enum(["bearbeitung", "fertig", "abgeholt"]);
+
+// Ohne Angabe = kein Filter
+export type ServiceListenFilter = {
+    status?: z.infer<typeof AuftragStatusFilterSchema>;
+    bezahlt?: JaNein;
+    benachrichtigt?: JaNein;
+};
 
 // Wie = Status 0: in Bearbeitung 1: fertig 2: abgeholt
 export const AuftragSchema = z.object({

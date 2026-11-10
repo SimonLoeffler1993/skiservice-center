@@ -1,6 +1,6 @@
 "use server";
 import { config } from "./config";
-import { AuftragListe, AuftragListeSchema, AuftragSchema } from "@/types/skiservicetypes";
+import { AuftragListe, AuftragListeSchema, AuftragSchema, ServiceListenFilter } from "@/types/skiservicetypes";
 import { ListenSortierung } from "@/types/liste";
 import type { Bindungsdaten } from "@/types/bindungsdatentypes";
 
@@ -121,7 +121,7 @@ export async function setBindungChecked(skiIds:number[]) {
 }
 
 // Skiservice Aufträge Laden
-export async function getSkiserviceListe(limit: number = 25, letzteID?: number, saisonID?: number, sortierung?: ListenSortierung, suche?: string): Promise<AuftragListe | null>{
+export async function getSkiserviceListe(limit: number = 25, letzteID?: number, saisonID?: number, sortierung?: ListenSortierung, suche?: string, filter: ServiceListenFilter = {}): Promise<AuftragListe | null>{
 
     let url = `${config.backendUrl}/api/v1/skiservice/?limit=${limit}`;
     if (saisonID) {
@@ -136,6 +136,9 @@ export async function getSkiserviceListe(limit: number = 25, letzteID?: number, 
     }
     if (suche) {
         url += `&suche=${encodeURIComponent(suche)}`;
+    }
+    for (const [name, wert] of Object.entries(filter)) {
+        if (wert) url += `&${name}=${encodeURIComponent(wert)}`;
     }
 
     try {
