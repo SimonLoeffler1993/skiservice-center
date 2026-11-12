@@ -8,7 +8,7 @@ import { LISTEN_RASTER, ListenFuss, ListenLeer, ListenSkeleton } from "@/compone
 import { saisonverleihListOptions } from "@/hooks/useSaisonverleihListeOptions";
 import { useVorausLaden } from "@/hooks/useVorausLaden";
 import { ListenSortierung } from "@/types/liste";
-import { VerleihArt } from "@/types/saisonverleihtypes";
+import { VerleihArt, VerleihListenFilter } from "@/types/saisonverleihtypes";
 import SaisonverleihListeCard from "./SaisonverleihListeCard";
 
 type SaisonverleihListeProps = {
@@ -17,7 +17,9 @@ type SaisonverleihListeProps = {
     sortierung: ListenSortierung;
     // Suche nach dem Kundennamen, leer = alle
     suche: string;
-    // Filter (Saison, Art, Sortierung, Suche) für den Kopf
+    // Status, Bezahlt, Benachrichtigt
+    listenFilter: VerleihListenFilter;
+    // Filter (Saison, Art, Sortierung, Suche, weitere) für den Kopf
     filter: React.ReactNode;
 }
 
@@ -28,8 +30,9 @@ const KOPF: Record<VerleihArt | "alle", { titel: string; neuHref: string; neuTex
     tag: { titel: "Tagesverleih", neuHref: "/saisonverleih/erstellen?art=tag", neuText: "Neuer Tagesverleih" },
 };
 
-export default function SaisonverleihListe({ saisonID, art, sortierung, suche, filter }: SaisonverleihListeProps) {
-    const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(saisonverleihListOptions(saisonID, art, sortierung, suche));
+export default function SaisonverleihListe({ saisonID, art, sortierung, suche, listenFilter, filter }: SaisonverleihListeProps) {
+    const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(saisonverleihListOptions(saisonID, art, sortierung, suche, listenFilter));
+    const gefiltert = Object.values(listenFilter).some(Boolean);
     // Immer eine Seite voraus laden, damit das Scrollen ohne Pause läuft
     const { items, ref, laedt, alleGeladen } = useVorausLaden({ seiten: data?.pages, hasNextPage, isFetchingNextPage, fetchNextPage, neuBeginnenBei: suche });
     const kopf = KOPF[art ?? "alle"];
@@ -50,7 +53,7 @@ export default function SaisonverleihListe({ saisonID, art, sortierung, suche, f
             {isPending ? (
                 <ListenSkeleton />
             ) : items.length === 0 ? (
-                <ListenLeer icon={icon} titel={suche ? `Keine Treffer für „${suche}“` : "Keine Verleihe in dieser Saison"} neuHref={kopf.neuHref} neuText={kopf.neuText} />
+                <ListenLeer icon={icon} titel={suche ? `Keine Treffer für „${suche}“` : gefiltert ? "Keine Verleihe passend zum Filter" : "Keine Verleihe in dieser Saison"} neuHref={kopf.neuHref} neuText={kopf.neuText} />
             ) : (
                 <div className={LISTEN_RASTER}>
                     {items.map((saisonverleih) => (

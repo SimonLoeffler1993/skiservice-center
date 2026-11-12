@@ -9,7 +9,7 @@ import {
     SaisonVerleihCreate, SaisonVerleihCreateResponse, SaisonVerleihCreateResponseSchema,
     SaisonverleihReadSchema, SaisonverleihRead, SaisonverleihReadListSchema, SaisonverleihReadList, 
     SaisonVerleihNamenEttiketResponseSchema, SaisonVerleihNamenEttiketResponse,
-    VerleihBelegung, VerleihBelegungListeSchema, VerleihArt,
+    VerleihBelegung, VerleihBelegungListeSchema, VerleihArt, VerleihListenFilter,
     VerleihEtikett, VerleihEtikettListeSchema } from "@/types/saisonverleihtypes";
 import { toApiAntwort } from "./helfer";
 import { anfrage } from "./apianfrage";
@@ -87,7 +87,7 @@ export async function getSaisonVerleihById(id: number | string): Promise<Saisonv
 
 // SaisonVerleihliste laden
 // art: nur Saison- oder nur Tagesverleihe, ohne Angabe alle
-export async function getSaisonVerleihList(limit: number = 15, letzteID?: number, saisonID?: number, art?: VerleihArt, sortierung?: ListenSortierung, suche?: string): Promise<SaisonverleihReadList | null> {
+export async function getSaisonVerleihList(limit: number = 15, letzteID?: number, saisonID?: number, art?: VerleihArt, sortierung?: ListenSortierung, suche?: string, filter: VerleihListenFilter = {}): Promise<SaisonverleihReadList | null> {
 
     let url = `${config.backendUrl}/api/v1/saisonverleih/?limit=${limit}`;
     if (saisonID) {
@@ -105,6 +105,9 @@ export async function getSaisonVerleihList(limit: number = 15, letzteID?: number
     }
     if (suche) {
         url += `&suche=${encodeURIComponent(suche)}`;
+    }
+    for (const [name, wert] of Object.entries(filter)) {
+        if (wert) url += `&${name}=${encodeURIComponent(wert)}`;
     }
 
     try {

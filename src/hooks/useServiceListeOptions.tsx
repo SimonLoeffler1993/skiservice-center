@@ -1,11 +1,12 @@
 import { getSkiserviceListe } from "@/lib/auftragaction";
 import { ListenSortierung } from "@/types/liste";
+import { ServiceListenFilter } from "@/types/skiservicetypes";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 
-export const serviceListeOptions = (saisonID: number, sortierung: ListenSortierung = "neueste", suche: string = "") =>
+export const serviceListeOptions = (saisonID: number, sortierung: ListenSortierung = "neueste", suche: string = "", filter: ServiceListenFilter = {}) =>
     infiniteQueryOptions({
-        queryKey: ["skiserviceList", saisonID, sortierung, suche],
-        queryFn: ({ pageParam }) => getSkiserviceListe(25, pageParam, saisonID, sortierung, suche),
+        queryKey: ["skiserviceList", saisonID, sortierung, suche, filter],
+        queryFn: ({ pageParam }) => getSkiserviceListe(25, pageParam, saisonID, sortierung, suche, filter),
 
         // undefined = kein last_id beim ersten Aufruf
         initialPageParam: undefined as number | undefined,

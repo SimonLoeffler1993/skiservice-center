@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { MaterialNeuSchema, MaterialReadSchema } from "./materialtypes";
 import { kundeSchema } from "./skikundentypes";
+import { type JaNein } from "./liste";
 
 // --- SaisonVerleihPreis ---
 export const SkiSaisonverleihPreisSchema = z.object({
@@ -46,6 +47,13 @@ export type VerleihStatus = z.infer<typeof VerleihStatusSchema>;
 // Benachrichtigung des Kunden: nein, abholung (Ski abholbereit) oder rueckgabe (Erinnerung)
 export const VerleihBenachrichtigungSchema = z.enum(["nein", "abholung", "rueckgabe"]);
 export type VerleihBenachrichtigung = z.infer<typeof VerleihBenachrichtigungSchema>;
+
+// Filter der Verleihliste, ohne Angabe = kein Filter
+export type VerleihListenFilter = {
+    status?: VerleihStatus;
+    bezahlt?: JaNein;
+    benachrichtigt?: VerleihBenachrichtigung;
+};
 
 export const SaisonVerleihSchema = z.object({
     ID: z.number().int(),
