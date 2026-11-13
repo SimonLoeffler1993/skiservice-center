@@ -8,7 +8,7 @@ export default function VerleihVorbereitung({ verleihe }: { verleihe: WerkstattV
     return (
         <section className="space-y-3">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Verleih: noch vorzubereiten ({verleihe.length})
+                Noch vorzubereiten ({verleihe.length})
             </h2>
 
             {verleihe.length === 0 ? (

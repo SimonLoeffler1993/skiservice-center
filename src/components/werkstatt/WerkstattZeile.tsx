@@ -1,11 +1,16 @@
+import { Children } from "react";
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 
-// Rahmen der kompakten Listen im Dashboard, ab lg zweispaltig
+import { cn } from "@/lib/utils";
+
+// Rahmen der kompakten Listen im Dashboard, ab lg und mehr als einer Zeile zweispaltig.
+// Die Zeilen haben den Strich oben, der oberste je Spalte verschwindet hinter dem Rahmen
 export function WerkstattListe({ children }: { children: React.ReactNode }) {
+    const zweispaltig = Children.count(children) > 1;
     return (
         <div className="overflow-hidden rounded-xl border bg-card">
-            <div className="-mb-px lg:columns-2 lg:gap-0 lg:[column-rule:1px_solid_var(--border)]">{children}</div>
+            <div className={cn("-mt-px", zweispaltig && "lg:columns-2 lg:gap-0 lg:[column-rule:1px_solid_var(--border)]")}>{children}</div>
         </div>
     );
 }
@@ -15,6 +20,8 @@ type WerkstattZeileProps = {
     // Auftrags- bzw. Verleihnummer
     nummer: string;
     name: string;
+    // Zweite, kleine Zeile unter dem Namen: was noch zu tun ist
+    detail?: React.ReactNode;
     // Dezente Zusatzangabe vor der Anzahl, auf dem Handy ausgeblendet
     zusatz?: React.ReactNode;
     // Rechts, z.B. "3 Ski"
@@ -22,14 +29,17 @@ type WerkstattZeileProps = {
 };
 
 // Eine Zeile "Nummer · Name · Anzahl", ganze Zeile antippbar
-export default function WerkstattZeile({ href, nummer, name, zusatz, anzahl }: WerkstattZeileProps) {
+export default function WerkstattZeile({ href, nummer, name, detail, zusatz, anzahl }: WerkstattZeileProps) {
     return (
         <Link
             href={href}
-            className="flex min-h-10 break-inside-avoid items-center gap-3 border-b px-3 py-1.5 text-sm hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none"
+            className="flex min-h-10 break-inside-avoid items-center gap-3 border-t px-3 py-1.5 text-sm hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none"
         >
             <span className="w-24 shrink-0 font-semibold tabular-nums">{nummer}</span>
-            <span className="min-w-0 flex-1 truncate">{name}</span>
+            <span className="min-w-0 flex-1">
+                <span className="block truncate">{name}</span>
+                {detail && <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">{detail}</span>}
+            </span>
             {zusatz && <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">{zusatz}</span>}
             <span className="shrink-0 text-right font-semibold tabular-nums">{anzahl}</span>
         </Link>

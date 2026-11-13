@@ -16,7 +16,9 @@ type AuftragZeile = {
     abhol_date?: string | null;
     // Offene Ski des Auftrags
     ski: number;
-    service: number;
+    // Offene Leistungen mit Anzahl, z.B. "großer Service" -> 2
+    leistungen: Map<string, number>;
+    // Ski, deren Bindung noch eingestellt werden muss
     bindung: number;
 };
 
@@ -32,19 +34,20 @@ function jeAuftrag(skis: WerkstattSki[]): AuftragZeile[] {
                 kunde_name: ski.kunde_name,
                 abhol_date: ski.abhol_date,
                 ski: 0,
-                service: 0,
+                leistungen: new Map(),
                 bindung: 0,
             };
             auftraege.set(ski.auftrag_id, zeile);
         }
         zeile.ski += 1;
-        if (ski.service_offen) zeile.service += 1;
+        if (ski.service_offen) zeile.leistungen.set(ski.service, (zeile.leistungen.get(ski.service) ?? 0) + 1);
         if (ski.bindung_offen) zeile.bindung += 1;
     }
     return [...auftraege.values()];
 }
 
-// Arbeitsliste der Werkstatt: je Auftrag eine Zeile mit Nummer, Name und Anzahl der offenen Ski
+// Arbeitsliste der Werkstatt: je Auftrag eine Zeile mit Nummer, Name, Anzahl der offenen Ski
+// und darunter, was noch zu machen ist (Leistungen und Bindung)
 export default function OffeneSkiListe({ skis }: { skis: WerkstattSki[] }) {
     const [ansicht, setAnsicht] = useState<Ansicht>("alle");
 
@@ -55,7 +58,7 @@ export default function OffeneSkiListe({ skis }: { skis: WerkstattSki[] }) {
     return (
         <section className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Skiservice: noch zu tun</h2>
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Noch zu tun</h2>
                 <Tabs value={ansicht} onValueChange={(wert) => setAnsicht(wert as Ansicht)}>
                     <TabsList className="h-10">
                         <TabsTrigger value="alle" className="px-3">Alle ({skis.length})</TabsTrigger>
@@ -75,26 +78,34 @@ export default function OffeneSkiListe({ skis }: { skis: WerkstattSki[] }) {
                 />
             ) : (
                 <WerkstattListe>
-                    {zeilen.map((zeile) => (
-                        <WerkstattZeile
-                            key={zeile.auftrag_id}
-                            href={`/skiservice/anzeigen/${zeile.auftrag_id}`}
-                            nummer={zeile.nummer}
-                            name={zeile.kunde_name}
-                            zusatz={
-                                <>
-                                    {/* Unter "Alle" zeigen, was am Auftrag offen ist */}
-                                    {ansicht === "alle" && zeile.bindung > 0 && (
-                                        <span className="mr-3">
-                                            {zeile.service > 0 ? `${zeile.service} Service · ${zeile.bindung} Bindung` : "nur Bindung"}
-                                        </span>
-                                    )}
-                                    {zeile.abhol_date && <AuftragFertigBis fertigBis={zeile.abhol_date} kurz />}
-                                </>
-                            }
-                            anzahl={`${zeile.ski} Ski`}
-                        />
-                    ))}
+                    {zeilen.map((zeile) => {
+                        // Im Tab "Einstellen" nur die Bindung, im Tab "Service" nur die Leistungen
+                        const leistungen = ansicht === "bindung" ? [] : [...zeile.leistungen];
+                        const bindungen = ansicht === "service" ? 0 : zeile.bindung;
+                        return (
+                            <WerkstattZeile
+                                key={zeile.auftrag_id}
+                                href={`/skiservice/anzeigen/${zeile.auftrag_id}`}
+                                nummer={zeile.nummer}
+                                name={zeile.kunde_name}
+                                detail={
+                                    <>
+                                        {leistungen.length > 0 && (
+                                            <span>{leistungen.map(([name, anzahl]) => `${anzahl}× ${name}`).join(" · ")}</span>
+                                        )}
+                                        {bindungen > 0 && (
+                                            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2 py-px font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                                <span className="h-1.5 w-1.5 rounded-full bg-red-500 dark:bg-red-400" />
+                                                {bindungen}× Bindung
+                                            </span>
+                                        )}
+                                    </>
+                                }
+                                zusatz={zeile.abhol_date && <AuftragFertigBis fertigBis={zeile.abhol_date} kurz />}
+                                anzahl={`${zeile.ski} Ski`}
+                            />
+                        );
+                    })}
                 </WerkstattListe>
             )}
         </section>
