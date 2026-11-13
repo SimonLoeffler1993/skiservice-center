@@ -1,5 +1,5 @@
 import {
-    CalendarDays, ClipboardList, Euro, List, type LucideIcon, Mail, Package, Receipt, ScanLine, Settings, ShoppingBag, Snowflake, Wrench,
+    CalendarDays, ClipboardList, Euro, Gauge, List, type LucideIcon, Mail, Package, Receipt, ScanLine, Settings, ShoppingBag, Snowflake, Wrench,
 } from "lucide-react";
 
 export type MenueLink = {
@@ -23,6 +23,7 @@ export type MenueGruppe = {
 
 // Direkte Einträge ohne Untermenü, gehören zu keiner Gruppe (z.B. der Scanner für Service und Verleih)
 export const DIREKT_LINKS: MenueLink[] = [
+    { titel: "Werkstatt", href: "/werkstatt", icon: Gauge, kachelTitel: "Werkstatt-Dashboard", beschreibung: "Was noch einzustellen und zu bearbeiten ist, mit Auswertung und Verleih-Übersicht.", startseiteUnten: true },
     { titel: "Scanner", href: "/scanner", icon: ScanLine, kachelTitel: "Scanner", beschreibung: "Etiketten scannen: Ski fertig stellen und Bindungen prüfen.", startseiteUnten: true },
 ];
 
