@@ -109,7 +109,10 @@ export default function EinstellungFeld({ einstellung, control, register, setVal
             ) : (
                 <Input
                     id={id}
-                    type={einstellung.typ === "zahl" ? "number" : "text"}
+                    type={einstellung.typ === "zahl" || einstellung.typ === "dezimal" ? "number" : "text"}
+                    // Beträge mit Cent, z.B. 7,50
+                    step={einstellung.typ === "dezimal" ? "0.01" : undefined}
+                    min={einstellung.typ === "dezimal" ? 0 : undefined}
                     {...register(einstellung.schluessel)}
                 />
             )}
