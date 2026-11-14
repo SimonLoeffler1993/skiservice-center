@@ -11,7 +11,7 @@ import { holeLetzteKunden } from "@/lib/kundeactions";
 import { cn } from "@/lib/utils";
 import { Kunde } from "@/types/skikundentypes";
 import CheckinListe from "./CheckinListe";
-import { adresse, name, telefon } from "./KundeSuchErgebnisseTabelle";
+import { adresse, name, telefon } from "./KundenTabelle";
 
 type LetzteKundenProps = {
     offen: boolean;

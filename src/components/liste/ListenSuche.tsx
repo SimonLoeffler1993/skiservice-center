@@ -9,8 +9,17 @@ import { Input } from "@/components/ui/input";
 // Pause nach dem Tippen, bevor gesucht wird
 const WARTEZEIT_MS = 300;
 
+type ListenSucheProps = {
+    suche: string;
+    // Parameter, die bei einer neuen Suche aus der URL fallen, z.B. die Seite
+    zuruecksetzen?: string[];
+};
+
+// Feste Referenz, damit der Effekt unten nicht bei jedem Render neu läuft
+const NICHTS: string[] = [];
+
 // Suche nach dem Kundennamen (?suche=). Andere Filter bleiben erhalten.
-export default function ListenSuche({ suche }: { suche: string }) {
+export default function ListenSuche({ suche, zuruecksetzen = NICHTS }: ListenSucheProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -32,13 +41,14 @@ export default function ListenSuche({ suche }: { suche: string }) {
             const parameter = new URLSearchParams(searchParams.toString());
             if (neu) parameter.set("suche", neu);
             else parameter.delete("suche");
+            for (const name of zuruecksetzen) parameter.delete(name);
             const query = parameter.toString();
             setGesendet(neu);
             // replace: nicht jede Eingabe soll einen Eintrag im Browser-Verlauf erzeugen
             startTransition(() => router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false }));
         }, WARTEZEIT_MS);
         return () => clearTimeout(timer);
-    }, [text, gesendet, searchParams, pathname, router]);
+    }, [text, gesendet, searchParams, pathname, router, zuruecksetzen]);
 
     return (
         <div className="relative w-full sm:w-64">

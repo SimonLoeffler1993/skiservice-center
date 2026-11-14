@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 
-import { Kunde, KundeErfassen, kundeSchema, kundenArraySchema, SkiSuchKunde } from "@/types/skikundentypes";
+import { Kunde, KundeErfassen, KundenListe, kundenListeRohSchema, KundenSortierung, KUNDEN_PRO_SEITE, kundeSchema, kundenArraySchema, SkiSuchKunde } from "@/types/skikundentypes";
 import { ApiAntwort } from "@/types/actiontypes";
 import { KundeHistorie, KundeHistorieRohSchema } from "@/types/kundehistorietypes";
 import { SaisonverleihReadSchema } from "@/types/saisonverleihtypes";
@@ -95,9 +95,29 @@ export async function holeKunde(id: number): Promise<ApiAntwort<Kunde>> {
 function gueltige<T>(eintraege: unknown[], schema: z.ZodType<T>, was: string): T[] {
     return eintraege.flatMap((eintrag) => {
         const ergebnis = schema.safeParse(eintrag);
-        if (!ergebnis.success) console.error(`Kunden-Historie: ${was} nicht lesbar`, ergebnis.error);
+        if (!ergebnis.success) console.error(`Kunden: ${was} nicht lesbar`, ergebnis.error);
         return ergebnis.success ? [ergebnis.data] : [];
     });
+}
+
+// Eine Seite der Kundenliste, die Suche (Wörter aus Vor- oder Nachname) ist optional
+export async function holeKundenListe(seite: number, sortierung: KundenSortierung, suche: string): Promise<ApiAntwort<KundenListe>> {
+    const parameter = new URLSearchParams({ seite: String(seite), pro_seite: String(KUNDEN_PRO_SEITE), sortierung });
+    if (suche) parameter.set("suche", suche);
+    const antwort = await anfrage(`/kunden/liste?${parameter}`, "GET", kundenListeRohSchema, "Kunden konnten nicht geladen werden.");
+    if (!antwort.success) return antwort;
+    // Ein Kunde mit unlesbaren Altdaten soll nicht die ganze Seite verhindern
+    const eintraege = gueltige(antwort.data.eintraege, kundeSchema, "Kunde");
+    return {
+        success: true,
+        data: {
+            eintraege,
+            gesamt: antwort.data.gesamt,
+            seite: antwort.data.seite,
+            proSeite: antwort.data.pro_seite,
+            uebersprungen: antwort.data.eintraege.length - eintraege.length,
+        },
+    };
 }
 
 // Aufträge, Verleihe und die zugehörigen Quittungen eines Kunden über alle Saisons

@@ -50,6 +50,8 @@ export default function CheckinListe({ onKundeAuswaehlen }: { onKundeAuswaehlen:
                 return;
             }
             setFehler(null);
+            // Der Kunde ist jetzt angelegt
+            queryClient.invalidateQueries({ queryKey: ["kundenListe"] });
             if (antwort.data.warnung) {
                 setHinweis({ text: antwort.data.warnung, kunde: antwort.data.kunde });
                 return;

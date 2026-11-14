@@ -34,6 +34,30 @@ export const kundenArraySchema = z.array(kundeSchema);
 
 export type Kunde = z.infer<typeof kundeSchema>;
 
+// Kundenliste des Kundenbereichs: alphabetisch oder zuletzt angelegte zuerst
+export const KundenSortierungSchema = z.enum(["name", "neueste"]);
+export type KundenSortierung = z.infer<typeof KundenSortierungSchema>;
+
+export const KUNDEN_PRO_SEITE = 25;
+
+// Antwort der API, die Einträge werden einzeln geprüft (Altdaten)
+export const kundenListeRohSchema = z.object({
+  eintraege: z.array(z.unknown()),
+  gesamt: z.number(),
+  seite: z.number(),
+  pro_seite: z.number(),
+});
+
+export type KundenListe = {
+  eintraege: Kunde[];
+  // Treffer über alle Seiten
+  gesamt: number;
+  seite: number;
+  proSeite: number;
+  // Nicht lesbare Altdaten auf dieser Seite
+  uebersprungen: number;
+};
+
 // Typen für TypeScript
 export type Ort = z.infer<typeof ortSchema>;
 export type Person = z.infer<typeof kundeSchema>;

@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Kunde } from "@/types/skikundentypes";
 
 // Alles, was Kundendaten eingebettet enthält (Name auf Karten, Detailseiten, Quittungen)
-const MIT_KUNDENDATEN = ["serviceAuftragDetails", "saisonverleihDetails", "skiserviceList", "saisonverleihList", "quittungenListe", "werkstatt"];
+const MIT_KUNDENDATEN = ["serviceAuftragDetails", "saisonverleihDetails", "skiserviceList", "saisonverleihList", "quittungenListe", "werkstatt", "kundenListe"];
 
 // Nach dem Bearbeiten: Kunde sofort übernehmen und alles neu laden, was seine Daten zeigt
 export function useKundeGeaendert() {
