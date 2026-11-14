@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBackendUrl } from "@/context/backend-context";
-import { einstellungenOptions } from "@/hooks/useEinstellungenOptions";
 
 import { SCANNER_MODI, webflasherUrl } from "./webflasherUrl";
 
@@ -18,17 +16,11 @@ import { SCANNER_MODI, webflasherUrl } from "./webflasherUrl";
 const MODUS_REIHENFOLGE = [1, 2, 0];
 
 // Öffnet den Webflasher mit vorbelegter Server-Adresse, Name und Modus. Das WLAN wird dort eingetragen.
-export default function ScannerEinrichtung({ startName = "" }: { startName?: string }) {
+export default function ScannerEinrichtung({ webflasherUrl: webflasher, startName = "" }: { webflasherUrl: string; startName?: string }) {
     const backendUrl = useBackendUrl();
-    const einstellungen = useQuery(einstellungenOptions);
     const [name, setName] = useState(startName);
     const [modus, setModus] = useState(1);
 
-    const text = (schluessel: string) => {
-        const wert = einstellungen.data?.find((einstellung) => einstellung.schluessel === schluessel)?.wert;
-        return typeof wert === "string" ? wert.trim() : "";
-    };
-    const webflasher = text("SCANNER_WEBFLASHER_URL");
     // Der Scanner spricht dieselbe API wie das Center (BACKEND_URL)
     const server = backendUrl;
     // Der Scanner hängt im WLAN, localhost wäre er selbst
@@ -72,22 +64,12 @@ export default function ScannerEinrichtung({ startName = "" }: { startName?: str
                         Diese Adresse erreicht der Scanner im WLAN nicht. Das Center braucht als BACKEND_URL eine Adresse, die im Netzwerk erreichbar ist, oder die Server-Adresse wird im Webflasher angepasst.
                     </p>
                 )}
-                {einstellungen.isError && <p className="text-sm text-destructive">{einstellungen.error.message}</p>}
-                {einstellungen.data && !webflasher && (
-                    <p className="text-sm text-destructive">Die Webflasher Adresse fehlt. Bitte oben unter „Hardware-Scanner“ eintragen.</p>
-                )}
 
-                {webflasher ? (
-                    <Button variant="outline" asChild>
-                        <a href={webflasherUrl(webflasher, { server, name, modus })} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4" /> Webflasher öffnen
-                        </a>
-                    </Button>
-                ) : (
-                    <Button type="button" variant="outline" disabled>
+                <Button variant="outline" asChild>
+                    <a href={webflasherUrl(webflasher, { server, name, modus })} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="h-4 w-4" /> Webflasher öffnen
-                    </Button>
-                )}
+                    </a>
+                </Button>
             </CardContent>
         </Card>
     );

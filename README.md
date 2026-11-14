@@ -73,6 +73,7 @@ Auf kleinen Bildschirmen klappt das Menü seitlich aus, Formulare und Listen sta
 | Variable | Beschreibung |
 |---|---|
 | `BACKEND_URL` | Adresse der Skiservice API, z. B. `http://skiserviceapi:8000`. Standard: `http://localhost:8000` |
+| `WEBFLASHER_URL` | Optional: Adresse des Webflashers für „Hardware-Scanner installieren“. Standard: `https://simonloeffler1993.github.io/scanner_project/` |
 
 Die Seite `/fertig` verbindet sich per WebSocket **aus dem Browser** mit der API. Dafür muss `BACKEND_URL` auch vom Browser aus erreichbar sein.
 

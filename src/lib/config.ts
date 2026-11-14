@@ -7,5 +7,7 @@ export const config = {
 export function getConfig() {
     return {
         backendUrl: process.env.BACKEND_URL ?? 'http://localhost:8000',
+        // Webflasher der Hardware-Scanner (GitHub Pages), mit WEBFLASHER_URL überschreibbar
+        webflasherUrl: process.env.WEBFLASHER_URL || 'https://simonloeffler1993.github.io/scanner_project/',
     };
 }
