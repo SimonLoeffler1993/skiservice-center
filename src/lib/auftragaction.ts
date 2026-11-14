@@ -2,6 +2,7 @@
 import { config } from "./config";
 import { AuftragListe, AuftragListeSchema, AuftragSchema, ServiceListenFilter } from "@/types/skiservicetypes";
 import { ListenSortierung } from "@/types/liste";
+import { MailStatus, MailStatusSchema } from "@/types/skiscanner";
 import type { Bindungsdaten } from "@/types/bindungsdatentypes";
 
 // Ski wie ihn die API beim Anlegen erwartet
@@ -14,8 +15,13 @@ export type SkiAnlegen = {
     vorlage_id: number | null;
 };
 
+type FertigAntwort =
+    // mail: Ergebnis der Fertig-Mail, null wenn keine fällig war
+    | { success: true; error: null; data: unknown; mail: MailStatus | null }
+    | { success: false; error: string; data: null; mail: null };
+
 // mail = false: keine Fertig-Mail, auch wenn danach alle Ski fertig sind
-export async function auftragFertigStellen(serviceId: number, skiIds: number[], mail = true) {
+export async function auftragFertigStellen(serviceId: number, skiIds: number[], mail = true): Promise<FertigAntwort> {
     try {
         const response = await fetch(`${config.backendUrl}/api/v1/skiservice/skifertig`, {
             method: "POST",
@@ -26,14 +32,14 @@ export async function auftragFertigStellen(serviceId: number, skiIds: number[], 
         });
         if (!response.ok) {
             console.error("Fehler beim Fertigstellen:", response);
-            return { success: false, error: "Fehler beim Fertigstellen", data: null };
+            return { success: false, error: "Fehler beim Fertigstellen", data: null, mail: null };
         }
         const data = await response.json();
-        return { success: true, error: null, data };
+        return { success: true, error: null, data, mail: MailStatusSchema.safeParse(data?.mail).data ?? null };
 
     } catch (error) {
         console.error("Fehler beim Fertigstellen:", error);
-        return { success: false, error: "Fehler beim Fertigstellen - " + error, data: null };
+        return { success: false, error: "Fehler beim Fertigstellen - " + error, data: null, mail: null };
     }
 }
 

@@ -7,6 +7,7 @@ import { Auftrag, AuftragSchema } from "@/types/skiservicetypes";
 import { SaisonverleihRead, SaisonverleihReadSchema, VerleihArt, VerleihBenachrichtigung, VerleihStatus } from "@/types/saisonverleihtypes";
 import type { Bindungsdaten } from "@/types/bindungsdatentypes";
 import { ApiAntwort } from "@/types/actiontypes";
+import { MailStatus, MailStatusSchema } from "@/types/skiscanner";
 
 // --- Skiservice ---
 
@@ -102,8 +103,9 @@ export async function entferneMaterial(verleihId: number, materialId: number): P
 }
 
 // Bindungen als geprüft markieren, ohne materialIds alle mit Ski. Sind alle geprüft, wird der Verleih "vorbereitet"
-export async function pruefeVerleihBindungen(verleihId: number, materialIds?: number[]): Promise<ApiAntwort<SaisonverleihRead>> {
-    return anfrage(`/saisonverleih/${verleihId}/bindung-geprueft`, "POST", SaisonverleihReadSchema, "Bindung konnte nicht als geprüft markiert werden.", { material_ids: materialIds ?? null });
+// mail: Ergebnis der automatischen Abhol-Mail
+export async function pruefeVerleihBindungen(verleihId: number, materialIds?: number[]): Promise<ApiAntwort<SaisonverleihRead & { mail?: MailStatus | null }>> {
+    return anfrage(`/saisonverleih/${verleihId}/bindung-geprueft`, "POST", SaisonverleihReadSchema.extend({ mail: MailStatusSchema.nullish() }), "Bindung konnte nicht als geprüft markiert werden.", { material_ids: materialIds ?? null });
 }
 
 // Status setzen: vorbereitung -> vorbereitet -> unterwegs (abgeholt) -> zurueck, auch rückwärts zum Korrigieren

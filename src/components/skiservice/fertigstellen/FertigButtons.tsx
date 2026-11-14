@@ -38,7 +38,9 @@ export default function FertigButtons({ serviceId, selectedSkiIds, onErledigt }:
                 // Status in Liste und Details aktualisieren
                 queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
                 await queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails", serviceId] });
-                onErledigt({ ok: true, text: `${selectedSkiIds.length === 1 ? "Ski" : `${selectedSkiIds.length} Ski`} fertig gestellt` });
+                onErledigt({ ok: true, text: `${selectedSkiIds.length === 1 ? "Ski" : `${selectedSkiIds.length} Ski`} fertig gestellt`,
+                    mail: data.mail && { status: data.mail, art: "fertig" },
+                });
             } else {
                 onErledigt({ ok: false, text: data.error ?? "Fertigstellen fehlgeschlagen" });
             }

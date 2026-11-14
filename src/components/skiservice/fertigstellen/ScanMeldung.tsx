@@ -1,23 +1,33 @@
 import { CircleAlert, CircleCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { MailStatus } from "@/types/skiscanner";
+import MailHinweis from "./MailHinweis";
 
-export type Meldung = { ok: boolean; text: string };
+export type Meldung = {
+    ok: boolean;
+    text: string;
+    // Durch die Aktion ging automatisch eine Kundenmail raus (oder der Versand scheiterte)
+    mail?: { status: MailStatus; art: "fertig" | "abholung"; kunde?: string | null } | null;
+};
 
 // Ergebnis der letzten Aktion, z.B. "2 Ski fertig gestellt"
 export default function ScanMeldung({ meldung }: { meldung: Meldung | null }) {
     if (!meldung) return null;
     const Icon = meldung.ok ? CircleCheck : CircleAlert;
     return (
-        <p
-            aria-live="polite"
-            className={cn(
-                "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium",
-                meldung.ok ? "border-green-200 bg-green-50 text-green-800" : "border-red-200 bg-red-50 text-red-700",
-            )}
-        >
-            <Icon className="h-4 w-4 shrink-0" />
-            {meldung.text}
-        </p>
+        <div className="space-y-2">
+            <p
+                aria-live="polite"
+                className={cn(
+                    "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium",
+                    meldung.ok ? "border-green-200 bg-green-50 text-green-800" : "border-red-200 bg-red-50 text-red-700",
+                )}
+            >
+                <Icon className="h-4 w-4 shrink-0" />
+                {meldung.text}
+            </p>
+            {meldung.mail && <MailHinweis {...meldung.mail} />}
+        </div>
     );
 }

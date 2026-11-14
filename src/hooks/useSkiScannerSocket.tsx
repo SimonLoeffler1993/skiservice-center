@@ -12,6 +12,8 @@ export function useSkiScannerSocket(backEndUrl: string, scannerName: string | nu
     const [nachricht, setNachricht] = useState<ScannerWebSocketMessage | null>(null);
     // Letzter echter Scan (mit Scannername), Status-Meldungen z.B. nach dem Fertigstellen zählen nicht
     const [scan, setScan] = useState<ScannerWebSocketMessage | null>(null);
+    // Letzter Bindungsscan eines Verleih-Etiketts, bis zum nächsten Service-Scan
+    const [verleihScan, setVerleihScan] = useState<ScannerWebSocketMessage | null>(null);
     // Zählt jeden Scan, auch wenn derselbe Ski erneut gescannt wird
     const [scanNr, setScanNr] = useState(0);
     const [verbunden, setVerbunden] = useState(false);
@@ -38,8 +40,12 @@ export function useSkiScannerSocket(backEndUrl: string, scannerName: string | nu
                 if (name && scannerNameRef.current && name !== scannerNameRef.current) return;
 
                 setNachricht(parsedata.data);
-                if (parsedata.data.scannername) {
+                if (parsedata.data.art === "verleih") {
+                    // Kein Service-Scan: nur Hinweis, der angezeigte Auftrag und sein Countdown bleiben
+                    setVerleihScan(parsedata.data);
+                } else if (parsedata.data.scannername) {
                     setScan(parsedata.data);
+                    setVerleihScan(null);
                     setScanNr((nr) => nr + 1);
                 }
             } catch (error) {
@@ -64,6 +70,6 @@ export function useSkiScannerSocket(backEndUrl: string, scannerName: string | nu
         }
     };
 
-    return { nachricht, scan, scanNr, verbunden, nachrichtSenden, error };
+    return { nachricht, scan, verleihScan, scanNr, verbunden, nachrichtSenden, error };
 
 }
