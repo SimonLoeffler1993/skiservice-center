@@ -29,7 +29,8 @@ export default function ScannerEinrichtung({ startName = "" }: { startName?: str
         return typeof wert === "string" ? wert.trim() : "";
     };
     const webflasher = text("SCANNER_WEBFLASHER_URL");
-    const server = text("SCANNER_SERVER_URL") || backendUrl;
+    // Der Scanner spricht dieselbe API wie das Center (BACKEND_URL)
+    const server = backendUrl;
     // Der Scanner hängt im WLAN, localhost wäre er selbst
     const nurLokal = /^https?:\/\/(localhost|127\.|\[::1\])/i.test(server);
 
@@ -68,7 +69,7 @@ export default function ScannerEinrichtung({ startName = "" }: { startName?: str
                 </p>
                 {nurLokal && (
                     <p className="text-sm text-destructive">
-                        Diese Adresse erreicht der Scanner im WLAN nicht. Bitte oben unter „Hardware-Scanner“ die Server-Adresse für Scanner eintragen.
+                        Diese Adresse erreicht der Scanner im WLAN nicht. Das Center braucht als BACKEND_URL eine Adresse, die im Netzwerk erreichbar ist, oder die Server-Adresse wird im Webflasher angepasst.
                     </p>
                 )}
                 {einstellungen.isError && <p className="text-sm text-destructive">{einstellungen.error.message}</p>}
