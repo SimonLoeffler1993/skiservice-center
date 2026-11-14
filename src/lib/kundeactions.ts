@@ -4,6 +4,9 @@ import { z } from "zod";
 
 import { Kunde, KundeErfassen, kundeSchema, kundenArraySchema, SkiSuchKunde } from "@/types/skikundentypes";
 import { ApiAntwort } from "@/types/actiontypes";
+import { KundeHistorie, KundeHistorieRohSchema } from "@/types/kundehistorietypes";
+import { SaisonverleihReadSchema } from "@/types/saisonverleihtypes";
+import { AuftragSchema } from "@/types/skiservicetypes";
 import { config } from "./config";
 import { anfrage } from "./apianfrage";
 
@@ -86,4 +89,30 @@ export async function holeLetzteKunden(): Promise<ApiAntwort<Kunde[]>> {
 // Kunde neu laden, z.B. nachdem er seine Daten am Kundenterminal geändert hat
 export async function holeKunde(id: number): Promise<ApiAntwort<Kunde>> {
     return anfrage(`/kunden/${id}`, "GET", kundeSchema, "Kunde konnte nicht geladen werden.");
+}
+
+// Gültige Einträge einer Liste, ungültige werden protokolliert und übersprungen
+function gueltige<T>(eintraege: unknown[], schema: z.ZodType<T>, was: string): T[] {
+    return eintraege.flatMap((eintrag) => {
+        const ergebnis = schema.safeParse(eintrag);
+        if (!ergebnis.success) console.error(`Kunden-Historie: ${was} nicht lesbar`, ergebnis.error);
+        return ergebnis.success ? [ergebnis.data] : [];
+    });
+}
+
+// Aufträge, Verleihe und die zugehörigen Quittungen eines Kunden über alle Saisons
+export async function holeKundeHistorie(id: number): Promise<ApiAntwort<KundeHistorie>> {
+    const antwort = await anfrage(`/kunden/${id}/historie`, "GET", KundeHistorieRohSchema, "Historie konnte nicht geladen werden.");
+    if (!antwort.success) return antwort;
+    const auftraege = gueltige(antwort.data.auftraege, AuftragSchema, "Auftrag");
+    const verleihe = gueltige(antwort.data.verleihe, SaisonverleihReadSchema, "Verleih");
+    return {
+        success: true,
+        data: {
+            auftraege,
+            verleihe,
+            quittungen: antwort.data.quittungen,
+            unlesbar: antwort.data.auftraege.length - auftraege.length + antwort.data.verleihe.length - verleihe.length,
+        },
+    };
 }
