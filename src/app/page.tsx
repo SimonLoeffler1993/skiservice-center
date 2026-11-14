@@ -58,10 +58,10 @@ export default async function Home() {
                         ))}
                     </div>
 
-                    {/* Abgetrennt unten, z.B. der Scanner in der Werkstatt */}
+                    {/* Abgetrennt unten: Kunden, Werkstatt und Scanner */}
                     {unten.length > 0 && (
                         <section className="space-y-3 border-t pt-6">
-                            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Werkstatt</h2>
+                            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Kunden und Werkstatt</h2>
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {unten.map((link) => (
                                     <Kachel

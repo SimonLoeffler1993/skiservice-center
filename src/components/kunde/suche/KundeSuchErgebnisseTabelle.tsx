@@ -5,7 +5,6 @@ import { ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Kunde, SkiSuchKunde } from "@/types/skikundentypes";
-import { useKundeStore } from "@/stores/useKundeStore";
 import KundeErfassenDialog from "@/components/kunde/KundeErfassenDialog";
 
 type KundeSuchErgebnisseTabelleProps = {
@@ -30,10 +29,8 @@ export function telefon(kunde: Kunde) {
 }
 
 export default function KundeSuchErgebnisseTabelle({ daten, suche, onKundeAuswaehlen }: KundeSuchErgebnisseTabelleProps) {
-    const { setKunde } = useKundeStore();
-
+    // Was mit der Auswahl passiert (z.B. in den Kunden-Store übernehmen), entscheidet die Suche
     function auswaehlen(kunde: Kunde) {
-        setKunde(kunde);
         onKundeAuswaehlen?.(kunde);
     }
 
