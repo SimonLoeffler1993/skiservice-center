@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 import Kachel from "@/components/startseite/kachel";
 import MenueLeiste from "@/components/saisonverleih/menue/MenueLeiste";
-import { DIREKT_LINKS, MENUE_GRUPPEN } from "@/components/saisonverleih/menue/menueeintraege";
+import { STARTSEITE_LINKS, MENUE_GRUPPEN } from "@/components/saisonverleih/menue/menueeintraege";
 import AktuelleSaison from "@/components/saison/AktuelleSaison";
 import BackendFehler from "@/components/saison/BackendFehler";
 import KeineSaison from "@/components/saison/KeineSaison";
@@ -18,7 +18,7 @@ export default async function Home() {
     const schnellzugriff = gruppen
         .map((gruppe) => ({ ...gruppe, links: gruppe.links.filter((link) => !link.startseiteUnten) }))
         .filter((gruppe) => gruppe.links.length > 0);
-    const unten = [...DIREKT_LINKS, ...gruppen.flatMap((gruppe) => gruppe.links)].filter((link) => link.startseiteUnten);
+    const unten = [...STARTSEITE_LINKS, ...gruppen.flatMap((gruppe) => gruppe.links)].filter((link) => link.startseiteUnten);
 
     return (
         <div className="container mx-auto p-4 space-y-6">
@@ -58,10 +58,10 @@ export default async function Home() {
                         ))}
                     </div>
 
-                    {/* Abgetrennt unten: Kunden, Werkstatt und Scanner */}
+                    {/* Abgetrennt unten: Werkstatt und Scanner, die nicht in der Navigation stehen */}
                     {unten.length > 0 && (
                         <section className="space-y-3 border-t pt-6">
-                            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Kunden und Werkstatt</h2>
+                            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Werkstatt</h2>
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {unten.map((link) => (
                                     <Kachel
