@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import Link from "next/link";
 import { Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -81,6 +82,12 @@ export default function ScannerAuswahl({ wahl, geraete, onWechsel }: ScannerAusw
                 <p className="text-xs text-muted-foreground">
                     Angezeigt werden nur Status und Scans dieses Scanners. Der Name wird am Scanner bzw. im Webflasher eingetragen.
                 </p>
+                <Link
+                    href={`/verwalten/einstellungen${wahl ? `?scanner=${encodeURIComponent(wahl)}` : ""}#hardware-scanner`}
+                    className="block text-xs font-medium text-primary underline-offset-4 hover:underline"
+                >
+                    Neuen Scanner installieren
+                </Link>
             </PopoverContent>
         </Popover>
     );

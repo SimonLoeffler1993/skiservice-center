@@ -1,12 +1,7 @@
+import { SCANNER_MODI } from "@/components/einstellungen/webflasherUrl";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ScannerGeraet } from "@/types/skiscanner";
-
-const MODI: Record<number, string> = {
-    0: "Bearbeitung",
-    1: "Fertigstellen",
-    2: "Bindung prüfen",
-};
 
 const FARBEN = {
     gruen: "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-400",
@@ -46,7 +41,7 @@ function GeraetBadge({ geraet }: { geraet: ScannerGeraet }) {
     if (!geraet.usb_scanner) {
         return <StatusBadge farbe="orange" text={`${geraet.name}: USB-Scanner fehlt`} title={details} />;
     }
-    return <StatusBadge farbe="gruen" text={`${geraet.name} · ${MODI[geraet.modus] ?? `Modus ${geraet.modus}`}`} title={details} />;
+    return <StatusBadge farbe="gruen" text={`${geraet.name} · ${SCANNER_MODI[geraet.modus] ?? `Modus ${geraet.modus}`}`} title={details} />;
 }
 
 type HardwareScannerStatusProps = {
