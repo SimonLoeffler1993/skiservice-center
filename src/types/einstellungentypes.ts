@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-export const EinstellungTypSchema = z.enum(["text", "zahl", "bool", "auswahl", "passwort"]);
+// zahl = ganze Zahl, dezimal = mit Nachkommastellen (z.B. Euro)
+export const EinstellungTypSchema = z.enum(["text", "zahl", "dezimal", "bool", "auswahl", "passwort"]);
 
 export const EinstellungSchema = z.object({
     schluessel: z.string(),

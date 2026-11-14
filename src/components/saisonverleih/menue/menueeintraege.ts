@@ -1,5 +1,5 @@
 import {
-    CalendarDays, ClipboardList, Euro, Gauge, List, type LucideIcon, Mail, Package, Receipt, ScanLine, Settings, ShoppingBag, Snowflake, Wrench,
+    CalendarDays, ClipboardList, Euro, Gauge, List, type LucideIcon, Mail, Package, Receipt, ScanLine, Settings, ShoppingBag, Snowflake, Users, Wrench,
 } from "lucide-react";
 
 export type MenueLink = {
@@ -21,8 +21,8 @@ export type MenueGruppe = {
     nurNavigation?: boolean;
 };
 
-// Direkte Einträge ohne Untermenü, gehören zu keiner Gruppe (z.B. der Scanner für Service und Verleih)
-export const DIREKT_LINKS: MenueLink[] = [
+// Nur als Kacheln auf der Startseite, nicht in der Navigation (dort stehen nur die Gruppen)
+export const STARTSEITE_LINKS: MenueLink[] = [
     { titel: "Werkstatt", href: "/werkstatt", icon: Gauge, kachelTitel: "Werkstatt-Dashboard", beschreibung: "Was noch einzustellen und zu bearbeiten ist, mit Auswertung und Verleih-Übersicht.", startseiteUnten: true },
     { titel: "Scanner", href: "/scanner", icon: ScanLine, kachelTitel: "Scanner", beschreibung: "Etiketten scannen: Ski fertig stellen und Bindungen prüfen.", startseiteUnten: true },
 ];
@@ -54,12 +54,13 @@ export const MENUE_GRUPPEN: MenueGruppe[] = [
         titel: "Verwalten",
         nurNavigation: true,
         links: [
+            { titel: "Kunden", href: "/kunde", icon: Users, kachelTitel: "Kunden", beschreibung: "Kunden suchen und bearbeiten, mit allen Aufträgen, Verleihen und Quittungen." },
             { titel: "Material", href: "/material", icon: Package, kachelTitel: "Material", beschreibung: "Ski, Schuhe, Stöcke, Hersteller und Modelle." },
             { titel: "Preise", href: "/verwalten/preise", icon: Euro, kachelTitel: "Preise", beschreibung: "Preise für Skiservice und Saisonverleih." },
             { titel: "Handware", href: "/verwalten/handware", icon: ShoppingBag, kachelTitel: "Handware", beschreibung: "Artikel für den Verkauf in der Kasse." },
             { titel: "Quittungen", href: "/verwalten/quittungen", icon: Receipt, kachelTitel: "Quittungen", beschreibung: "Alle Quittungen einer Saison." },
             { titel: "Vorlagen", href: "/verwalten/vorlagen", icon: Mail, kachelTitel: "Vorlagen", beschreibung: "Texte der E-Mails an die Kunden." },
-            { titel: "Einstellungen", href: "/verwalten/einstellungen", icon: Settings, kachelTitel: "Einstellungen", beschreibung: "Firma, Drucker, E-Mail und Lexware." },
+            { titel: "Einstellungen", href: "/verwalten/einstellungen", icon: Settings, kachelTitel: "Einstellungen", beschreibung: "Firma, Drucker, E-Mail, Lexware und Scanner." },
         ],
     },
 ];

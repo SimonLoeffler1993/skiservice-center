@@ -17,9 +17,11 @@ import LetzteKunden, { LetzteKundenButton, useLetzteKunden } from "./LetzteKunde
 
 type KundeSuchFormProps = {
     onKundeSelected?: (kunde: Kunde) => void;
+    // Nur melden: der Kunde wird weder in den Kunden-Store übernommen noch als Karte angezeigt (Kundenbereich)
+    nurAuswahl?: boolean;
 };
 
-export default function KundeSuchForm({ onKundeSelected }: KundeSuchFormProps = {}) {
+export default function KundeSuchForm({ onKundeSelected, nurAuswahl = false }: KundeSuchFormProps = {}) {
     const {
         register,
         handleSubmit,
@@ -52,9 +54,11 @@ export default function KundeSuchForm({ onKundeSelected }: KundeSuchFormProps = 
     }
 
     function onKundeAuswaehlen(kunde: Kunde) {
-        setLetzteOffen(false);
-        setKunde(kunde);
-        setAusgewaehlterKunde(kunde);
+        if (!nurAuswahl) {
+            setLetzteOffen(false);
+            setKunde(kunde);
+            setAusgewaehlterKunde(kunde);
+        }
         onKundeSelected?.(kunde);
     }
 

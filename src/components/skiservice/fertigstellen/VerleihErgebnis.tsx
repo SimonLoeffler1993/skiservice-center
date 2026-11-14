@@ -56,19 +56,22 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz }: Verle
 
     function bindungGeprueft() {
         const statusVorher = verleih!.Status;
-        const benachrichtigtVorher = verleih!.Benachrichtigt;
         startTransition(async () => {
             const antwort = await pruefeVerleihBindungen(verleihId, offen);
             if (!antwort.success) {
                 setMeldung({ ok: false, text: antwort.error });
                 return;
             }
-            aktualisieren(antwort.data);
+            const { mail, ...neu } = antwort.data;
+            aktualisieren(neu);
             setAusgewaehlt([]);
             const wechsel = antwort.data.Status !== statusVorher ? ` · Verleih ist jetzt „${STATUS_ANZEIGE[antwort.data.Status].text}“` : "";
             // Beim Wechsel auf "vorbereitet" geht die Abhol-Mail automatisch raus
-            const mail = benachrichtigtVorher === "nein" && antwort.data.Benachrichtigt === "abholung" ? " · Kunde per Mail zur Abholung benachrichtigt" : "";
-            setMeldung({ ok: true, text: `${offen.length === 1 ? "Bindung" : `${offen.length} Bindungen`} geprüft${wechsel}${mail}` });
+            setMeldung({
+                ok: true,
+                text: `${offen.length === 1 ? "Bindung" : `${offen.length} Bindungen`} geprüft${wechsel}`,
+                mail: mail && { status: mail, art: "abholung", kunde: [neu.Kunde.Vorname, neu.Kunde.Nachname].filter(Boolean).join(" ") || null },
+            });
         });
     }
 

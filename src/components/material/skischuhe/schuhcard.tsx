@@ -1,4 +1,6 @@
 "use client"
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Schuh, SchuhModellArray } from "@/types/materialtypes";
 import { aendereSchuhMaterial } from "@/lib/materialbearbeitenactions";
@@ -70,7 +72,11 @@ export default function SkischuhCard ({schuh, modelle, onGeaendert}: SkischuhPro
         <Card className={`hover:shadow-md transition-shadow ${schuh.Ausgemustert ? "opacity-60" : ""}`}>
             <CardHeader>
                 <CardTitle className="flex flex-wrap items-center justify-between gap-2 text-base">
-                    {schuh.Modell.Modell}
+                    {/* Kopf führt zur Detailseite mit Verleihen und Erwirtschaftetem */}
+                    <Link href={`/material/schuh/${schuh.ID}`} className="group inline-flex min-w-0 items-center gap-1 hover:underline" title="Details anzeigen">
+                        <span className="truncate">{schuh.Modell.Modell}</span>
+                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                    </Link>
                     {schuh.Ausgemustert && <AusgemustertBadge />}
                 </CardTitle>
                 <CardDescription>

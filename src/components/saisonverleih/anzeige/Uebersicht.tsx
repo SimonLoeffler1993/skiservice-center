@@ -85,7 +85,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID, hervorh
                 </div>
 
                 <aside className="grid grid-cols-1 items-start gap-4 md:order-1 md:grid-cols-2 lg:order-2 lg:grid-cols-1">
-                    <KundeForm kunde={verleih.Kunde} />
+                    <KundeForm kunde={verleih.Kunde} kundenseite />
                     <div className="space-y-4">
                         <DetailKarte titel="Quittung" icon={Receipt}>
                             <QuittungKurzInfo quittungID={verleih.QuittungID} ziel={{ art: "verleih", id: verleih.ID }} />

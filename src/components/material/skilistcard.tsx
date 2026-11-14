@@ -1,5 +1,7 @@
 "use client"
 import { useState } from "react";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ModellArray, Ski } from "@/types/materialtypes";
@@ -69,7 +71,11 @@ export default function SkiListCard({ ski, modelle, onGeaendert }: SkiLIstCardPr
         <Card className={`hover:shadow-md transition-shadow ${ski.Ausgemustert ? "opacity-60" : ""}`}>
             <CardHeader>
                 <CardTitle className="flex flex-wrap items-center justify-between gap-2 text-base">
-                    {ski.Modell.Modell}
+                    {/* Kopf führt zur Detailseite mit Verleihen und Erwirtschaftetem */}
+                    <Link href={`/material/ski/${ski.ID}`} className="group inline-flex min-w-0 items-center gap-1 hover:underline" title="Details anzeigen">
+                        <span className="truncate">{ski.Modell.Modell}</span>
+                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                    </Link>
                     {ski.Ausgemustert && <AusgemustertBadge />}
                 </CardTitle>
                 <CardDescription>{ski.Modell.Hersteller.Name} • {ski.Modell.Art.Art}</CardDescription>

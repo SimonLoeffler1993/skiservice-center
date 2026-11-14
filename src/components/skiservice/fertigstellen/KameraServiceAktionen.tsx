@@ -36,7 +36,7 @@ export default function KameraServiceAktionen({ auftrag, auswahl, erledigt, zusa
                 return;
             }
             await neuLaden();
-            erledigt({ ok: true, text: `${anzahlText(auswahl.length)} fertig gestellt` });
+            erledigt({ ok: true, text: `${anzahlText(auswahl.length)} fertig gestellt`, mail: antwort.mail && { status: antwort.mail, art: "fertig" } });
         });
     }
 

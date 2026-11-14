@@ -12,13 +12,14 @@ import FertigButtons from "./FertigButtons";
 import HardwareScannerStatus from "./HardwareScannerStatus";
 import ScannerAuswahl, { useScannerWahl } from "./ScannerAuswahl";
 import ScanLeer from "./ScanLeer";
+import MailHinweis from "./MailHinweis";
 import ScanMeldung from "./ScanMeldung";
 import ServiceErgebnis from "./ServiceErgebnis";
 
 // Hardware-Scanner: Scans kommen über das Backend per WebSocket, Fertigstellen mit Countdown
 export default function HardwareScanner({ backendUrl }: { backendUrl: string }) {
     const [scannerWahl, setScannerWahl] = useScannerWahl();
-    const { nachricht, scan, scanNr, verbunden, error } = useSkiScannerSocket(backendUrl, scannerWahl);
+    const { nachricht, scan, verleihScan, scanNr, verbunden, error } = useSkiScannerSocket(backendUrl, scannerWahl);
     const geraete = useQuery(scannerGeraeteOptions);
     const bildschirmAn = useBildschirmAn();
     const queryClient = useQueryClient();
@@ -54,6 +55,19 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
             {nachricht && <p className="text-sm text-muted-foreground">{nachricht.message}</p>}
 
             {error && <ScanMeldung meldung={{ ok: false, text: error }} />}
+
+            {/* Verleih-Etikett im Modus "Bindung": geprüft, ggf. ging die Abhol-Mail raus */}
+            {verleihScan && (
+                <div className="space-y-2">
+                    <ScanMeldung
+                        meldung={{
+                            ok: true,
+                            text: `Verleih ${verleihScan.verleih_name ?? verleihScan.verleih_id ?? ""}${verleihScan.kunde ? ` (${verleihScan.kunde})` : ""}: Bindung geprüft`,
+                        }}
+                    />
+                    <MailHinweis status={verleihScan.mail} art="abholung" kunde={verleihScan.kunde} />
+                </div>
+            )}
 
             {auftragId ? (
                 <ServiceErgebnis

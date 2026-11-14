@@ -3,7 +3,7 @@
 import { useEffect, useId, useState, useTransition, type ReactNode } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -65,6 +65,7 @@ export default function KundeErfassenDialog({ kunde, vorname = "", nachname = ""
     const [fehler, setFehler] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const formId = useId();
+    const queryClient = useQueryClient();
     const bearbeiten = !!kunde;
 
     const leer = startwerte(kunde, vorname, nachname);
@@ -112,6 +113,8 @@ export default function KundeErfassenDialog({ kunde, vorname = "", nachname = ""
                 return;
             }
             setOffen(false);
+            // Neuer Kunde gehört in die Kundenliste (Änderungen meldet useKundeGeaendert)
+            if (!kunde) queryClient.invalidateQueries({ queryKey: ["kundenListe"] });
             onGespeichert(antwort.data);
         });
     }

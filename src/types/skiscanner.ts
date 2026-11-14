@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { AuftragSchema } from "./skiservicetypes";
 
+// Ergebnis einer automatischen Kundenmail (Fertig-Mail, Abhol-Mail), ohne Wert war keine fällig
+export const MailStatusSchema = z.enum(["gesendet", "fehlgeschlagen"]);
+export type MailStatus = z.infer<typeof MailStatusSchema>;
+
 export const ScannerWebSocketMessageSchema = z.object({
     message: z.string(),
     success: z.boolean(),
@@ -8,6 +12,12 @@ export const ScannerWebSocketMessageSchema = z.object({
     ski_id: z.number().int().nullable().optional(),
     service_id: z.number().int().nullable().optional(),
     data: AuftragSchema.nullable().optional(),
+    // "verleih": Bindungsscan eines Verleih-Etiketts am Hardware-Scanner, ohne data
+    art: z.enum(["service", "verleih"]).nullish(),
+    verleih_id: z.number().int().nullish(),
+    verleih_name: z.string().nullish(),
+    kunde: z.string().nullish(),
+    mail: MailStatusSchema.nullish(),
 });
 
 export type ScannerWebSocketMessage = z.infer<typeof ScannerWebSocketMessageSchema>;
