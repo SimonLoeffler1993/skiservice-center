@@ -23,9 +23,8 @@ type QuittungenListeProps = {
     saisonID: number;
 };
 
-// Alle Quittungen einer Saison, jede Zeile lässt sich aufklappen und zeigt die Artikel
+// Alle Quittungen einer Saison
 export default function QuittungenListe({ saisonID }: QuittungenListeProps) {
-    const [offen, setOffen] = useState<Set<number>>(new Set());
     const { data, error, isPending } = useQuery({
         queryKey: ["quittungenListe", saisonID],
         queryFn: () => getQuittungenListe(saisonID),
@@ -36,7 +35,12 @@ export default function QuittungenListe({ saisonID }: QuittungenListeProps) {
     if (data.length === 0) {
         return <p className="rounded-lg border border-dashed p-6 text-center text-muted-foreground">Keine Quittungen in dieser Saison.</p>;
     }
+    return <QuittungenTabelle quittungen={data} />;
+}
 
+// Tabelle mit Summe, jede Zeile lässt sich aufklappen und zeigt die Artikel (auch auf der Kundenseite)
+export function QuittungenTabelle({ quittungen: data }: { quittungen: QuittungListeEintrag[] }) {
+    const [offen, setOffen] = useState<Set<number>>(new Set());
     const alleOffen = offen.size === data.length;
     const summe = data.reduce((gesamt, q) => gesamt + q.Betrag, 0);
 
