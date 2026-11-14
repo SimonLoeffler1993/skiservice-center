@@ -3,7 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 
 import DetailKopf from "@/components/detail/DetailKopf";
-import { LISTEN_RASTER, ListenSkeleton } from "@/components/liste/ListenTeile";
+import { ListenSkeleton } from "@/components/liste/ListenTeile";
+import NachSaison, { ListeLeerText } from "@/components/liste/NachSaison";
 import { QuittungenTabelle } from "@/components/quittung/QuittungenListe";
 import SaisonverleihListeCard from "@/components/saisonverleih/liste/SaisonverleihListeCard";
 import AuftragKurzCard from "@/components/skiservice/anzeigen/AuftragKurzCard";
@@ -18,40 +19,6 @@ type KundeDetailsProps = {
     // Für die Saison-Überschriften in der Historie
     saisons: SaisonsNamen[];
 };
-
-function Leer({ text }: { text: string }) {
-    return <p className="rounded-lg border border-dashed p-6 text-center text-muted-foreground">{text}</p>;
-}
-
-// Einträge je Saison unter einer Überschrift. Die Reihenfolge (neueste zuerst) kommt von der API
-function NachSaison<T>({ eintraege, saisonID, saisons, leer, karte }: {
-    eintraege: T[];
-    saisonID: (eintrag: T) => number | null;
-    saisons: SaisonsNamen[];
-    leer: string;
-    karte: (eintrag: T) => React.ReactNode;
-}) {
-    if (eintraege.length === 0) return <Leer text={leer} />;
-
-    const gruppen = new Map<number | null, T[]>();
-    for (const eintrag of eintraege) {
-        const id = saisonID(eintrag);
-        gruppen.set(id, [...(gruppen.get(id) ?? []), eintrag]);
-    }
-
-    return (
-        <div className="space-y-6">
-            {[...gruppen].map(([id, liste]) => (
-                <section key={id ?? "ohne"} className="space-y-3">
-                    <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                        {id === null ? "Ohne Saison" : `Saison ${saisons.find((saison) => saison.ID === id)?.Name ?? `#${id}`}`} ({liste.length})
-                    </h2>
-                    <div className={LISTEN_RASTER}>{liste.map(karte)}</div>
-                </section>
-            ))}
-        </div>
-    );
-}
 
 // Kundenseite: Kunde bearbeiten, darunter seine Aufträge, Verleihe und Quittungen über alle Saisons
 export default function KundeDetails({ kundeID, saisons }: KundeDetailsProps) {
@@ -116,7 +83,7 @@ export default function KundeDetails({ kundeID, saisons }: KundeDetailsProps) {
                         </TabsContent>
                         <TabsContent value="quittungen" className="mt-4">
                             {historie.data.quittungen.length === 0 ? (
-                                <Leer text="Noch keine Quittung." />
+                                <ListeLeerText text="Noch keine Quittung." />
                             ) : (
                                 <QuittungenTabelle quittungen={historie.data.quittungen} />
                             )}

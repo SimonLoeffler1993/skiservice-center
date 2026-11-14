@@ -12,12 +12,14 @@ type DetailKopfProps = {
     badges?: React.ReactNode;
     // Ohne Angabe entfällt der Gesamtbetrag (Kundenseite)
     betrag?: number;
+    // Überschrift über dem Betrag, Standard "Gesamt"
+    betragTitel?: string;
     // Nächster Schritt im Ablauf, z.B. "Abgeholt" oder "Alle fertig"
     hauptaktion?: React.ReactNode;
 };
 
 // Kopf der Detailansichten (Verleih, Skiservice, Kunde): Nummer, Status, Gesamtbetrag und Hauptaktion
-export default function DetailKopf({ zurueckHref, zurueckText, titel, unterzeile, badges, betrag, hauptaktion }: DetailKopfProps) {
+export default function DetailKopf({ zurueckHref, zurueckText, titel, unterzeile, badges, betrag, betragTitel = "Gesamt", hauptaktion }: DetailKopfProps) {
     return (
         <header className="space-y-2">
             <Link
@@ -36,7 +38,7 @@ export default function DetailKopf({ zurueckHref, zurueckText, titel, unterzeile
                 <div className="flex flex-col items-start gap-3 sm:ml-auto sm:items-end">
                     {betrag !== undefined && (
                         <div className="sm:text-right">
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Gesamt</p>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{betragTitel}</p>
                             <p className="text-3xl font-bold tabular-nums leading-tight">{euro.format(betrag)}</p>
                         </div>
                     )}
