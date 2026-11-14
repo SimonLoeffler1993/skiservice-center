@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Mail, MapPin, Phone, RefreshCw, Smartphone, X, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { History, Mail, MapPin, Phone, RefreshCw, Smartphone, X, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { holeKunde } from "@/lib/kundeactions";
@@ -14,6 +15,8 @@ type KundeFormProps = {
     onClose?: () => void;
     // Mit Angabe kann der Kunde bearbeitet werden (z.B. nach der Auswahl)
     onGeaendert?: (kunde: Kunde) => void;
+    // Link zur Kundenseite mit Bearbeiten und Historie (z.B. im Auftrag oder Verleih)
+    kundenseite?: boolean;
     className?: string;
 };
 
@@ -37,7 +40,7 @@ function KontaktZeile({ icon: Icon, href, text, titel }: { icon: LucideIcon; hre
 }
 
 // Kompakte Kundenkarte: Name, Anschrift und antippbare Kontakte
-export default function KundeForm({ kunde, onClose, onGeaendert, className }: KundeFormProps) {
+export default function KundeForm({ kunde, onClose, onGeaendert, kundenseite, className }: KundeFormProps) {
     const [ladeFehler, setLadeFehler] = useState<string | null>(null);
     const [laedt, startTransition] = useTransition();
 
@@ -79,6 +82,14 @@ export default function KundeForm({ kunde, onClose, onGeaendert, className }: Ku
                     </div>
                 </div>
                 <div className="ml-auto flex shrink-0 items-center gap-1">
+                    {kundenseite && (
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={`/kunde/${kunde.ID}`} title="Kunde bearbeiten, alle Aufträge, Verleihe und Quittungen">
+                                <History className="h-4 w-4" />
+                                Kundenseite
+                            </Link>
+                        </Button>
+                    )}
                     {onGeaendert && (
                         <Button variant="ghost" size="icon" onClick={neuLaden} disabled={laedt} title="Neu laden">
                             <RefreshCw className={cn("h-4 w-4", laedt && "animate-spin")} />
