@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { holeScannerGeraete } from "@/lib/skiscanneractions";
+import { holeNeuesteFirmware, holeScannerGeraete } from "@/lib/skiscanneractions";
 
 // Hardware-Scanner mit Verbindungsstatus, regelmäßig neu geladen
 export const scannerGeraeteOptions = queryOptions({
@@ -11,4 +11,14 @@ export const scannerGeraeteOptions = queryOptions({
         return antwort.data;
     },
     refetchInterval: 10_000,
+});
+
+// Neueste veröffentlichte Firmware-Version (Manifest des Webflashers), null wenn nicht abrufbar
+export const neuesteFirmwareOptions = queryOptions({
+    queryKey: ["scannerFirmware"],
+    queryFn: async () => {
+        const antwort = await holeNeuesteFirmware();
+        return antwort.success ? antwort.data : null;
+    },
+    staleTime: 10 * 60_000,
 });

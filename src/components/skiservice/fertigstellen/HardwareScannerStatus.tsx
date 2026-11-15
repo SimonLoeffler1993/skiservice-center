@@ -17,7 +17,7 @@ const PUNKTE = {
     grau: "bg-muted-foreground/50",
 };
 
-function StatusBadge({ farbe, text, title }: { farbe: keyof typeof FARBEN; text: string; title?: string }) {
+export function StatusBadge({ farbe, text, title }: { farbe: keyof typeof FARBEN; text: string; title?: string }) {
     return (
         <Badge title={title} className={cn("gap-2 rounded-full px-3 py-1", FARBEN[farbe])}>
             <span className={cn("h-2 w-2 shrink-0 rounded-full", PUNKTE[farbe])} />
@@ -26,7 +26,7 @@ function StatusBadge({ farbe, text, title }: { farbe: keyof typeof FARBEN; text:
     );
 }
 
-function vorWann(zuletzt: string): string {
+export function vorWann(zuletzt: string): string {
     const minuten = Math.floor((Date.now() - new Date(zuletzt).getTime()) / 60_000);
     if (minuten < 1) return "gerade eben";
     if (minuten < 60) return `vor ${minuten} Min.`;
