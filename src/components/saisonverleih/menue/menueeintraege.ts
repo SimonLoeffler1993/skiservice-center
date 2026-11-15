@@ -60,6 +60,7 @@ export const MENUE_GRUPPEN: MenueGruppe[] = [
             { titel: "Handware", href: "/verwalten/handware", icon: ShoppingBag, kachelTitel: "Handware", beschreibung: "Artikel für den Verkauf in der Kasse." },
             { titel: "Quittungen", href: "/verwalten/quittungen", icon: Receipt, kachelTitel: "Quittungen", beschreibung: "Alle Quittungen einer Saison." },
             { titel: "Vorlagen", href: "/verwalten/vorlagen", icon: Mail, kachelTitel: "Vorlagen", beschreibung: "Texte der E-Mails an die Kunden." },
+            { titel: "Hardware-Scanner", href: "/verwalten/scanner", icon: ScanLine, kachelTitel: "Hardware-Scanner", beschreibung: "Alle Scanner mit Firmware und Verbindungsstatus, Firmware aktualisieren." },
             { titel: "Einstellungen", href: "/verwalten/einstellungen", icon: Settings, kachelTitel: "Einstellungen", beschreibung: "Firma, Drucker, E-Mail, Lexware und Scanner." },
         ],
     },

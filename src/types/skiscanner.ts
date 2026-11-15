@@ -32,7 +32,17 @@ export const ScannerGeraetSchema = z.object({
     usb_scanner: z.boolean(),
     zuletzt: z.string(),
     verbunden: z.boolean(),
+    // Firmware kann sich selbst aktualisieren, ältere Firmware meldet das nicht
+    update_faehig: z.boolean().default(false),
+    // Stand des Selbst-Updates laut Scanner: "pruefe" / "laedt" / "aktuell" / "fehlgeschlagen", sonst leer
+    update_status: z.string().nullish(),
+    update_fehler: z.string().nullish(),
+    // Im Center angestoßen, der Scanner hat noch nicht reagiert
+    update_angefordert: z.string().nullish(),
 });
+
+// manifest.json des Webflashers (GitHub Pages), hier zählt nur die Version
+export const FirmwareManifestSchema = z.object({ version: z.string().min(1) });
 
 export const ScannerGeraetListeSchema = z.array(ScannerGeraetSchema);
 
