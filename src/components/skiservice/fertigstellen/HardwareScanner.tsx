@@ -8,22 +8,24 @@ import { useBildschirmAn } from "@/hooks/useBildschirmAn";
 import { scannerGeraeteOptions } from "@/hooks/useScannerGeraeteOptions";
 import { useSkiScannerSocket } from "@/hooks/useSkiScannerSocket";
 import ScannerVerbindung from "../ScannerVerbindung";
+import BindungButtons from "./BindungButtons";
 import FertigButtons from "./FertigButtons";
 import HardwareScannerStatus from "./HardwareScannerStatus";
 import ScannerAuswahl, { useScannerWahl } from "./ScannerAuswahl";
 import ScanLeer from "./ScanLeer";
-import MailHinweis from "./MailHinweis";
 import ScanMeldung from "./ScanMeldung";
 import ServiceErgebnis from "./ServiceErgebnis";
+import VerleihErgebnis from "./VerleihErgebnis";
 
 // Hardware-Scanner: Scans kommen über das Backend per WebSocket, Fertigstellen mit Countdown
 export default function HardwareScanner({ backendUrl }: { backendUrl: string }) {
     const [scannerWahl, setScannerWahl] = useScannerWahl();
-    const { nachricht, scan, verleihScan, scanNr, verbunden, error } = useSkiScannerSocket(backendUrl, scannerWahl);
+    const { nachricht, scan, scanNr, verbunden, error } = useSkiScannerSocket(backendUrl, scannerWahl);
     const geraete = useQuery(scannerGeraeteOptions);
     const bildschirmAn = useBildschirmAn();
     const queryClient = useQueryClient();
     const auftragId = scan?.service_id;
+    const verleihId = scan?.art === "verleih" ? scan.verleih_id : null;
 
     // Ein Scan zeigt, dass der Scanner da ist: Status gleich neu laden statt erst nach 10 s
     useEffect(() => {
@@ -56,33 +58,27 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
 
             {error && <ScanMeldung meldung={{ ok: false, text: error }} />}
 
-            {/* Verleih-Etikett im Modus "Bindung": geprüft, ggf. ging die Abhol-Mail raus */}
-            {verleihScan && (
-                <div className="space-y-2">
-                    <ScanMeldung
-                        meldung={{
-                            ok: true,
-                            text: `Verleih ${verleihScan.verleih_name ?? verleihScan.verleih_id ?? ""}${verleihScan.kunde ? ` (${verleihScan.kunde})` : ""}: Bindung geprüft`,
-                        }}
-                    />
-                    <MailHinweis status={verleihScan.mail} art="abholung" kunde={verleihScan.kunde} />
-                </div>
-            )}
-
-            {auftragId ? (
+            {/* Gespeichert wird immer erst nach dem Countdown, je nach Modus des Scanners fertig oder Bindung geprüft */}
+            {verleihId ? (
+                <VerleihErgebnis key={scanNr} verleihId={verleihId} materialId={scan?.material_id ?? null} countdown />
+            ) : auftragId ? (
                 <ServiceErgebnis
                     key={scanNr}
                     auftragId={auftragId}
                     skiId={scan?.ski_id}
-                    aktionen={({ auftrag, auswahl, erledigt }) => (
-                        <FertigButtons serviceId={auftrag.id} selectedSkiIds={auswahl.map((ski) => ski.id)} onErledigt={erledigt} />
-                    )}
+                    aktionen={(kontext) =>
+                        scan?.aktion === "bindung" ? (
+                            <BindungButtons {...kontext} />
+                        ) : (
+                            <FertigButtons serviceId={kontext.auftrag.id} selectedSkiIds={kontext.auswahl.map((ski) => ski.id)} onErledigt={kontext.erledigt} />
+                        )
+                    }
                 />
             ) : (
                 <ScanLeer
                     icon={ScanBarcode}
                     titel="Etikett scannen"
-                    text="Den QR-Code auf dem Service-Etikett mit dem Scanner erfassen. Der Ski wird ausgewählt und nach 10 Sekunden fertig gestellt."
+                    text="Den QR-Code auf dem Etikett mit dem Scanner erfassen. Je nach Modus des Scanners wird der Ski nach 10 Sekunden fertig gestellt oder die Bindung als geprüft markiert."
                 />
             )}
         </div>

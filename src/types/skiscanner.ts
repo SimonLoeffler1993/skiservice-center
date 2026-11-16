@@ -12,12 +12,16 @@ export const ScannerWebSocketMessageSchema = z.object({
     ski_id: z.number().int().nullable().optional(),
     service_id: z.number().int().nullable().optional(),
     data: AuftragSchema.nullable().optional(),
-    // "verleih": Bindungsscan eines Verleih-Etiketts am Hardware-Scanner, ohne data
+    // "verleih": Scan eines Verleih-Etiketts am Hardware-Scanner, ohne data
     art: z.enum(["service", "verleih"]).nullish(),
     verleih_id: z.number().int().nullish(),
     verleih_name: z.string().nullish(),
     kunde: z.string().nullish(),
     mail: MailStatusSchema.nullish(),
+    // Was nach dem Countdown passiert: Ski fertig stellen oder Bindung als geprüft markieren
+    aktion: z.enum(["fertig", "bindung"]).nullish(),
+    // Gescannte Materialzeile eines Verleih-Etiketts
+    material_id: z.number().int().nullish(),
 });
 
 export type ScannerWebSocketMessage = z.infer<typeof ScannerWebSocketMessageSchema>;

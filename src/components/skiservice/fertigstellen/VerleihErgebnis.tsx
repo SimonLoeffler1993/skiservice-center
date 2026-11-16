@@ -14,6 +14,7 @@ import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptio
 import { pruefeVerleihBindungen } from "@/lib/bearbeitenactions";
 import { cn } from "@/lib/utils";
 import { MaterialRead, materialBezeichnung } from "@/types/materialtypes";
+import CountdownAktion from "./CountdownAktion";
 import ScanMeldung, { Meldung } from "./ScanMeldung";
 
 type VerleihErgebnisProps = {
@@ -22,11 +23,13 @@ type VerleihErgebnisProps = {
     materialId: number | null;
     // Weitere Buttons in der Aktionsleiste, z.B. "Nächsten scannen"
     zusatz?: React.ReactNode;
+    // Hardware-Scanner: nach 10 s Countdown speichern statt per Button
+    countdown?: boolean;
 };
 
 // Gescannter Verleih: Kopf mit Kunde und Status, Material zum Auswählen, "Bindung geprüft"
 // Wird pro Scan neu eingehängt (key), damit die Auswahl zurückgesetzt wird
-export default function VerleihErgebnis({ verleihId, materialId, zusatz }: VerleihErgebnisProps) {
+export default function VerleihErgebnis({ verleihId, materialId, zusatz, countdown }: VerleihErgebnisProps) {
     const { data: verleih, isPending, error } = useQuery({ ...saisonverleihDetailsOptions(verleihId), staleTime: 0 });
     const [ausgewaehlt, setAusgewaehlt] = useState<number[]>(materialId ? [materialId] : []);
     const [meldung, setMeldung] = useState<Meldung | null>(null);
@@ -54,24 +57,22 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz }: Verle
         setAusgewaehlt((liste) => (liste.includes(m.ID) ? liste.filter((x) => x !== m.ID) : [...liste, m.ID]));
     }
 
-    function bindungGeprueft() {
+    async function bindungGeprueft() {
         const statusVorher = verleih!.Status;
-        startTransition(async () => {
-            const antwort = await pruefeVerleihBindungen(verleihId, offen);
-            if (!antwort.success) {
-                setMeldung({ ok: false, text: antwort.error });
-                return;
-            }
-            const { mail, ...neu } = antwort.data;
-            aktualisieren(neu);
-            setAusgewaehlt([]);
-            const wechsel = antwort.data.Status !== statusVorher ? ` · Verleih ist jetzt „${STATUS_ANZEIGE[antwort.data.Status].text}“` : "";
-            // Beim Wechsel auf "vorbereitet" geht die Abhol-Mail automatisch raus
-            setMeldung({
-                ok: true,
-                text: `${offen.length === 1 ? "Bindung" : `${offen.length} Bindungen`} geprüft${wechsel}`,
-                mail: mail && { status: mail, art: "abholung", kunde: [neu.Kunde.Vorname, neu.Kunde.Nachname].filter(Boolean).join(" ") || null },
-            });
+        const antwort = await pruefeVerleihBindungen(verleihId, offen);
+        if (!antwort.success) {
+            setMeldung({ ok: false, text: antwort.error });
+            return;
+        }
+        const { mail, ...neu } = antwort.data;
+        aktualisieren(neu);
+        setAusgewaehlt([]);
+        const wechsel = antwort.data.Status !== statusVorher ? ` · Verleih ist jetzt „${STATUS_ANZEIGE[antwort.data.Status].text}“` : "";
+        // Beim Wechsel auf "vorbereitet" geht die Abhol-Mail automatisch raus
+        setMeldung({
+            ok: true,
+            text: `${offen.length === 1 ? "Bindung" : `${offen.length} Bindungen`} geprüft${wechsel}`,
+            mail: mail && { status: mail, art: "abholung", kunde: [neu.Kunde.Vorname, neu.Kunde.Nachname].filter(Boolean).join(" ") || null },
         });
     }
 
@@ -148,13 +149,17 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz }: Verle
 
             <div className="sticky bottom-0 -mx-4 space-y-2 border-t bg-background/95 px-4 py-3 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:backdrop-blur-none">
                 <ScanMeldung meldung={meldung} />
-                <div className="flex flex-wrap gap-2">
-                    <Button className="h-11 flex-1 text-base" onClick={bindungGeprueft} disabled={offen.length === 0 || laeuft}>
-                        <BadgeCheck className="h-5 w-5" />
-                        {laeuft ? "Wird gespeichert..." : `Bindung geprüft${offen.length ? ` (${offen.length})` : ""}`}
-                    </Button>
-                    {zusatz}
-                </div>
+                {countdown ? (
+                    <CountdownAktion schluessel={offen.join(",")} text="Bindung geprüft" laeuftText="Wird gespeichert..." icon={BadgeCheck} ausfuehren={bindungGeprueft} />
+                ) : (
+                    <div className="flex flex-wrap gap-2">
+                        <Button className="h-11 flex-1 text-base" onClick={() => startTransition(bindungGeprueft)} disabled={offen.length === 0 || laeuft}>
+                            <BadgeCheck className="h-5 w-5" />
+                            {laeuft ? "Wird gespeichert..." : `Bindung geprüft${offen.length ? ` (${offen.length})` : ""}`}
+                        </Button>
+                        {zusatz}
+                    </div>
+                )}
             </div>
         </div>
     );
