@@ -26,6 +26,8 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
     const queryClient = useQueryClient();
     const auftragId = scan?.service_id;
     const verleihId = scan?.art === "verleih" ? scan.verleih_id : null;
+    // Dauer kommt mit dem Scan aus den Einstellungen, ältere API ohne Feld: 10 s
+    const sekunden = scan?.countdown ?? 10;
 
     // Ein Scan zeigt, dass der Scanner da ist: Status gleich neu laden statt erst nach 10 s
     useEffect(() => {
@@ -60,7 +62,7 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
 
             {/* Gespeichert wird immer erst nach dem Countdown, je nach Modus des Scanners fertig oder Bindung geprüft */}
             {verleihId ? (
-                <VerleihErgebnis key={scanNr} verleihId={verleihId} materialId={scan?.material_id ?? null} countdown />
+                <VerleihErgebnis key={scanNr} verleihId={verleihId} materialId={scan?.material_id ?? null} countdownSekunden={sekunden} />
             ) : auftragId ? (
                 <ServiceErgebnis
                     key={scanNr}
@@ -68,9 +70,9 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
                     skiId={scan?.ski_id}
                     aktionen={(kontext) =>
                         scan?.aktion === "bindung" ? (
-                            <BindungButtons {...kontext} />
+                            <BindungButtons {...kontext} sekunden={sekunden} />
                         ) : (
-                            <FertigButtons serviceId={kontext.auftrag.id} selectedSkiIds={kontext.auswahl.map((ski) => ski.id)} onErledigt={kontext.erledigt} />
+                            <FertigButtons serviceId={kontext.auftrag.id} selectedSkiIds={kontext.auswahl.map((ski) => ski.id)} onErledigt={kontext.erledigt} sekunden={sekunden} />
                         )
                     }
                 />
@@ -78,7 +80,7 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
                 <ScanLeer
                     icon={ScanBarcode}
                     titel="Etikett scannen"
-                    text="Den QR-Code auf dem Etikett mit dem Scanner erfassen. Je nach Modus des Scanners wird der Ski nach 10 Sekunden fertig gestellt oder die Bindung als geprüft markiert."
+                    text="Den QR-Code auf dem Etikett mit dem Scanner erfassen. Je nach Modus des Scanners wird der Ski nach dem Countdown fertig gestellt oder die Bindung als geprüft markiert."
                 />
             )}
         </div>

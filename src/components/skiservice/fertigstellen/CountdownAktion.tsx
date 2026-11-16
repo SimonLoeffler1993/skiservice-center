@@ -1,4 +1,4 @@
-import { useEffect, useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { LucideIcon, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,15 @@ type CountdownAktionProps = {
     laeuftText: string;
     icon: LucideIcon;
     ausfuehren: () => Promise<void>;
+    // Dauer des Countdowns, 0 = direkt nach dem Scan ausführen
+    sekunden?: number;
 };
 
-// Hardware-Scanner: Aktion nach 10 s Countdown ausführen, Abbrechen hält den Countdown an
-export default function CountdownAktion({ schluessel, text, laeuftText, icon: Icon, ausfuehren }: CountdownAktionProps) {
-    const { countdown, pause, resetTimer, setPause } = useTimer();
+// Hardware-Scanner: Aktion nach dem Countdown ausführen, Abbrechen hält den Countdown an
+export default function CountdownAktion({ schluessel, text, laeuftText, icon: Icon, ausfuehren, sekunden = 10 }: CountdownAktionProps) {
+    const { countdown, pause, resetTimer, setPause } = useTimer(sekunden);
+    // Ohne Countdown nur einmal je Scan von selbst ausführen, danach zählt der Button
+    const sofortErledigt = useRef(false);
     const [isPending, startTransition] = useTransition();
     const gesperrt = schluessel === "" || isPending;
 
@@ -36,13 +40,16 @@ export default function CountdownAktion({ schluessel, text, laeuftText, icon: Ic
     }
 
     useEffect(() => {
-        if (countdown === 0 && schluessel !== "") {
-            starten();
+        if (countdown !== 0 || schluessel === "") return;
+        if (sekunden === 0) {
+            if (sofortErledigt.current) return;
+            sofortErledigt.current = true;
         }
+        starten();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [countdown]);
 
-    const laeuft = !pause && !gesperrt;
+    const laeuft = !pause && !gesperrt && sekunden > 0;
 
     return (
         <div className="flex gap-2">

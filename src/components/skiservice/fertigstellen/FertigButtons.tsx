@@ -9,10 +9,12 @@ type FertigButtonsProps = {
     serviceId: number;
     selectedSkiIds: number[];
     onErledigt: (meldung: Meldung) => void;
+    // Dauer des Countdowns aus den Einstellungen
+    sekunden?: number;
 };
 
-// Hardware-Scanner: ausgewählte Ski nach 10 s Countdown fertig stellen, Abbrechen hält den Countdown an
-export default function FertigButtons({ serviceId, selectedSkiIds, onErledigt }: FertigButtonsProps) {
+// Hardware-Scanner: ausgewählte Ski nach dem Countdown fertig stellen, Abbrechen hält den Countdown an
+export default function FertigButtons({ serviceId, selectedSkiIds, onErledigt, sekunden }: FertigButtonsProps) {
     const queryClient = useQueryClient();
 
     async function fertigStellen() {
@@ -38,6 +40,7 @@ export default function FertigButtons({ serviceId, selectedSkiIds, onErledigt }:
             laeuftText="Wird fertig gestellt..."
             icon={CheckCheck}
             ausfuehren={fertigStellen}
+            sekunden={sekunden}
         />
     );
 }

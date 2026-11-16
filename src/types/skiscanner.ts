@@ -22,6 +22,8 @@ export const ScannerWebSocketMessageSchema = z.object({
     aktion: z.enum(["fertig", "bindung"]).nullish(),
     // Gescannte Materialzeile eines Verleih-Etiketts
     material_id: z.number().int().nullish(),
+    // Sekunden bis zum Speichern, 0 = sofort (Einstellungen → Hardware-Scanner)
+    countdown: z.number().int().nullish(),
 });
 
 export type ScannerWebSocketMessage = z.infer<typeof ScannerWebSocketMessageSchema>;

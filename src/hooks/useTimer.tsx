@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-export default function useTimer() {
-    const [countdown, setCountdown] = useState(10);
+// sekunden: Dauer des Countdowns
+export default function useTimer(sekunden = 10) {
+    const [countdown, setCountdown] = useState(sekunden);
     const [pause, setPause] = useState(false);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -40,10 +41,10 @@ export default function useTimer() {
     }, [pause, clearTimer, startTimer]);
 
     const resetTimer = useCallback(() => {
-        setCountdown(10);
+        setCountdown(sekunden);
         setPause(false);
         startTimer();
-    }, [startTimer]);
+    }, [startTimer, sekunden]);
 
     return { countdown, pause, setPause, resetTimer };
 }

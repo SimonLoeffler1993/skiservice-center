@@ -23,13 +23,13 @@ type VerleihErgebnisProps = {
     materialId: number | null;
     // Weitere Buttons in der Aktionsleiste, z.B. "Nächsten scannen"
     zusatz?: React.ReactNode;
-    // Hardware-Scanner: nach 10 s Countdown speichern statt per Button
-    countdown?: boolean;
+    // Hardware-Scanner: nach so vielen Sekunden Countdown speichern statt per Button (0 = sofort)
+    countdownSekunden?: number;
 };
 
 // Gescannter Verleih: Kopf mit Kunde und Status, Material zum Auswählen, "Bindung geprüft"
 // Wird pro Scan neu eingehängt (key), damit die Auswahl zurückgesetzt wird
-export default function VerleihErgebnis({ verleihId, materialId, zusatz, countdown }: VerleihErgebnisProps) {
+export default function VerleihErgebnis({ verleihId, materialId, zusatz, countdownSekunden }: VerleihErgebnisProps) {
     const { data: verleih, isPending, error } = useQuery({ ...saisonverleihDetailsOptions(verleihId), staleTime: 0 });
     const [ausgewaehlt, setAusgewaehlt] = useState<number[]>(materialId ? [materialId] : []);
     const [meldung, setMeldung] = useState<Meldung | null>(null);
@@ -149,8 +149,8 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz, countdo
 
             <div className="sticky bottom-0 -mx-4 space-y-2 border-t bg-background/95 px-4 py-3 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:backdrop-blur-none">
                 <ScanMeldung meldung={meldung} />
-                {countdown ? (
-                    <CountdownAktion schluessel={offen.join(",")} text="Bindung geprüft" laeuftText="Wird gespeichert..." icon={BadgeCheck} ausfuehren={bindungGeprueft} />
+                {countdownSekunden !== undefined ? (
+                    <CountdownAktion schluessel={offen.join(",")} text="Bindung geprüft" laeuftText="Wird gespeichert..." icon={BadgeCheck} ausfuehren={bindungGeprueft} sekunden={countdownSekunden} />
                 ) : (
                     <div className="flex flex-wrap gap-2">
                         <Button className="h-11 flex-1 text-base" onClick={() => startTransition(bindungGeprueft)} disabled={offen.length === 0 || laeuft}>

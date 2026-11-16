@@ -5,8 +5,8 @@ import { setBindungChecked } from "@/lib/auftragaction";
 import CountdownAktion from "./CountdownAktion";
 import { ServiceAktionenKontext } from "./ServiceErgebnis";
 
-// Hardware-Scanner im Modus "Bindung": offene Bindungsprüfungen der Auswahl nach 10 s Countdown als geprüft markieren
-export default function BindungButtons({ auftrag, auswahl, erledigt }: ServiceAktionenKontext) {
+// Hardware-Scanner im Modus "Bindung": offene Bindungsprüfungen der Auswahl nach dem Countdown als geprüft markieren
+export default function BindungButtons({ auftrag, auswahl, erledigt, sekunden }: ServiceAktionenKontext & { sekunden?: number }) {
     const queryClient = useQueryClient();
     const offen = auswahl.filter((ski) => ski.bindung_check && !ski.bindung_status);
 
@@ -32,6 +32,7 @@ export default function BindungButtons({ auftrag, auswahl, erledigt }: ServiceAk
                 laeuftText="Wird gespeichert..."
                 icon={BadgeCheck}
                 ausfuehren={bindungGeprueft}
+                sekunden={sekunden}
             />
         </div>
     );
