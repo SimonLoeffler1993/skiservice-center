@@ -1,3 +1,4 @@
+import ListenAnsichtUmschalter from "@/components/liste/ListenAnsichtUmschalter";
 import ListenSortierung from "@/components/liste/ListenSortierung";
 import ListenSuche from "@/components/liste/ListenSuche";
 import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
@@ -94,6 +95,7 @@ export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesA
                             ]}
                         />
                         <ListenSuche suche={suche} />
+                        <ListenAnsichtUmschalter className="sm:ml-auto" />
                     </Suspense>
                 }
             />

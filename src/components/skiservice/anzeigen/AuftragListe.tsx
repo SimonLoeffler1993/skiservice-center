@@ -3,6 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Wrench } from "lucide-react";
 
+import { useListenAnsicht } from "@/components/liste/listenAnsicht";
 import ListenKopf from "@/components/liste/ListenKopf";
 import { LISTEN_RASTER, ListenFuss, ListenLeer, ListenSkeleton } from "@/components/liste/ListenTeile";
 import { serviceListeOptions } from "@/hooks/useServiceListeOptions";
@@ -10,6 +11,7 @@ import { useVorausLaden } from "@/hooks/useVorausLaden";
 import { ListenSortierung } from "@/types/liste";
 import { ServiceListenFilter } from "@/types/skiservicetypes";
 import AuftragKurzCard from "./AuftragKurzCard";
+import AuftragTabelle from "./AuftragTabelle";
 
 type SkiAuftragListeProps = {
     saisonID: number;
@@ -28,6 +30,8 @@ export default function AuftragListe({ saisonID, sortierung, suche, listenFilter
     const { erledigte, ...gesetzteFilter } = listenFilter;
     const gefiltert = Object.values(gesetzteFilter).some(Boolean);
     const keineText = erledigte ? "Keine offenen Aufträge in dieser Saison" : "Keine Aufträge in dieser Saison";
+    // Kacheln oder Liste, aus der URL oder im Browser gemerkt
+    const ansicht = useListenAnsicht();
     // Immer eine Seite voraus laden, damit das Scrollen ohne Pause läuft
     const { items, ref, laedt, alleGeladen } = useVorausLaden({ seiten: data?.pages, hasNextPage, isFetchingNextPage, fetchNextPage, neuBeginnenBei: suche });
 
@@ -44,9 +48,11 @@ export default function AuftragListe({ saisonID, sortierung, suche, listenFilter
             </ListenKopf>
 
             {isPending ? (
-                <ListenSkeleton />
+                <ListenSkeleton ansicht={ansicht} />
             ) : items.length === 0 ? (
                 <ListenLeer icon={Wrench} titel={suche ? `Keine Treffer für „${suche}“` : gefiltert ? "Keine Aufträge passend zum Filter" : keineText} neuHref="/skiservice/erstellen" neuText="Neuer Auftrag" />
+            ) : ansicht === "liste" ? (
+                <AuftragTabelle auftraege={items} />
             ) : (
                 <div className={LISTEN_RASTER}>
                     {items.map((skiAuftrag) => (
