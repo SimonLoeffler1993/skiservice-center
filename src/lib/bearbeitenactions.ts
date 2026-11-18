@@ -34,9 +34,10 @@ export async function sendeFertigMail(auftragId: number): Promise<ApiAntwort<Auf
     return anfrage(`/skiservice/auftrag/${auftragId}/benachrichtigen`, "POST", AuftragSchema, "E-Mail konnte nicht versendet werden.");
 }
 
-// Bezahlt-Status von Hand setzen, mitQuittung ändert die Quittung und alle Positionen darauf ebenfalls
-export async function setzeAuftragBezahlt(auftragId: number, bezahlt: boolean, mitQuittung: boolean): Promise<ApiAntwort<Auftrag>> {
-    return anfrage(`/skiservice/auftrag/${auftragId}/bezahlt`, "PATCH", AuftragSchema, "Bezahlt-Status konnte nicht geändert werden.", { bezahlt, mit_quittung: mitQuittung });
+// Bezahlt-Status von Hand setzen, mitQuittung ändert die Quittung und alle Positionen darauf ebenfalls.
+// quittungEntfernen (nur bei nicht bezahlt) nimmt stattdessen nur diesen Auftrag von der Quittung
+export async function setzeAuftragBezahlt(auftragId: number, bezahlt: boolean, mitQuittung: boolean, quittungEntfernen = false): Promise<ApiAntwort<Auftrag>> {
+    return anfrage(`/skiservice/auftrag/${auftragId}/bezahlt`, "PATCH", AuftragSchema, "Bezahlt-Status konnte nicht geändert werden.", { bezahlt, mit_quittung: mitQuittung, quittung_entfernen: quittungEntfernen });
 }
 
 export async function loescheAuftrag(auftragId: number): Promise<ApiAntwort<{ success: boolean }>> {
@@ -81,9 +82,10 @@ export async function aendereVerleih(verleihId: number, daten: VerleihAenderung)
     return anfrage(`/saisonverleih/${verleihId}`, "PATCH", SaisonverleihReadSchema, "Verleih konnte nicht geändert werden.", daten);
 }
 
-// Bezahlt-Status von Hand setzen, mitQuittung ändert die Quittung und alle Positionen darauf ebenfalls
-export async function setzeVerleihBezahlt(verleihId: number, bezahlt: boolean, mitQuittung: boolean): Promise<ApiAntwort<SaisonverleihRead>> {
-    return anfrage(`/saisonverleih/${verleihId}/bezahlt`, "PATCH", SaisonverleihReadSchema, "Bezahlt-Status konnte nicht geändert werden.", { bezahlt, mit_quittung: mitQuittung });
+// Bezahlt-Status von Hand setzen, mitQuittung ändert die Quittung und alle Positionen darauf ebenfalls.
+// quittungEntfernen (nur bei nicht bezahlt) nimmt stattdessen nur diesen Verleih von der Quittung
+export async function setzeVerleihBezahlt(verleihId: number, bezahlt: boolean, mitQuittung: boolean, quittungEntfernen = false): Promise<ApiAntwort<SaisonverleihRead>> {
+    return anfrage(`/saisonverleih/${verleihId}/bezahlt`, "PATCH", SaisonverleihReadSchema, "Bezahlt-Status konnte nicht geändert werden.", { bezahlt, mit_quittung: mitQuittung, quittung_entfernen: quittungEntfernen });
 }
 
 export async function loescheVerleih(verleihId: number): Promise<ApiAntwort<{ success: boolean }>> {

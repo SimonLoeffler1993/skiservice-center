@@ -36,8 +36,8 @@ export default function VerleihAktionen({ verleih, children }: VerleihAktionenPr
                 bezahlt={verleih.Bezahlt === 1}
                 hatQuittung={verleih.QuittungID != null}
                 bezeichnung="Verleih"
-                onSetzen={async (wert, mitQuittung) => {
-                    const antwort = await setzeVerleihBezahlt(verleih.ID, wert, mitQuittung);
+                onSetzen={async (wert, mitQuittung, quittungEntfernen) => {
+                    const antwort = await setzeVerleihBezahlt(verleih.ID, wert, mitQuittung, quittungEntfernen);
                     if (!antwort.success) return antwort.error;
                     aktualisieren(antwort.data);
                     return null;
