@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { FileText, MailCheck, MailWarning } from "lucide-react";
@@ -67,6 +68,8 @@ export default function MailProtokollListe({ bezug, id, kompakt = false }: MailP
                                 <p className="mt-0.5 break-words text-xs text-red-700">{mail.Fehler}</p>
                             )}
                         </button>
+                        {/* Bei Auftrag und Verleih ist der Bezug die Seite selbst */}
+                        {!kompakt && <MailBezuege mail={mail} />}
                         <QuittungAnhang mail={mail} />
                     </li>
                 ))}
@@ -113,6 +116,24 @@ function MailErgebnis({ erfolgreich }: { erfolgreich: boolean }) {
             <Icon className="h-3 w-3" />
             {erfolgreich ? "Gesendet" : "Fehlgeschlagen"}
         </Badge>
+    );
+}
+
+// Zu welchem Auftrag bzw. Verleih die Mail gehört, bei einer Quittungs-Mail alle auf der Quittung
+function MailBezuege({ mail }: { mail: MailProtokollEintrag }) {
+    if (mail.Bezuege.length === 0) return null;
+    return (
+        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-sm">
+            {mail.Bezuege.map((bezug) => (
+                <Link
+                    key={`${bezug.art}-${bezug.id}`}
+                    href={bezug.art === "auftrag" ? `/skiservice/anzeigen/${bezug.id}` : `/saisonverleih/anzeigen/${bezug.id}`}
+                    className="underline-offset-2 hover:underline"
+                >
+                    {bezug.art === "auftrag" ? "Skiservice" : "Verleih"} {bezug.name?.trim() || `#${bezug.id}`}
+                </Link>
+            ))}
+        </div>
     );
 }
 

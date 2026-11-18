@@ -19,6 +19,8 @@ export const MailProtokollEintragSchema = z.object({
     // Quittungs-Mail: die angehängte Quittung, das PDF selbst wird nicht gespeichert
     Quittung_ID: z.number().nullish(),
     Quittung_Nummer: z.string().nullish(),
+    // Auftrag bzw. Verleih der Mail, bei einer Quittungs-Mail alle auf der Quittung
+    Bezuege: z.array(z.object({ art: z.enum(["auftrag", "verleih"]), id: z.number().int(), name: z.string().nullish() })).default([]),
 });
 export type MailProtokollEintrag = z.infer<typeof MailProtokollEintragSchema>;
 
