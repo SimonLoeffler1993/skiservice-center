@@ -107,8 +107,8 @@ export default function AuftragAktionen({ auftrag, children }: AuftragAktionenPr
                 bezahlt={auftrag.bezahlt === "ja"}
                 hatQuittung={auftrag.quittung_id != null}
                 bezeichnung="Auftrag"
-                onSetzen={async (wert, mitQuittung) => {
-                    const antwort = await setzeAuftragBezahlt(auftrag.id, wert, mitQuittung);
+                onSetzen={async (wert, mitQuittung, quittungEntfernen) => {
+                    const antwort = await setzeAuftragBezahlt(auftrag.id, wert, mitQuittung, quittungEntfernen);
                     if (!antwort.success) return antwort.error;
                     aktualisieren(antwort.data);
                     queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });

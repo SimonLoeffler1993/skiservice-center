@@ -23,31 +23,36 @@ type BezahltUmschaltenProps = {
     hatQuittung: boolean;
     // "Auftrag" oder "Verleih", für die Texte im Dialog
     bezeichnung: string;
+    // mitQuittung: Quittung und alle Positionen darauf ebenfalls ändern (nur beim Setzen auf bezahlt).
+    // quittungEntfernen: nur diese Position von der Quittung nehmen (nur beim Zurücksetzen).
     // Gibt eine Fehlermeldung zurück oder null bei Erfolg
-    onSetzen: (bezahlt: boolean, mitQuittung: boolean) => Promise<string | null>;
+    onSetzen: (bezahlt: boolean, mitQuittung: boolean, quittungEntfernen: boolean) => Promise<string | null>;
 };
 
 // Bezahlt-Status von Hand setzen. Ohne Quittung direkt, mit Quittung oder beim Zurücksetzen mit Rückfrage
 export default function BezahltUmschalten({ bezahlt, hatQuittung, bezeichnung, onSetzen }: BezahltUmschaltenProps) {
     const queryClient = useQueryClient();
     const [offen, setOffen] = useState(false);
-    const [mitQuittung, setMitQuittung] = useState(false);
+    // Je nach Richtung: "mit Quittung" (bezahlt) oder "aus Quittung entfernen" (nicht bezahlt)
+    const [haken, setHaken] = useState(false);
     const [fehler, setFehler] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const ziel = !bezahlt;
 
-    function setzen(mitQuittungSetzen: boolean) {
+    function setzen(hakenGesetzt: boolean) {
         startTransition(async () => {
-            const ergebnis = await onSetzen(ziel, mitQuittungSetzen);
+            const ergebnis = await onSetzen(ziel, ziel && hakenGesetzt, !ziel && hakenGesetzt);
             if (ergebnis) {
                 setFehler(ergebnis);
                 return;
             }
             setFehler(null);
             setOffen(false);
-            if (mitQuittungSetzen) {
-                // Andere Positionen auf derselben Quittung haben sich mit geändert
+            if (hakenGesetzt) {
+                // Die Quittung und andere Positionen darauf haben sich mit geändert
                 queryClient.invalidateQueries({ queryKey: ["quittung"] });
+                queryClient.invalidateQueries({ queryKey: ["quittungenListe"] });
+                queryClient.invalidateQueries({ queryKey: ["kunde"] });
                 queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails"] });
                 queryClient.invalidateQueries({ queryKey: ["saisonverleihDetails"] });
                 queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
@@ -61,8 +66,8 @@ export default function BezahltUmschalten({ bezahlt, hatQuittung, bezeichnung, o
             setzen(false);
             return;
         }
-        // Beim Setzen auf bezahlt ist "mit Quittung" vorausgewählt, beim Zurücksetzen nicht
-        setMitQuittung(ziel);
+        // In beiden Richtungen vorausgewählt: ein nicht bezahlter Auftrag mit Quittung erscheint nicht in der Kasse
+        setHaken(true);
         setFehler(null);
         setOffen(true);
     }
@@ -83,19 +88,21 @@ export default function BezahltUmschalten({ bezahlt, hatQuittung, bezeichnung, o
                             {ziel
                                 ? `Der ${bezeichnung} wird mit dem heutigen Datum als bezahlt markiert.`
                                 : `Der ${bezeichnung} wird als nicht bezahlt markiert, das Bezahldatum wird entfernt.`}
-                            {!ziel && hatQuittung && " Die Quittung bleibt erhalten."}
+                            {!ziel && hatQuittung && (haken
+                                ? ` Der ${bezeichnung} wird von der Quittung genommen und kann an der Kasse neu kassiert werden. War es die letzte Position, wird die Quittung storniert. Ein Beleg in Lexware muss von Hand angepasst werden.`
+                                : ` Der ${bezeichnung} bleibt auf der Quittung und erscheint deshalb nicht wieder in der Kasse.`)}
                         </DialogDescription>
                     </DialogHeader>
                     {hatQuittung && (
                         <div className="flex items-start gap-2">
                             <Checkbox
                                 id="bezahlt-mit-quittung"
-                                checked={mitQuittung}
-                                onCheckedChange={(wert) => setMitQuittung(wert === true)}
+                                checked={haken}
+                                onCheckedChange={(wert) => setHaken(wert === true)}
                                 disabled={isPending}
                             />
                             <Label htmlFor="bezahlt-mit-quittung" className="font-normal leading-snug">
-                                Quittung und alle Positionen darauf ebenfalls ändern
+                                {ziel ? "Quittung und alle Positionen darauf ebenfalls ändern" : "Aus Quittung entfernen"}
                             </Label>
                         </div>
                     )}
@@ -107,7 +114,7 @@ export default function BezahltUmschalten({ bezahlt, hatQuittung, bezeichnung, o
                         <Button
                             type="button"
                             variant={ziel ? "default" : "destructive"}
-                            onClick={() => setzen(hatQuittung && mitQuittung)}
+                            onClick={() => setzen(hatQuittung && haken)}
                             disabled={isPending}
                         >
                             {isPending ? "Speichern..." : ziel ? "Als bezahlt markieren" : "Als nicht bezahlt markieren"}

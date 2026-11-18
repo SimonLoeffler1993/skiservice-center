@@ -31,6 +31,8 @@ export type ServiceListenFilter = {
     status?: z.infer<typeof AuftragStatusFilterSchema>;
     bezahlt?: JaNein;
     benachrichtigt?: JaNein;
+    // "false" blendet erledigte Aufträge aus (abgeholt und bezahlt), das ist der Standard der Liste
+    erledigte?: "false";
 };
 
 // Wie = Status 0: in Bearbeitung 1: fertig 2: abgeholt
@@ -46,7 +48,9 @@ export const AuftragSchema = z.object({
     ettiket: z.string().nullable().optional(),
     zu: z.string(),
     fertig_date: z.string().nullable().optional(),
+    // Gewünschtes "Fertig bis", die tatsächliche Abholung steht in abgeholt_am
     abhol_date: z.string().nullable().optional(),
+    abgeholt_am: z.iso.date().nullish(),
     anzahlung: z.string().nullable().optional(),
     bezahlt: z.enum(["ja", "nein"]),
     bezahlt_am: z.iso.date().nullable().optional(), // ISO date string "YYYY-MM-DD"

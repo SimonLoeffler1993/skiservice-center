@@ -1,3 +1,4 @@
+import ListenAnsichtUmschalter from "@/components/liste/ListenAnsichtUmschalter";
 import ListenSortierung from "@/components/liste/ListenSortierung";
 import ListenSuche from "@/components/liste/ListenSuche";
 import SaisonverleihListe from "@/components/saisonverleih/liste/SaisonverleihListe";
@@ -101,6 +102,7 @@ export default async function SaisonVerleiAnzeige({searchParams}: SaisonVerleiAn
                             ]}
                         />
                         <ListenSuche suche={suche} />
+                        <ListenAnsichtUmschalter className="sm:ml-auto" />
                     </Suspense>
                 }
             />

@@ -75,6 +75,12 @@ export async function quittungNachLexware(quittungID: number): Promise<ApiAntwor
     return anfrage(`/quittungen/quittung/${quittungID}/lexware`, "POST", QuittungReadSchema, "Quittung konnte nicht an Lexware übertragen werden.");
 }
 
+// Quittung stornieren: Aufträge und Verleihe werden nicht bezahlt und gelöst, Handware geht zurück auf den Bestand.
+// Ein Beleg in Lexware bleibt unverändert
+export async function storniereQuittung(quittungID: number): Promise<ApiAntwort<QuittungRead>> {
+    return anfrage(`/quittungen/quittung/${quittungID}/storno`, "POST", QuittungReadSchema, "Die Quittung konnte nicht storniert werden.");
+}
+
 // Alle Quittungen einer Saison, neueste zuerst
 export async function getQuittungenListe(saisonID: number): Promise<QuittungListeEintrag[]> {
     const antwort = await anfrage(`/quittungen/liste?saison=${saisonID}`, "GET", QuittungListeSchema, "Quittungen konnten nicht geladen werden.");

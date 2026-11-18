@@ -3,6 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { CalendarDays, Snowflake } from "lucide-react";
 
+import { useListenAnsicht } from "@/components/liste/listenAnsicht";
 import ListenKopf from "@/components/liste/ListenKopf";
 import { LISTEN_RASTER, ListenFuss, ListenLeer, ListenSkeleton } from "@/components/liste/ListenTeile";
 import { saisonverleihListOptions } from "@/hooks/useSaisonverleihListeOptions";
@@ -10,6 +11,7 @@ import { useVorausLaden } from "@/hooks/useVorausLaden";
 import { ListenSortierung } from "@/types/liste";
 import { VerleihArt, VerleihListenFilter } from "@/types/saisonverleihtypes";
 import SaisonverleihListeCard from "./SaisonverleihListeCard";
+import SaisonverleihTabelle from "./SaisonverleihTabelle";
 
 type SaisonverleihListeProps = {
     saisonID: number;
@@ -33,6 +35,8 @@ const KOPF: Record<VerleihArt | "alle", { titel: string; neuHref: string; neuTex
 export default function SaisonverleihListe({ saisonID, art, sortierung, suche, listenFilter, filter }: SaisonverleihListeProps) {
     const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(saisonverleihListOptions(saisonID, art, sortierung, suche, listenFilter));
     const gefiltert = Object.values(listenFilter).some(Boolean);
+    // Kacheln oder Liste, aus der URL oder im Browser gemerkt
+    const ansicht = useListenAnsicht();
     // Immer eine Seite voraus laden, damit das Scrollen ohne Pause läuft
     const { items, ref, laedt, alleGeladen } = useVorausLaden({ seiten: data?.pages, hasNextPage, isFetchingNextPage, fetchNextPage, neuBeginnenBei: suche });
     const kopf = KOPF[art ?? "alle"];
@@ -51,9 +55,11 @@ export default function SaisonverleihListe({ saisonID, art, sortierung, suche, l
             </ListenKopf>
 
             {isPending ? (
-                <ListenSkeleton />
+                <ListenSkeleton ansicht={ansicht} />
             ) : items.length === 0 ? (
                 <ListenLeer icon={icon} titel={suche ? `Keine Treffer für „${suche}“` : gefiltert ? "Keine Verleihe passend zum Filter" : "Keine Verleihe in dieser Saison"} neuHref={kopf.neuHref} neuText={kopf.neuText} />
+            ) : ansicht === "liste" ? (
+                <SaisonverleihTabelle verleihe={items} />
             ) : (
                 <div className={LISTEN_RASTER}>
                     {items.map((saisonverleih) => (

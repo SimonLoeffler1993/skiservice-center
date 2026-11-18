@@ -5,12 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import DetailKopf from "@/components/detail/DetailKopf";
 import { ListenSkeleton } from "@/components/liste/ListenTeile";
 import NachSaison, { ListeLeerText } from "@/components/liste/NachSaison";
+import MailProtokollListe from "@/components/mail/MailProtokollListe";
 import { QuittungenTabelle } from "@/components/quittung/QuittungenListe";
 import SaisonverleihListeCard from "@/components/saisonverleih/liste/SaisonverleihListeCard";
 import AuftragKurzCard from "@/components/skiservice/anzeigen/AuftragKurzCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useKundeGeaendert } from "@/hooks/useKundeGeaendert";
 import { kundeHistorieOptions, kundeOptions } from "@/hooks/useKundeOptions";
+import { mailProtokollOptions } from "@/hooks/useMailProtokollOptions";
 import { SaisonsNamen } from "@/types/saison";
 import KundeForm from "./KundeForm";
 
@@ -20,10 +22,11 @@ type KundeDetailsProps = {
     saisons: SaisonsNamen[];
 };
 
-// Kundenseite: Kunde bearbeiten, darunter seine Aufträge, Verleihe und Quittungen über alle Saisons
+// Kundenseite: Kunde bearbeiten, darunter seine Aufträge, Verleihe, Quittungen und Nachrichten über alle Saisons
 export default function KundeDetails({ kundeID, saisons }: KundeDetailsProps) {
     const kunde = useQuery(kundeOptions(kundeID));
     const historie = useQuery(kundeHistorieOptions(kundeID));
+    const nachrichten = useQuery(mailProtokollOptions("kunde", kundeID));
     const kundeGeaendert = useKundeGeaendert();
 
     if (kunde.isPending) return <p className="text-sm text-muted-foreground">Kunde wird geladen...</p>;
@@ -49,6 +52,7 @@ export default function KundeDetails({ kundeID, saisons }: KundeDetailsProps) {
                     <TabsTrigger value="skiservice">Skiservice{anzahl(historie.data?.auftraege)}</TabsTrigger>
                     <TabsTrigger value="verleih">Verleih{anzahl(historie.data?.verleihe)}</TabsTrigger>
                     <TabsTrigger value="quittungen">Quittungen{anzahl(historie.data?.quittungen)}</TabsTrigger>
+                    <TabsTrigger value="nachrichten">Nachrichten{anzahl(nachrichten.data)}</TabsTrigger>
                 </TabsList>
 
                 {historie.isPending ? (
@@ -90,6 +94,10 @@ export default function KundeDetails({ kundeID, saisons }: KundeDetailsProps) {
                         </TabsContent>
                     </>
                 )}
+                {/* Eigene Abfrage: die Nachrichten bleiben sichtbar, auch wenn die Historie nicht lädt */}
+                <TabsContent value="nachrichten" className="mt-4">
+                    <MailProtokollListe bezug="kunde" id={kundeID} />
+                </TabsContent>
             </Tabs>
         </div>
     );

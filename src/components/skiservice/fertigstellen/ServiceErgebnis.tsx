@@ -37,6 +37,8 @@ export default function ServiceErgebnis({ auftragId, skiId, aktionen }: ServiceE
     const { data, isPending, error } = useQuery({ ...auftragDetailsOptions(auftragId), staleTime: 0 });
     const [ausgewaehlt, setAusgewaehlt] = useState<number[]>(skiId ? [skiId] : []);
     const [meldung, setMeldung] = useState<Meldung | null>(null);
+    // Standard: nur der gescannte Ski, die übrigen des Auftrags lassen sich aufklappen
+    const [alleZeigen, setAlleZeigen] = useState(false);
 
     if (isPending) {
         return (
@@ -52,6 +54,12 @@ export default function ServiceErgebnis({ auftragId, skiId, aktionen }: ServiceE
     const auftrag = data.data;
     const kunde = auftrag.kunde;
     const auswahl = auftrag.skis.filter((ski) => ausgewaehlt.includes(ski.id));
+    // Ohne Ski-ID (altes Etikett) oder wenn der Ski nicht mehr im Auftrag ist: alle anzeigen
+    const gescannt = auftrag.skis.find((ski) => ski.id === skiId);
+    const uebrige = gescannt ? auftrag.skis.filter((ski) => ski.id !== gescannt.id) : [];
+    const nurGescannt = !!gescannt && !alleZeigen;
+    const sichtbar = nurGescannt ? [gescannt] : auftrag.skis;
+    const uebrigeOffen = uebrige.filter((ski) => ski.status !== 1).length;
     // Ohne E-Mail kann die Fertig-Mail nicht verschickt werden
     const ohneEmail = !kunde.Email?.trim();
     const telefon = kunde.Handy?.trim() || kunde.Tel?.trim();
@@ -106,16 +114,28 @@ export default function ServiceErgebnis({ auftragId, skiId, aktionen }: ServiceE
             {/* Ski zum Auswählen */}
             <section className="space-y-2">
                 <div className="flex items-baseline justify-between gap-2">
-                    <h2 className="text-lg font-semibold">Ski ({auftrag.skis.length})</h2>
+                    <h2 className="text-lg font-semibold">{nurGescannt ? "Gescannter Ski" : `Ski (${auftrag.skis.length})`}</h2>
                     <p className="text-sm text-muted-foreground">
                         {auswahl.length > 0 ? `${auswahl.length} ausgewählt` : "Ski antippen zum Auswählen"}
                     </p>
                 </div>
                 <div className="space-y-2">
-                    {auftrag.skis.map((ski) => (
+                    {sichtbar.map((ski) => (
                         <SkiAuswahlZeile key={ski.id} ski={ski} ausgewaehlt={ausgewaehlt.includes(ski.id)} onUmschalten={() => umschalten(ski.id)} />
                     ))}
                 </div>
+                {/* Hinweis auf die übrigen Ski des Auftrags */}
+                {uebrige.length > 0 && (
+                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                        <p>
+                            Noch {uebrige.length === 1 ? "1 weiterer" : `${uebrige.length} weitere`} Ski in diesem Auftrag{" "}
+                            ({uebrigeOffen === 0 ? "alle fertig" : `davon ${uebrigeOffen} noch offen`})
+                        </p>
+                        <Button variant="link" className="h-auto p-0" onClick={() => setAlleZeigen((alle) => !alle)}>
+                            {alleZeigen ? "Nur gescannten Ski anzeigen" : "Alle anzeigen"}
+                        </Button>
+                    </div>
+                )}
             </section>
 
             {/* Aktionsleiste: auf Handy und Tablet unten angeheftet */}

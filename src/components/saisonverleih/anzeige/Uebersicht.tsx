@@ -1,10 +1,11 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
-import { Info, Receipt } from "lucide-react";
+import { Info, Mail, Receipt } from "lucide-react";
 
 import DetailKopf, { DetailAktionsleiste, DetailKarte } from "@/components/detail/DetailKopf";
 import KundeForm from "@/components/kunde/KundeForm";
+import MailProtokollListe from "@/components/mail/MailProtokollListe";
 import ButtonQuittungZuweisen from "@/components/quittung/ButtonQuittungZuweisen";
 import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
@@ -89,6 +90,9 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID, hervorh
                     <div className="space-y-4">
                         <DetailKarte titel="Quittung" icon={Receipt}>
                             <QuittungKurzInfo quittungID={verleih.QuittungID} ziel={{ art: "verleih", id: verleih.ID }} />
+                        </DetailKarte>
+                        <DetailKarte titel="Nachrichten" icon={Mail}>
+                            <MailProtokollListe bezug="verleih" id={verleih.ID} kompakt />
                         </DetailKarte>
                         {verleih.Bemerkung && (
                             <DetailKarte titel="Bemerkung" icon={Info}>

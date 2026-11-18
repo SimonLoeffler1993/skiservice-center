@@ -1,3 +1,4 @@
+import ListenAnsichtUmschalter from "@/components/liste/ListenAnsichtUmschalter";
 import ListenSortierung from "@/components/liste/ListenSortierung";
 import ListenSuche from "@/components/liste/ListenSuche";
 import SaisonWechseler from "@/components/saisonverleih/liste/SaisonWechseler";
@@ -18,7 +19,7 @@ const JA_NEIN = [
 ];
 
 type SkiservicesAnzeigenProps = {
-    searchParams: Promise<{ saison?: string; sortierung?: string; suche?: string; status?: string; bezahlt?: string; benachrichtigt?: string }>
+    searchParams: Promise<{ saison?: string; sortierung?: string; suche?: string; status?: string; bezahlt?: string; benachrichtigt?: string; erledigte?: string }>
 }
 
 export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesAnzeigenProps) {
@@ -41,6 +42,10 @@ export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesA
         bezahlt: JaNeinSchema.safeParse(filterParameter.bezahlt).data,
         benachrichtigt: JaNeinSchema.safeParse(filterParameter.benachrichtigt).data,
     };
+    // Erledigte Aufträge (abgeholt und bezahlt) sind ohne ?erledigte=ja ausgeblendet.
+    // Wer ausdrücklich nach "Abgeholt" filtert, sieht alle abgeholten
+    const erledigteAnzeigen = filterParameter.erledigte === "ja";
+    if (!erledigteAnzeigen && listenFilter.status !== "abgeholt") listenFilter.erledigte = "false";
     const saisonID = saison ? parseInt(saison) : saisonDaten.data.aktuelle?.ID;
 
     // Fehler falls keine Saison gibt
@@ -57,7 +62,7 @@ export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesA
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <AuftragListe
-                key={`${saisonID}-${sortierung}-${listenFilter.status}-${listenFilter.bezahlt}-${listenFilter.benachrichtigt}`}
+                key={`${saisonID}-${sortierung}-${listenFilter.status}-${listenFilter.bezahlt}-${listenFilter.benachrichtigt}-${listenFilter.erledigte}`}
                 saisonID={saisonID}
                 sortierung={sortierung}
                 suche={suche}
@@ -80,9 +85,17 @@ export default async function SkiservicesAnzeigen({ searchParams }: SkiservicesA
                                 },
                                 { parameter: "bezahlt", titel: "Bezahlt", wert: listenFilter.bezahlt, optionen: JA_NEIN },
                                 { parameter: "benachrichtigt", titel: "Benachrichtigt", wert: listenFilter.benachrichtigt, optionen: JA_NEIN },
+                                {
+                                    parameter: "erledigte",
+                                    titel: "Abgeholt und bezahlt",
+                                    wert: erledigteAnzeigen ? "ja" : undefined,
+                                    alleText: "Ausblenden",
+                                    optionen: [{ wert: "ja", text: "Anzeigen" }],
+                                },
                             ]}
                         />
                         <ListenSuche suche={suche} />
+                        <ListenAnsichtUmschalter className="sm:ml-auto" />
                     </Suspense>
                 }
             />

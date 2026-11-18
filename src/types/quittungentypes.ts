@@ -19,6 +19,9 @@ export const QuittungBaseSchema = z.object({
     Bezahlt: z.boolean(),
     BuchhaltungSync: z.boolean(),
     LexID: z.string().nullable().optional(),
+    // Storniert: Aufträge und Verleihe sind gelöst, die Quittung zählt nicht mehr
+    Storniert: z.boolean().default(false),
+    Storniert_Am: z.string().nullish(),
     BezahlInfo: BezahlInfoSchema.nullable().optional(),
 })
 
@@ -90,6 +93,8 @@ export const QuittungListeEintragSchema = z.object({
     NurExtern: z.boolean(),
     LexID: z.string().nullish(),
     BuchhaltungSync: z.boolean(),
+    Storniert: z.boolean().default(false),
+    Storniert_Am: z.string().nullish(),
     artikelgruppen: z.array(QuittungGruppeSchema),
 })
 export const QuittungListeSchema = z.array(QuittungListeEintragSchema)

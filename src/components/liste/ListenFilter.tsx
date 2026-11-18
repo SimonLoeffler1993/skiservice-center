@@ -14,6 +14,8 @@ export type FilterGruppe = {
     // Aktueller Wert, ohne Angabe alle
     wert?: string;
     optionen: { wert: string; text: string }[];
+    // Beschriftung der Auswahl ohne Wert, wenn sie nicht "Alle" bedeutet
+    alleText?: string;
 };
 
 // Weitere Filter der Liste (Status, Bezahlt, ...) hinter einem Button, aktive als entfernbare Chips daneben.
@@ -57,7 +59,7 @@ export default function ListenFilter({ gruppen }: { gruppen: FilterGruppe[] }) {
                         <div key={gruppe.parameter} className="space-y-1.5">
                             <p className="text-sm font-medium text-muted-foreground">{gruppe.titel}</p>
                             <div role="radiogroup" aria-label={gruppe.titel} className="flex flex-wrap gap-1 rounded-lg bg-muted p-1">
-                                {[{ wert: undefined, text: "Alle" }, ...gruppe.optionen].map(({ wert, text }) => (
+                                {[{ wert: undefined, text: gruppe.alleText ?? "Alle" }, ...gruppe.optionen].map(({ wert, text }) => (
                                     <button
                                         key={wert ?? "alle"}
                                         type="button"

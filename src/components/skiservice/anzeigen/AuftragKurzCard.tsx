@@ -7,6 +7,7 @@ import { AuftragBenachrichtigt } from "./AuftragBenachrichtigt";
 import { AuftragBezahlt } from "./AuftragBezahlt";
 import AuftragFertigBis from "./AuftragFertigBis";
 import { AuftragStatus } from "./AuftragStatus";
+import { auftragUebersicht } from "./auftragUebersicht";
 
 type AuftragKurzCardProps = {
     skiserviceAuftrag: Auftrag;
@@ -14,17 +15,15 @@ type AuftragKurzCardProps = {
 
 // Auftrag in der Liste: Nummer und Status, Kunde, Ski und Fertig-Datum, Bezahlung und Betrag
 export default function AuftragKurzCard({ skiserviceAuftrag: auftrag }: AuftragKurzCardProps) {
-    const offen = auftrag.skis.filter((ski) => ski.status !== 1 && ski.status !== 2).length;
-    const gesamt = auftrag.skis.reduce((summe, ski) => summe + ski.preis + (ski.bindung_check ? ski.bindung_preis : 0), 0);
-    const kunde = [auftrag.kunde.Nachname, auftrag.kunde.Vorname].filter(Boolean).join(", ");
+    const { nummer, kunde, offen, gesamt } = auftragUebersicht(auftrag);
 
     return (
         <ListenKarte href={`/skiservice/anzeigen/${auftrag.id}`}>
             <div className="flex items-start justify-between gap-2">
-                <p className="text-lg font-bold tracking-tight">{auftrag.name ?? `Auftrag #${auftrag.id}`}</p>
+                <p className="text-lg font-bold tracking-tight">{nummer}</p>
                 <AuftragStatus status={auftrag.wie} />
             </div>
-            <p className="truncate font-semibold">{kunde || "Ohne Kunde"}</p>
+            <p className="truncate font-semibold">{kunde}</p>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
                     <Mountain className="h-4 w-4" />

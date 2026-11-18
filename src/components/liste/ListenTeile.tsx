@@ -62,7 +62,21 @@ export function ListenLeer({ icon: Icon, titel, neuHref, neuText }: { icon: Luci
 }
 
 // Platzhalter beim ersten Laden
-export function ListenSkeleton() {
+export function ListenSkeleton({ ansicht = "kacheln" }: { ansicht?: "kacheln" | "liste" }) {
+    if (ansicht === "liste") {
+        return (
+            <div className="divide-y overflow-hidden rounded-lg border bg-card">
+                {Array.from({ length: 10 }, (_, index) => (
+                    <div key={index} className="flex h-12 items-center gap-4 px-3">
+                        <Skeleton className="h-5 w-24" />
+                        <Skeleton className="h-5 w-40" />
+                        <Skeleton className="ml-auto h-5 w-24" />
+                        <Skeleton className="h-5 w-16" />
+                    </div>
+                ))}
+            </div>
+        );
+    }
     return (
         <div className={LISTEN_RASTER}>
             {Array.from({ length: 6 }, (_, index) => (
