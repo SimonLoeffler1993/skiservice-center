@@ -25,7 +25,8 @@ export default function QuittungLexware({ quittung }: QuittungLexwareProps) {
     if (quittung.BuchhaltungSync) {
         return <Badge variant="outline">In Lexware</Badge>;
     }
-    if (quittung.LexwareModus !== "pdf") {
+    // Stornierte Quittungen werden nicht mehr übertragen
+    if (quittung.LexwareModus !== "pdf" || quittung.Storniert) {
         return null;
     }
 

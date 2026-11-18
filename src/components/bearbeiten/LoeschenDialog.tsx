@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Trash2 } from "lucide-react";
+import { LucideIcon, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,11 +22,15 @@ type LoeschenDialogProps = {
     buttonText?: string;
     deaktiviert?: boolean;
     deaktiviertGrund?: string;
+    // Für andere endgültige Aktionen als Löschen, z.B. Stornieren
+    aktionText?: string;
+    aktionLaeuftText?: string;
+    icon?: LucideIcon;
     // Gibt eine Fehlermeldung zurück oder null bei Erfolg
     onLoeschen: () => Promise<string | null>;
 };
 
-export default function LoeschenDialog({ titel, beschreibung, buttonText, deaktiviert = false, deaktiviertGrund, onLoeschen }: LoeschenDialogProps) {
+export default function LoeschenDialog({ titel, beschreibung, buttonText, deaktiviert = false, deaktiviertGrund, aktionText = "Löschen", aktionLaeuftText = "Lösche...", icon: Icon = Trash2, onLoeschen }: LoeschenDialogProps) {
     const [offen, setOffen] = useState(false);
     const [fehler, setFehler] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
@@ -54,7 +58,7 @@ export default function LoeschenDialog({ titel, beschreibung, buttonText, deakti
                     disabled={deaktiviert}
                     title={deaktiviert ? deaktiviertGrund : titel}
                 >
-                    <Trash2 className="h-4 w-4" />
+                    <Icon className="h-4 w-4" />
                     {buttonText}
                 </Button>
             </DialogTrigger>
@@ -69,7 +73,7 @@ export default function LoeschenDialog({ titel, beschreibung, buttonText, deakti
                         <Button type="button" variant="outline" disabled={isPending}>Abbrechen</Button>
                     </DialogClose>
                     <Button type="button" variant="destructive" onClick={loeschen} disabled={isPending}>
-                        {isPending ? "Lösche..." : "Löschen"}
+                        {isPending ? aktionLaeuftText : aktionText}
                     </Button>
                 </DialogFooter>
             </DialogContent>

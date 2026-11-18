@@ -2,15 +2,16 @@
 
 import { Fragment, useState } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
-import { ChevronDown, ChevronRight, FileText } from "lucide-react";
+import { Ban, ChevronDown, ChevronRight, FileText } from "lucide-react";
 
+import LoeschenDialog from "@/components/bearbeiten/LoeschenDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useBackendUrl } from "@/context/backend-context";
-import { getQuittungenListe } from "@/lib/quittungactions";
+import { getQuittungenListe, storniereQuittung } from "@/lib/quittungactions";
 import { QuittungListeEintrag } from "@/types/quittungentypes";
 
 const euro = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
@@ -42,7 +43,9 @@ export default function QuittungenListe({ saisonID }: QuittungenListeProps) {
 export function QuittungenTabelle({ quittungen: data }: { quittungen: QuittungListeEintrag[] }) {
     const [offen, setOffen] = useState<Set<number>>(new Set());
     const alleOffen = offen.size === data.length;
-    const summe = data.reduce((gesamt, q) => gesamt + q.Betrag, 0);
+    // Stornierte Quittungen zählen nicht zur Summe
+    const storniert = data.filter((q) => q.Storniert).length;
+    const summe = data.reduce((gesamt, q) => gesamt + (q.Storniert ? 0 : q.Betrag), 0);
 
     function umschalten(id: number) {
         setOffen((vorher) => {
@@ -73,7 +76,7 @@ export function QuittungenTabelle({ quittungen: data }: { quittungen: QuittungLi
                             <TableHead>Zahlart</TableHead>
                             <TableHead className="text-right">Betrag</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead className="w-10" />
+                            <TableHead className="w-20" />
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -88,7 +91,10 @@ export function QuittungenTabelle({ quittungen: data }: { quittungen: QuittungLi
                     </TableBody>
                     <TableFooter>
                         <TableRow>
-                            <TableCell colSpan={7}>{data.length} {data.length === 1 ? "Quittung" : "Quittungen"}</TableCell>
+                            <TableCell colSpan={7}>
+                                {data.length} {data.length === 1 ? "Quittung" : "Quittungen"}
+                                {storniert > 0 && `, davon ${storniert} storniert (nicht in der Summe)`}
+                            </TableCell>
                             <TableCell className="text-right tabular-nums">{euro.format(summe)}</TableCell>
                             <TableCell colSpan={2} />
                         </TableRow>
@@ -101,6 +107,18 @@ export function QuittungenTabelle({ quittungen: data }: { quittungen: QuittungLi
 
 function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungListeEintrag; offen: boolean; onUmschalten: () => void }) {
     const backendUrl = useBackendUrl();
+    const queryClient = useQueryClient();
+
+    async function stornieren() {
+        const antwort = await storniereQuittung(quittung.ID);
+        if (!antwort.success) return antwort.error;
+        // Aufträge und Verleihe der Quittung sind wieder offen und ohne Quittung
+        for (const schluessel of ["quittungenListe", "quittung", "kunde", "serviceAuftragDetails", "saisonverleihDetails", "skiserviceList", "saisonverleihList"]) {
+            queryClient.invalidateQueries({ queryKey: [schluessel] });
+        }
+        return null;
+    }
+
     return (
         <Fragment>
             <TableRow className="cursor-pointer" onClick={onUmschalten} aria-expanded={offen}>
@@ -126,12 +144,18 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                     </div>
                 </TableCell>
                 <TableCell>{quittung.Zahlart || "–"}</TableCell>
-                <TableCell className="text-right tabular-nums">{euro.format(quittung.Betrag)}</TableCell>
+                <TableCell className={`text-right tabular-nums ${quittung.Storniert ? "text-muted-foreground line-through" : ""}`}>{euro.format(quittung.Betrag)}</TableCell>
                 <TableCell>
                     <div className="flex flex-wrap gap-1">
-                        <Badge variant={quittung.Bezahlt ? "secondary" : "outline"} className={quittung.Bezahlt ? "bg-emerald-100 text-emerald-800" : "text-amber-700"}>
-                            {quittung.Bezahlt ? "bezahlt" : "offen"}
-                        </Badge>
+                        {quittung.Storniert ? (
+                            <Badge variant="secondary" className="bg-rose-100 text-rose-800" title={quittung.Storniert_Am ? `Storniert am ${datum(quittung.Storniert_Am)}` : undefined}>
+                                storniert
+                            </Badge>
+                        ) : (
+                            <Badge variant={quittung.Bezahlt ? "secondary" : "outline"} className={quittung.Bezahlt ? "bg-emerald-100 text-emerald-800" : "text-amber-700"}>
+                                {quittung.Bezahlt ? "bezahlt" : "offen"}
+                            </Badge>
+                        )}
                         {quittung.NurExtern ? (
                             <Badge variant="outline">Lexware-Rechnung</Badge>
                         ) : quittung.BuchhaltungSync ? (
@@ -139,17 +163,32 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                         ) : null}
                     </div>
                 </TableCell>
-                <TableCell>
-                    <a
-                        href={`${backendUrl}/api/v1/quittungen/quittung/${quittung.ID}/pdf`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="PDF öffnen"
-                        className="inline-flex text-muted-foreground hover:text-foreground"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <FileText className="h-4 w-4" />
-                    </a>
+                {/* Klicks in der Zelle und im Dialog sollen die Zeile nicht auf- oder zuklappen */}
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-1">
+                        <a
+                            href={`${backendUrl}/api/v1/quittungen/quittung/${quittung.ID}/pdf`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="PDF öffnen"
+                            className="inline-flex text-muted-foreground hover:text-foreground"
+                        >
+                            <FileText className="h-4 w-4" />
+                        </a>
+                        {!quittung.Storniert && (
+                            <LoeschenDialog
+                                titel={`Quittung ${quittung.Nummer} stornieren`}
+                                beschreibung={
+                                    "Die Quittung wird als storniert markiert. Alle Aufträge und Verleihe darauf werden nicht bezahlt, von der Quittung gelöst und an der Kasse wieder angeboten. Verkaufte Handware geht zurück auf den Bestand. Das lässt sich nicht rückgängig machen."
+                                    + (quittung.NurExtern || quittung.BuchhaltungSync ? " Der Beleg in Lexware bleibt unverändert und muss dort von Hand storniert werden." : "")
+                                }
+                                aktionText="Stornieren"
+                                aktionLaeuftText="Storniere..."
+                                icon={Ban}
+                                onLoeschen={stornieren}
+                            />
+                        )}
+                    </div>
                 </TableCell>
             </TableRow>
             {offen && (
