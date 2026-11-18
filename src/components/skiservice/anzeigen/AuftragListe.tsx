@@ -16,7 +16,7 @@ type SkiAuftragListeProps = {
     sortierung: ListenSortierung;
     // Suche nach dem Kundennamen, leer = alle
     suche: string;
-    // Status, Bezahlt, Benachrichtigt
+    // Status, Bezahlt, Benachrichtigt, Erledigte ausblenden
     listenFilter: ServiceListenFilter;
     // Filter (Saison, Sortierung, Suche, weitere) für den Kopf
     filter: React.ReactNode;
@@ -24,7 +24,10 @@ type SkiAuftragListeProps = {
 
 export default function AuftragListe({ saisonID, sortierung, suche, listenFilter, filter }: SkiAuftragListeProps) {
     const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(serviceListeOptions(saisonID, sortierung, suche, listenFilter));
-    const gefiltert = Object.values(listenFilter).some(Boolean);
+    // Das Ausblenden der erledigten ist der Standard und zählt nicht als gesetzter Filter
+    const { erledigte, ...gesetzteFilter } = listenFilter;
+    const gefiltert = Object.values(gesetzteFilter).some(Boolean);
+    const keineText = erledigte ? "Keine offenen Aufträge in dieser Saison" : "Keine Aufträge in dieser Saison";
     // Immer eine Seite voraus laden, damit das Scrollen ohne Pause läuft
     const { items, ref, laedt, alleGeladen } = useVorausLaden({ seiten: data?.pages, hasNextPage, isFetchingNextPage, fetchNextPage, neuBeginnenBei: suche });
 
@@ -43,7 +46,7 @@ export default function AuftragListe({ saisonID, sortierung, suche, listenFilter
             {isPending ? (
                 <ListenSkeleton />
             ) : items.length === 0 ? (
-                <ListenLeer icon={Wrench} titel={suche ? `Keine Treffer für „${suche}“` : gefiltert ? "Keine Aufträge passend zum Filter" : "Keine Aufträge in dieser Saison"} neuHref="/skiservice/erstellen" neuText="Neuer Auftrag" />
+                <ListenLeer icon={Wrench} titel={suche ? `Keine Treffer für „${suche}“` : gefiltert ? "Keine Aufträge passend zum Filter" : keineText} neuHref="/skiservice/erstellen" neuText="Neuer Auftrag" />
             ) : (
                 <div className={LISTEN_RASTER}>
                     {items.map((skiAuftrag) => (

@@ -40,6 +40,11 @@ export async function setzeAuftragBezahlt(auftragId: number, bezahlt: boolean, m
     return anfrage(`/skiservice/auftrag/${auftragId}/bezahlt`, "PATCH", AuftragSchema, "Bezahlt-Status konnte nicht geändert werden.", { bezahlt, mit_quittung: mitQuittung, quittung_entfernen: quittungEntfernen });
 }
 
+// Abgeholt setzen (mit Datum), false nimmt die Abholung zurück
+export async function setzeAuftragAbgeholt(auftragId: number, abgeholt: boolean): Promise<ApiAntwort<Auftrag>> {
+    return anfrage(`/skiservice/auftrag/${auftragId}/abgeholt`, "PATCH", AuftragSchema, "Abgeholt-Status konnte nicht geändert werden.", { abgeholt });
+}
+
 export async function loescheAuftrag(auftragId: number): Promise<ApiAntwort<{ success: boolean }>> {
     return anfrage(`/skiservice/auftrag/${auftragId}`, "DELETE", LoeschenSchema, "Auftrag konnte nicht gelöscht werden.");
 }
