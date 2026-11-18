@@ -1,9 +1,10 @@
 "use client"
 import { useQuery } from "@tanstack/react-query";
-import { Receipt } from "lucide-react";
+import { Mail, Receipt } from "lucide-react";
 
 import DetailKopf, { DetailAktionsleiste, DetailKarte } from "@/components/detail/DetailKopf";
 import KundeForm from "@/components/kunde/KundeForm";
+import MailProtokollListe from "@/components/mail/MailProtokollListe";
 import ButtonQuittungZuweisen from "@/components/quittung/ButtonQuittungZuweisen";
 import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 import { auftragDetailsOptions } from "@/hooks/useAuftragDetailsOptions";
@@ -84,9 +85,14 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID, 
 
                 <aside className="grid grid-cols-1 items-start gap-4 md:order-1 md:grid-cols-2 lg:order-2 lg:grid-cols-1">
                     <KundeForm kunde={auftrag.kunde} kundenseite />
-                    <DetailKarte titel="Quittung" icon={Receipt}>
-                        <QuittungKurzInfo quittungID={auftrag.quittung_id} ziel={{ art: "auftrag", id: auftrag.id }} />
-                    </DetailKarte>
+                    <div className="space-y-4">
+                        <DetailKarte titel="Quittung" icon={Receipt}>
+                            <QuittungKurzInfo quittungID={auftrag.quittung_id} ziel={{ art: "auftrag", id: auftrag.id }} />
+                        </DetailKarte>
+                        <DetailKarte titel="Nachrichten" icon={Mail}>
+                            <MailProtokollListe bezug="auftrag" id={auftrag.id} kompakt />
+                        </DetailKarte>
+                    </div>
                 </aside>
             </div>
         </div>

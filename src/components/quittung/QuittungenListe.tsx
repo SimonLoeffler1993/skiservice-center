@@ -113,7 +113,7 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
         const antwort = await storniereQuittung(quittung.ID);
         if (!antwort.success) return antwort.error;
         // Aufträge und Verleihe der Quittung sind wieder offen und ohne Quittung
-        for (const schluessel of ["quittungenListe", "quittung", "kunde", "serviceAuftragDetails", "saisonverleihDetails", "skiserviceList", "saisonverleihList"]) {
+        for (const schluessel of ["quittungenListe", "quittung", "kunde", "serviceAuftragDetails", "saisonverleihDetails", "skiserviceList", "saisonverleihList", "mailProtokoll"]) {
             queryClient.invalidateQueries({ queryKey: [schluessel] });
         }
         return null;

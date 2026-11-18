@@ -9,5 +9,7 @@ export function useAuftragAktualisieren(auftragId: number) {
     const queryClient = useQueryClient();
     return useCallback((auftrag: Auftrag) => {
         queryClient.setQueryData(auftragDetailsOptions(auftragId).queryKey, { success: true, error: null, data: auftrag });
+        // Die Änderung kann eine Mail ausgelöst haben (Fertig-Mail)
+        queryClient.invalidateQueries({ queryKey: ["mailProtokoll"] });
     }, [queryClient, auftragId]);
 }

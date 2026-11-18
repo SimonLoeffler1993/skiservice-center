@@ -10,5 +10,7 @@ export function useVerleihAktualisieren(verleihId: number) {
     return useCallback((verleih: SaisonverleihRead) => {
         queryClient.setQueryData(saisonverleihDetailsOptions(verleihId).queryKey, verleih);
         queryClient.invalidateQueries({ queryKey: ["saisonverleihList"] });
+        // Die Änderung kann eine Mail ausgelöst haben (Abholung, Rückgabe)
+        queryClient.invalidateQueries({ queryKey: ["mailProtokoll"] });
     }, [queryClient, verleihId]);
 }
