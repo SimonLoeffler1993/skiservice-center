@@ -51,7 +51,7 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID, 
         <div className="space-y-4">
             <DetailKopf
                 zurueckHref="/skiservice/anzeigen"
-                zurueckText="Aufträge"
+                zurueckText="Services"
                 titel={auftrag.name ?? `Auftrag #${auftrag.id}`}
                 unterzeile={
                     <>
