@@ -28,6 +28,8 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
     const verleihId = scan?.art === "verleih" ? scan.verleih_id : null;
     // Dauer kommt mit dem Scan aus den Einstellungen, ältere API ohne Feld: 10 s
     const sekunden = scan?.countdown ?? 10;
+    // Ältere API ohne Feld: fertig stellen
+    const aktion = scan?.aktion === "bindung" ? "bindung" : "fertig";
 
     // Ein Scan zeigt, dass der Scanner da ist: Status gleich neu laden statt erst nach 10 s
     useEffect(() => {
@@ -68,12 +70,9 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
                     key={scanNr}
                     auftragId={auftragId}
                     skiId={scan?.ski_id}
+                    aktion={aktion}
                     aktionen={(kontext) =>
-                        scan?.aktion === "bindung" ? (
-                            <BindungButtons {...kontext} sekunden={sekunden} />
-                        ) : (
-                            <FertigButtons serviceId={kontext.auftrag.id} selectedSkiIds={kontext.auswahl.map((ski) => ski.id)} onErledigt={kontext.erledigt} sekunden={sekunden} />
-                        )
+                        aktion === "bindung" ? <BindungButtons {...kontext} sekunden={sekunden} /> : <FertigButtons {...kontext} sekunden={sekunden} />
                     }
                 />
             ) : (

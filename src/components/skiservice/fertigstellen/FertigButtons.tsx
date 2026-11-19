@@ -3,44 +3,44 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { auftragFertigStellen } from '@/lib/auftragaction';
 import CountdownAktion from './CountdownAktion';
-import { Meldung } from './ScanMeldung';
+import { ServiceAktionenKontext } from './ServiceErgebnis';
+import { anzahlSki, istFertig } from './skiZaehlung';
 
-type FertigButtonsProps = {
-    serviceId: number;
-    selectedSkiIds: number[];
-    onErledigt: (meldung: Meldung) => void;
-    // Dauer des Countdowns aus den Einstellungen
-    sekunden?: number;
-};
-
-// Hardware-Scanner: ausgewählte Ski nach dem Countdown fertig stellen, Abbrechen hält den Countdown an
-export default function FertigButtons({ serviceId, selectedSkiIds, onErledigt, sekunden }: FertigButtonsProps) {
+// Hardware-Scanner im Modus "Fertig": noch nicht fertige Ski der Auswahl nach dem Countdown fertig stellen
+export default function FertigButtons({ auftrag, auswahl, erledigt, sekunden }: ServiceAktionenKontext & { sekunden?: number }) {
     const queryClient = useQueryClient();
+    // Bereits fertige oder abgeholte Ski nicht noch einmal fertig stellen
+    const offen = auswahl.filter((ski) => !istFertig(ski));
 
     async function fertigStellen() {
-        const data = await auftragFertigStellen(serviceId, selectedSkiIds);
+        const data = await auftragFertigStellen(auftrag.id, offen.map((ski) => ski.id));
         if (!data.success) {
-            onErledigt({ ok: false, text: data.error ?? "Fertigstellen fehlgeschlagen" });
+            erledigt({ ok: false, text: data.error ?? "Fertigstellen fehlgeschlagen" });
             return;
         }
-        // Status in Liste und Details aktualisieren
+        // Liste und Auftrag neu laden, damit der neue Status angezeigt wird
         queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
-        await queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails", serviceId] });
-        onErledigt({
+        await queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails", auftrag.id] });
+        erledigt({
             ok: true,
-            text: `${selectedSkiIds.length === 1 ? "Ski" : `${selectedSkiIds.length} Ski`} fertig gestellt`,
+            text: `${anzahlSki(offen.length)} fertig gestellt`,
             mail: data.mail && { status: data.mail, art: "fertig" },
         });
     }
 
     return (
-        <CountdownAktion
-            schluessel={selectedSkiIds.join(",")}
-            text="Fertigstellen"
-            laeuftText="Wird fertig gestellt..."
-            icon={CheckCheck}
-            ausfuehren={fertigStellen}
-            sekunden={sekunden}
-        />
+        <div className="space-y-2">
+            {auswahl.length > 0 && offen.length === 0 && (
+                <p className="text-sm text-muted-foreground">{auswahl.length === 1 ? "Ski ist bereits fertig." : "Die ausgewählten Ski sind bereits fertig."}</p>
+            )}
+            <CountdownAktion
+                schluessel={offen.map((ski) => ski.id).join(",")}
+                text="Fertigstellen"
+                laeuftText="Wird fertig gestellt..."
+                icon={CheckCheck}
+                ausfuehren={fertigStellen}
+                sekunden={sekunden}
+            />
+        </div>
     );
 }

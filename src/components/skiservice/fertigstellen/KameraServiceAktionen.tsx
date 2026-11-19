@@ -7,21 +7,20 @@ import { BadgeCheck, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { auftragFertigStellen, setBindungChecked } from "@/lib/auftragaction";
 import { ServiceAktionenKontext } from "./ServiceErgebnis";
+import { anzahlSki, bindungOffen, istFertig } from "./skiZaehlung";
 
 type KameraServiceAktionenProps = ServiceAktionenKontext & {
     // z.B. "Nächsten scannen"
     zusatz?: React.ReactNode;
 };
 
-function anzahlText(anzahl: number) {
-    return anzahl === 1 ? "Ski" : `${anzahl} Ski`;
-}
-
 // Kamera-Modus: Aktion per Button statt Countdown, Fertig und Bindung getrennt wählbar
 export default function KameraServiceAktionen({ auftrag, auswahl, erledigt, zusatz }: KameraServiceAktionenProps) {
     const [laeuft, startTransition] = useTransition();
     const queryClient = useQueryClient();
-    const offeneBindungen = auswahl.filter((ski) => ski.bindung_check && !ski.bindung_status);
+    // Wie beim Hardware-Scanner: bereits fertige Ski nicht noch einmal fertig stellen
+    const nichtFertig = auswahl.filter((ski) => !istFertig(ski));
+    const offeneBindungen = auswahl.filter(bindungOffen);
 
     async function neuLaden() {
         queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
@@ -30,13 +29,13 @@ export default function KameraServiceAktionen({ auftrag, auswahl, erledigt, zusa
 
     function fertigStellen() {
         startTransition(async () => {
-            const antwort = await auftragFertigStellen(auftrag.id, auswahl.map((ski) => ski.id));
+            const antwort = await auftragFertigStellen(auftrag.id, nichtFertig.map((ski) => ski.id));
             if (!antwort.success) {
                 erledigt({ ok: false, text: antwort.error ?? "Fertigstellen fehlgeschlagen" });
                 return;
             }
             await neuLaden();
-            erledigt({ ok: true, text: `${anzahlText(auswahl.length)} fertig gestellt`, mail: antwort.mail && { status: antwort.mail, art: "fertig" } });
+            erledigt({ ok: true, text: `${anzahlSki(nichtFertig.length)} fertig gestellt`, mail: antwort.mail && { status: antwort.mail, art: "fertig" } });
         });
     }
 
@@ -48,15 +47,20 @@ export default function KameraServiceAktionen({ auftrag, auswahl, erledigt, zusa
                 return;
             }
             await neuLaden();
-            erledigt({ ok: true, text: `Bindung bei ${anzahlText(offeneBindungen.length)} geprüft` });
+            erledigt({ ok: true, text: `Bindung bei ${anzahlSki(offeneBindungen.length)} geprüft` });
         });
     }
 
     return (
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-            <Button className="h-11 text-sm sm:flex-1 sm:text-base" onClick={fertigStellen} disabled={auswahl.length === 0 || laeuft}>
+            <Button
+                className="h-11 text-sm sm:flex-1 sm:text-base"
+                onClick={fertigStellen}
+                disabled={nichtFertig.length === 0 || laeuft}
+                title={auswahl.length > 0 && nichtFertig.length === 0 ? "Die Auswahl ist bereits fertig" : undefined}
+            >
                 <CheckCheck className="h-5 w-5" />
-                Fertig stellen{auswahl.length ? ` (${auswahl.length})` : ""}
+                Fertig stellen{nichtFertig.length ? ` (${nichtFertig.length})` : ""}
             </Button>
             <Button
                 variant="secondary"
