@@ -5,9 +5,14 @@ import EinstellungenFormular from "@/components/einstellungen/EinstellungenFormu
 import ScannerEinrichtung from "@/components/einstellungen/ScannerEinrichtung";
 import { getConfig } from "@/lib/config";
 
-// ?scanner=<name> belegt den Namen in "Hardware-Scanner installieren" vor (Link von der Scannerseite)
-export default async function EinstellungenPage({ searchParams }: { searchParams: Promise<{ scanner?: string | string[] }> }) {
-    const { scanner } = await searchParams;
+type SuchParameter = { scanner?: string | string[]; gruppe?: string | string[] };
+
+// ?gruppe=<gruppe> öffnet einen Reiter, ?scanner=<name> belegt den Namen in "Hardware-Scanner installieren" vor
+// (Link von der Scannerseite) und öffnet ohne gruppe den Reiter Hardware-Scanner
+export default async function EinstellungenPage({ searchParams }: { searchParams: Promise<SuchParameter> }) {
+    const { scanner, gruppe } = await searchParams;
+    const startName = typeof scanner === "string" ? scanner : "";
+    const startGruppe = typeof gruppe === "string" ? gruppe : startName ? "scanner" : undefined;
 
     return (
         <section className="space-y-4">
@@ -15,9 +20,14 @@ export default async function EinstellungenPage({ searchParams }: { searchParams
                 <Settings className="h-5 w-5 text-muted-foreground" />
                 <h1 className="text-xl font-semibold">Einstellungen</h1>
             </div>
-            <EinstellungenFormular />
-            <ScannerEinrichtung webflasherUrl={getConfig().webflasherUrl} startName={typeof scanner === "string" ? scanner : ""} />
-            <CheckinSchluessel />
+            {/* Die Karten stehen nur im passenden Reiter */}
+            <EinstellungenFormular
+                startGruppe={startGruppe}
+                zusatz={{
+                    scanner: <ScannerEinrichtung webflasherUrl={getConfig().webflasherUrl} startName={startName} />,
+                    anwendung: <CheckinSchluessel />,
+                }}
+            />
         </section>
     );
 }
