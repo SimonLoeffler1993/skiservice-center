@@ -51,8 +51,8 @@ export default function SkischuhForm() {
     if (!data?.success) return <p>Schuhmodelle konnten nicht geladen werden</p>;
 
     return (
-        <div className="max-w-3xl mx-auto space-y-6">
-            <Card className="m-2 shadow-sm">
+        <div className="space-y-6">
+            <Card className="m-2 mx-auto max-w-3xl shadow-sm">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Ruler className="h-5 w-5 text-muted-foreground" />
@@ -202,7 +202,10 @@ export default function SkischuhForm() {
                     </form>
                 </CardContent>
             </Card>
-            <SkischuheListe />
+            {/* Liste breiter als das Formular, damit die Tabelle Platz hat */}
+            <div className="mx-auto max-w-6xl">
+                <SkischuheListe />
+            </div>
         </div>
     )
 }
