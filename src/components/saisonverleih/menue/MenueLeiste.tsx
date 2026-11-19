@@ -22,7 +22,8 @@ export default function MenueLeiste() {
                     {MENUE_GRUPPEN.map((gruppe) => (
                         <NavigationMenuItem key={gruppe.titel}>
                             <NavigationMenuTrigger>{gruppe.titel}</NavigationMenuTrigger>
-                            <NavigationMenuContent>
+                            {/* z-50: sonst liegen Suchfelder und andere positionierte Elemente der Seite über dem Menü */}
+                            <NavigationMenuContent className="z-50">
                                 <ul className="grid w-48 gap-1">
                                     {gruppe.links.map((link) => (
                                         <li key={link.href}>
