@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScanBarcode, Sun, SunDim } from "lucide-react";
 
 import { useBildschirmAn } from "@/hooks/useBildschirmAn";
+import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
 import { scannerGeraeteOptions } from "@/hooks/useScannerGeraeteOptions";
 import { useSkiScannerSocket } from "@/hooks/useSkiScannerSocket";
 import ScannerVerbindung from "../ScannerVerbindung";
@@ -36,10 +37,14 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
         if (scanNr > 0) queryClient.invalidateQueries({ queryKey: scannerGeraeteOptions.queryKey });
     }, [scanNr, queryClient]);
 
-    // Status-Meldungen (z.B. von einem anderen Gerät fertig gestellt): angezeigten Auftrag neu laden
+    // Status-Meldungen (z.B. von einem anderen Gerät fertig gestellt oder Bindung geprüft): angezeigten Auftrag oder Verleih neu laden
     useEffect(() => {
-        if (nachricht?.service_id && !nachricht.scannername) {
+        if (!nachricht || nachricht.scannername) return;
+        if (nachricht.service_id) {
             queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails", nachricht.service_id] });
+        }
+        if (nachricht.verleih_id) {
+            queryClient.invalidateQueries({ queryKey: saisonverleihDetailsOptions(nachricht.verleih_id).queryKey });
         }
     }, [nachricht, queryClient]);
 
