@@ -25,6 +25,8 @@ const AUSWAHL_TEXTE: Record<string, string> = {
     schwarz: "Schwarz (Standard)",
     rotschwarz: "Rot/Schwarz (z.B. DK-22251)",
     unterwegs: "Unterwegs",
+    service: "Wenn alle Ski fertig sind (Bindungen egal)",
+    service_bindung: "Erst wenn alle Ski fertig und alle Bindungen geprüft sind",
 };
 
 type EinstellungFeldProps = {

@@ -5,12 +5,16 @@ import { type Ski } from "@/types/materialtypes"
 import { useEigenSkiContext } from "@/context/eigenski-context"
 import { useSkiModellContext } from "@/context/skimodell-context"
 import SkiListCard from "./skilistcard"
+import SkiTabelle from "./SkiTabelle"
+import ListenAnsichtUmschalter from "@/components/liste/ListenAnsichtUmschalter"
+import { useListenAnsicht } from "@/components/liste/listenAnsicht"
 import { AusgemusterteFilter } from "./bearbeiten/MaterialAktionen"
 import MaterialFilter, { eindeutigeOptionen, LEERER_FILTER, passtAllgemein } from "./MaterialFilter"
 
 export default function SkiListe({ skis }: { skis: Ski[] }) {
     const [mitAusgemustert, setMitAusgemustert] = useState(false)
     const [filter, setFilter] = useState(LEERER_FILTER)
+    const ansicht = useListenAnsicht()
     const { refreshEigenSkisPromise } = useEigenSkiContext()
     const { modellPromise } = useSkiModellContext()
     const modelle = use(modellPromise)
@@ -56,10 +60,13 @@ export default function SkiListe({ skis }: { skis: Ski[] }) {
                 gesamt={sichtbar.length}
             >
                 <AusgemusterteFilter wert={mitAusgemustert} onChange={setMitAusgemustert} anzahl={anzahlAusgemustert} />
+                <ListenAnsichtUmschalter />
             </MaterialFilter>
 
             {data.length === 0 ? (
                 <p>{sichtbar.length === 0 ? "Keine Skis gefunden" : "Keine Skis passend zum Filter"}</p>
+            ) : ansicht === "liste" ? (
+                <SkiTabelle skis={data} modelle={modelle} onGeaendert={() => startTransition(() => refreshEigenSkisPromise())} />
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {data.map((s) => (

@@ -13,6 +13,7 @@ import { AuftragStatus } from "../anzeigen/AuftragStatus";
 import BenachrichtigtButton from "../bearbeiten/BenachrichtigtButton";
 import ScanMeldung, { Meldung } from "./ScanMeldung";
 import SkiAuswahlZeile from "./SkiAuswahlZeile";
+import { bindungOffen, istFertig } from "./skiZaehlung";
 
 export type ServiceAktionenKontext = {
     auftrag: Auftrag;
@@ -26,13 +27,15 @@ type ServiceErgebnisProps = {
     auftragId: number;
     // Gescannter Ski, ist vorausgewählt
     skiId?: number | null;
+    // Modus des Hardware-Scanners. Ohne Angabe (Kamera) ist beides möglich
+    aktion?: "fertig" | "bindung";
     // Buttons der Aktionsleiste, je nach Modus (Countdown beim Hardware-Scanner, Buttons bei der Kamera)
     aktionen: (kontext: ServiceAktionenKontext) => React.ReactNode;
 };
 
 // Gescannter Auftrag: Kopf mit Kunde und Status, Ski zum Auswählen, Aktionsleiste
 // Wird pro Scan neu eingehängt (key), damit die Auswahl zurückgesetzt wird
-export default function ServiceErgebnis({ auftragId, skiId, aktionen }: ServiceErgebnisProps) {
+export default function ServiceErgebnis({ auftragId, skiId, aktion, aktionen }: ServiceErgebnisProps) {
     // Beim Scan immer frisch laden, der Status kann sich geändert haben
     const { data, isPending, error } = useQuery({ ...auftragDetailsOptions(auftragId), staleTime: 0 });
     const [ausgewaehlt, setAusgewaehlt] = useState<number[]>(skiId ? [skiId] : []);
@@ -59,9 +62,14 @@ export default function ServiceErgebnis({ auftragId, skiId, aktionen }: ServiceE
     const uebrige = gescannt ? auftrag.skis.filter((ski) => ski.id !== gescannt.id) : [];
     const nurGescannt = !!gescannt && !alleZeigen;
     const sichtbar = nurGescannt ? [gescannt] : auftrag.skis;
-    const uebrigeOffen = uebrige.filter((ski) => ski.status !== 1).length;
-    // Ohne E-Mail kann die Fertig-Mail nicht verschickt werden
-    const ohneEmail = !kunde.Email?.trim();
+    // Hinweis auf die übrigen Ski: fertig (auch abgeholt) und noch in Arbeit
+    const uebrigeFertig = uebrige.filter(istFertig).length;
+    const uebrigeInArbeit = uebrige.length - uebrigeFertig;
+    const uebrigeBindungen = uebrige.filter(bindungOffen).length;
+    // Bindungen im Hinweis: im Modus Bindung immer, bei der Kamera nur wenn der Auftrag Bindungschecks hat
+    const bindungHinweis = aktion === "bindung" || (aktion === undefined && auftrag.skis.some((ski) => ski.bindung_check));
+    // Ohne E-Mail kann die Fertig-Mail nicht verschickt werden, beim Prüfen der Bindung geht keine Mail raus
+    const ohneEmail = aktion !== "bindung" && !kunde.Email?.trim();
     const telefon = kunde.Handy?.trim() || kunde.Tel?.trim();
 
     function umschalten(id: number) {
@@ -128,8 +136,11 @@ export default function ServiceErgebnis({ auftragId, skiId, aktionen }: ServiceE
                 {uebrige.length > 0 && (
                     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm text-muted-foreground">
                         <p>
-                            Noch {uebrige.length === 1 ? "1 weiterer" : `${uebrige.length} weitere`} Ski in diesem Auftrag{" "}
-                            ({uebrigeOffen === 0 ? "alle fertig" : `davon ${uebrigeOffen} noch offen`})
+                            Noch {uebrige.length === 1 ? "1 weiterer" : `${uebrige.length} weitere`} Ski in diesem Auftrag: {uebrigeFertig} fertig, {uebrigeInArbeit} in Arbeit
+                            {bindungHinweis &&
+                                (uebrigeBindungen === 0
+                                    ? " · keine weitere Bindung zu prüfen"
+                                    : ` · ${uebrigeBindungen === 1 ? "1 Bindung" : `${uebrigeBindungen} Bindungen`} noch zu prüfen`)}
                         </p>
                         <Button variant="link" className="h-auto p-0" onClick={() => setAlleZeigen((alle) => !alle)}>
                             {alleZeigen ? "Nur gescannten Ski anzeigen" : "Alle anzeigen"}

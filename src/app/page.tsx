@@ -7,11 +7,19 @@ import { STARTSEITE_LINKS, MENUE_GRUPPEN } from "@/components/saisonverleih/menu
 import AktuelleSaison from "@/components/saison/AktuelleSaison";
 import BackendFehler from "@/components/saison/BackendFehler";
 import KeineSaison from "@/components/saison/KeineSaison";
+import VerbindungsFehler from "@/components/startseite/VerbindungsFehler";
 import { getSaisonDaten } from "@/lib/saisonactions";
+import { pruefeBackend } from "@/lib/healthactions";
 
 export default async function Home() {
 
-    const saisonDaten = await getSaisonDaten();
+    // Healthcheck nie gecacht: die Saisons liegen im Server Cache und würden einen Ausfall verdecken
+    const [zustand, saisonDaten] = await Promise.all([pruefeBackend(), getSaisonDaten()]);
+
+    // API oder Datenbank nicht erreichbar: Fehleransicht statt Startseite
+    if (zustand !== "ok") {
+        return <VerbindungsFehler zustand={zustand} />;
+    }
 
     // Oben der Schnellzugriff, Einträge mit startseiteUnten abgetrennt darunter
     const gruppen = MENUE_GRUPPEN.filter((gruppe) => !gruppe.nurNavigation);

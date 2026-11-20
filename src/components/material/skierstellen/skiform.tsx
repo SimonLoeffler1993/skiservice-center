@@ -52,8 +52,8 @@ export default function SkiForm() {
     const eigenSkis = use(eigenSkisPromise);
 
     return (
-        <div className="max-w-3xl mx-auto space-y-6">
-            <Card className="m-2">
+        <div className="space-y-6">
+            <Card className="m-2 mx-auto max-w-3xl">
                 <CardHeader>
                     <CardTitle>Ski erfassen</CardTitle>
                 </CardHeader>
@@ -124,9 +124,12 @@ export default function SkiForm() {
                     </form>
                 </CardContent>
             </Card>
-            <Suspense fallback={<p>Lade Skis...</p>}>
-                <SkiListe skis={eigenSkis} />
-            </Suspense>
+            {/* Liste breiter als das Formular, damit die Tabelle Platz hat */}
+            <div className="mx-auto max-w-6xl">
+                <Suspense fallback={<p>Lade Skis...</p>}>
+                    <SkiListe skis={eigenSkis} />
+                </Suspense>
+            </div>
         </div>
     )
 }

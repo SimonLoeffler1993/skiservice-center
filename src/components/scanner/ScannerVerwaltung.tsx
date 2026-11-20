@@ -81,7 +81,7 @@ export default function ScannerVerwaltung() {
                     </CardDescription>
                 </div>
                 <Button variant="outline" asChild>
-                    <Link href="/verwalten/einstellungen#hardware-scanner"><Plus className="h-4 w-4" />Neuen Scanner installieren</Link>
+                    <Link href="/verwalten/einstellungen?gruppe=scanner#hardware-scanner"><Plus className="h-4 w-4" />Neuen Scanner installieren</Link>
                 </Button>
             </CardHeader>
             <CardContent>

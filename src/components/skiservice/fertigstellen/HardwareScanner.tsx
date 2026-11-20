@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScanBarcode, Sun, SunDim } from "lucide-react";
 
 import { useBildschirmAn } from "@/hooks/useBildschirmAn";
+import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
 import { scannerGeraeteOptions } from "@/hooks/useScannerGeraeteOptions";
 import { useSkiScannerSocket } from "@/hooks/useSkiScannerSocket";
 import ScannerVerbindung from "../ScannerVerbindung";
@@ -28,16 +29,22 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
     const verleihId = scan?.art === "verleih" ? scan.verleih_id : null;
     // Dauer kommt mit dem Scan aus den Einstellungen, ältere API ohne Feld: 10 s
     const sekunden = scan?.countdown ?? 10;
+    // Ältere API ohne Feld: fertig stellen
+    const aktion = scan?.aktion === "bindung" ? "bindung" : "fertig";
 
     // Ein Scan zeigt, dass der Scanner da ist: Status gleich neu laden statt erst nach 10 s
     useEffect(() => {
         if (scanNr > 0) queryClient.invalidateQueries({ queryKey: scannerGeraeteOptions.queryKey });
     }, [scanNr, queryClient]);
 
-    // Status-Meldungen (z.B. von einem anderen Gerät fertig gestellt): angezeigten Auftrag neu laden
+    // Status-Meldungen (z.B. von einem anderen Gerät fertig gestellt oder Bindung geprüft): angezeigten Auftrag oder Verleih neu laden
     useEffect(() => {
-        if (nachricht?.service_id && !nachricht.scannername) {
+        if (!nachricht || nachricht.scannername) return;
+        if (nachricht.service_id) {
             queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails", nachricht.service_id] });
+        }
+        if (nachricht.verleih_id) {
+            queryClient.invalidateQueries({ queryKey: saisonverleihDetailsOptions(nachricht.verleih_id).queryKey });
         }
     }, [nachricht, queryClient]);
 
@@ -68,12 +75,9 @@ export default function HardwareScanner({ backendUrl }: { backendUrl: string }) 
                     key={scanNr}
                     auftragId={auftragId}
                     skiId={scan?.ski_id}
+                    aktion={aktion}
                     aktionen={(kontext) =>
-                        scan?.aktion === "bindung" ? (
-                            <BindungButtons {...kontext} sekunden={sekunden} />
-                        ) : (
-                            <FertigButtons serviceId={kontext.auftrag.id} selectedSkiIds={kontext.auswahl.map((ski) => ski.id)} onErledigt={kontext.erledigt} sekunden={sekunden} />
-                        )
+                        aktion === "bindung" ? <BindungButtons {...kontext} sekunden={sekunden} /> : <FertigButtons {...kontext} sekunden={sekunden} />
                     }
                 />
             ) : (

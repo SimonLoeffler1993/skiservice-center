@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
 import { Table, TableCell, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 // Rahmen der Listenansicht, breite Tabellen scrollen in sich
 export function ListenTabelle({ children }: { children: React.ReactNode }) {
@@ -16,14 +17,14 @@ export function ListenTabelle({ children }: { children: React.ReactNode }) {
 }
 
 // Ganze Zeile öffnet den Eintrag (Klick, Enter, Leertaste), Chevron rechts als Hinweis
-export function ListenZeile({ href, titel, children }: { href: string; titel: string; children: React.ReactNode }) {
+export function ListenZeile({ href, titel, className, children }: { href: string; titel: string; className?: string; children: React.ReactNode }) {
     const router = useRouter();
 
     return (
         <TableRow
             tabIndex={0}
             aria-label={`${titel} öffnen`}
-            className="h-12 cursor-pointer hover:bg-muted focus-visible:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+            className={cn("h-12 cursor-pointer hover:bg-muted focus-visible:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring", className)}
             onClick={() => router.push(href)}
             onKeyDown={(event) => {
                 if (event.target !== event.currentTarget) return;

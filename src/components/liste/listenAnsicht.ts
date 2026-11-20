@@ -4,13 +4,13 @@ import { useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 
-// Auftrags- und Verleihliste gibt es als Kacheln oder als Liste (?ansicht=liste, Kacheln stehen nicht in der URL)
+// Auftrags-, Verleih- und Materialliste gibt es als Kacheln oder als Liste (?ansicht=liste, Kacheln stehen nicht in der URL)
 export const ListenAnsichtSchema = z.enum(["kacheln", "liste"]);
 export type ListenAnsicht = z.infer<typeof ListenAnsichtSchema>;
 
 export const ANSICHT_PARAMETER = "ansicht";
 
-// Ein Schlüssel für beide Listen
+// Ein Schlüssel für alle Listen
 const SPEICHER_SCHLUESSEL = "listen-ansicht";
 const EREIGNIS = "listen-ansicht";
 

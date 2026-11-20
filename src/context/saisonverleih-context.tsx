@@ -8,7 +8,7 @@ import React, { useCallback, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { format, isValid, parseISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Material } from "@/types/materialtypes";
+import { MaterialZeile } from "@/types/materialtypes";
 import { VerleihArt } from "@/types/saisonverleihtypes";
 
 type SaisonverleihContextProviderProps = {
@@ -30,8 +30,8 @@ function datumAusUrl(wert: string | null): Date | undefined {
 type SaisonverleihContextType = {
     kunde: Kunde | null;
     setKunde: (kunde: Kunde | null) => void;
-    materialList: Material[];
-    setMaterialList: (materialList: Material[]) => void;
+    materialList: MaterialZeile[];
+    setMaterialList: (materialList: MaterialZeile[]) => void;
     datenVollstaendig: boolean;
     bemerkung: string;
     setBemerkung: (bemerkung: string) => void;
@@ -48,7 +48,7 @@ const SaisonverleihContext = React.createContext<SaisonverleihContextType | unde
 
 export const SaisonverleihContextProvider = ({ children, startArt = "saison", startZeitraum, verleihId, artAusUrl = false }: SaisonverleihContextProviderProps) => {
     const { kunde, setKunde } = useKundeStore();
-    const [materialList, setMaterialList] = useState<Material[]>([]);
+    const [materialList, setMaterialList] = useState<MaterialZeile[]>([]);
     const [bemerkung, setBemerkung] = useState("");
     const [artState, setArtState] = useState<VerleihArt>(startArt);
     const [zeitraumState, setZeitraumState] = useState<DateRange | undefined>(startZeitraum);

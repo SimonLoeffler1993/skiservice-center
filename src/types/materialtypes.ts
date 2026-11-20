@@ -199,6 +199,20 @@ export const MaterialNeuSchema = MaterialSchema.omit({ bindungAktiv: true, bindu
 
 export type Material = z.infer<typeof MaterialNeuSchema>;
 
+// Zeile in der Liste eines neuen Verleihs: dazu der geprüfte Ski und Schuh, nur für die Anzeige.
+// Beide gehen nicht an die API.
+export type MaterialZeile = Material & { ski?: Ski; schuh?: Schuh };
+
+// z.B. "Atomic Redster · 150 cm"
+export function skiText(ski: Ski): string {
+  return `${ski.Modell.Hersteller.Name} ${ski.Modell.Modell} · ${ski.Laenge} cm`;
+}
+
+// z.B. "Nordica Speedmachine · Gr. 26.5"
+export function schuhText(schuh: Schuh): string {
+  return `${schuh.Modell.Hersteller.Name} ${schuh.Modell.Modell} · Gr. ${schuh.Groese}`;
+}
+
 
 // TODO Ski usw vertiefen
 export const MaterialReadSchema = z.object({

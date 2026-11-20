@@ -4,6 +4,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { schuModelleOptions, skiSchuheOptions } from "@/hooks/useSchuhMaterialOptions"
 import SkischuhCard from "./schuhcard"
+import SchuhTabelle from "./SchuhTabelle"
+import ListenAnsichtUmschalter from "@/components/liste/ListenAnsichtUmschalter"
+import { useListenAnsicht } from "@/components/liste/listenAnsicht"
 import { AusgemusterteFilter } from "../bearbeiten/MaterialAktionen"
 import MaterialFilter, { eindeutigeOptionen, LEERER_FILTER, passtAllgemein } from "../MaterialFilter"
 
@@ -18,6 +21,7 @@ export default function SkischuheListe() {
     const queryClient = useQueryClient()
     const [mitAusgemustert, setMitAusgemustert] = useState(false)
     const [filter, setFilter] = useState(LEERER_FILTER)
+    const ansicht = useListenAnsicht()
 
     const alle = useMemo(() => (data?.success ? data.data : []), [data])
 
@@ -66,10 +70,17 @@ export default function SkischuheListe() {
                 gesamt={sichtbar.length}
             >
                 <AusgemusterteFilter wert={mitAusgemustert} onChange={setMitAusgemustert} anzahl={anzahlAusgemustert} />
+                <ListenAnsichtUmschalter />
             </MaterialFilter>
 
             {schuhe.length === 0 ? (
                 <p>{sichtbar.length === 0 ? "Keine Skischuhe gefunden" : "Keine Skischuhe passend zum Filter"}</p>
+            ) : ansicht === "liste" ? (
+                <SchuhTabelle
+                    schuhe={schuhe}
+                    modelle={modelle?.success ? modelle.data : []}
+                    onGeaendert={() => queryClient.invalidateQueries({ queryKey: skiSchuheOptions.queryKey })}
+                />
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {schuhe.map((schuh) => (

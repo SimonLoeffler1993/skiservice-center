@@ -36,7 +36,13 @@ export default function UebersichtSpeichern({datenChecked}: UebersichtSpeichernP
         startTransition(() => action({
             Kunde_ID: kunde.ID,
             Bemerkung: bemerkung,
-            Material: materialList,
+            // Ski und Schuh sind nur für die Anzeige in der Liste
+            Material: materialList.map((zeile) => {
+                const material = { ...zeile };
+                delete material.ski;
+                delete material.schuh;
+                return material;
+            }),
             Art: art,
             ...tagesverleih,
         }))

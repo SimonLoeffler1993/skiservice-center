@@ -4,7 +4,7 @@ import { BadgeCheckIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { useTransition } from "react";
 import { setBindungChecked } from "@/lib/auftragaction";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { auftragDetailsOptions } from "@/hooks/useAuftragDetailsOptions";
 
 type BindungsProps = {
@@ -21,10 +21,11 @@ export default function SkiBindungPruefenButton({ skiid, auftragid, Check, Statu
 
     function handleBindungChecked() {
         startTransition(async () => {
-            const checked = await setBindungChecked([skiid])
-            console.log("Bindung Checked: ", checked)
-            if (checked){
+            const { ok, mail } = await setBindungChecked([skiid])
+            if (ok){
                 queryClient.invalidateQueries({ queryKey: auftragDetailsOptions(auftragid).queryKey })
+                // Die letzte Bindungsprüfung kann die Fertig-Mail ausgelöst haben
+                if (mail) queryClient.invalidateQueries({ queryKey: ["mailProtokoll"] })
             }
         })
     }

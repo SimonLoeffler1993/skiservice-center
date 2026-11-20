@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { ReactNode, useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -14,6 +14,8 @@ import { EinstellungenListe, EinstellungenWerte } from "@/types/einstellungentyp
 import EinstellungFeld from "./EinstellungFeld";
 import EinstellungTest from "./EinstellungTest";
 
+const FORMULAR_ID = "einstellungen-formular";
+
 // Gruppen mit Test-Funktion
 const GRUPPEN_TEST: Record<string, TestArt> = {
     mail: "mail",
@@ -26,7 +28,14 @@ function zuFormularWerten(liste: EinstellungenListe): EinstellungenWerte {
     return Object.fromEntries(liste.map((e) => [e.schluessel, e.typ === "passwort" ? "" : e.wert]));
 }
 
-export default function EinstellungenFormular() {
+type Props = {
+    // Gruppe → Inhalt, der im Reiter unter den Einstellungen steht (liegt außerhalb des Formulars)
+    zusatz?: Record<string, ReactNode>;
+    // Reiter, der beim Öffnen aktiv ist
+    startGruppe?: string;
+};
+
+export default function EinstellungenFormular({ zusatz = {}, startGruppe }: Props) {
     const queryClient = useQueryClient();
     const { data, error, isPending: laedt } = useQuery(einstellungenOptions);
     const [isPending, startTransition] = useTransition();
@@ -83,9 +92,11 @@ export default function EinstellungenFormular() {
         return <p className="text-destructive">{error?.message ?? "Einstellungen konnten nicht geladen werden."}</p>;
     }
 
+    const start = gruppen.some(([gruppe]) => gruppe === startGruppe) ? startGruppe : gruppen[0]?.[0];
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <Tabs defaultValue={gruppen[0]?.[0]} className="w-full">
+        <Tabs defaultValue={start} className="w-full gap-4">
+            <form id={FORMULAR_ID} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
                 {/* Auf kleinen Bildschirmen horizontal scrollbar */}
                 <div className="overflow-x-auto">
                     <TabsList>
@@ -121,10 +132,15 @@ export default function EinstellungenFormular() {
                         </Card>
                     </TabsContent>
                 ))}
-            </Tabs>
+            </form>
+
+            {/* Außerhalb des Formulars, damit Enter in diesen Karten nichts speichert */}
+            {gruppen.map(([gruppe]) => zusatz[gruppe] && (
+                <TabsContent key={gruppe} value={gruppe}>{zusatz[gruppe]}</TabsContent>
+            ))}
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <Button type="submit" disabled={isPending || !isDirty}>
+                <Button type="submit" form={FORMULAR_ID} disabled={isPending || !isDirty}>
                     {isPending ? "Speichern..." : "Speichern"}
                 </Button>
                 <Button type="button" variant="outline" disabled={isPending || !isDirty} onClick={() => reset()}>
@@ -134,6 +150,6 @@ export default function EinstellungenFormular() {
                     <p className={meldung.erfolg ? "text-sm text-green-700" : "text-sm text-destructive"}>{meldung.text}</p>
                 )}
             </div>
-        </form>
+        </Tabs>
     );
 }

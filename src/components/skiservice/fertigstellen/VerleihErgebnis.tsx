@@ -33,6 +33,8 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz, countdo
     const { data: verleih, isPending, error } = useQuery({ ...saisonverleihDetailsOptions(verleihId), staleTime: 0 });
     const [ausgewaehlt, setAusgewaehlt] = useState<number[]>(materialId ? [materialId] : []);
     const [meldung, setMeldung] = useState<Meldung | null>(null);
+    // Standard: nur die gescannte Zeile, das übrige Material lässt sich aufklappen
+    const [alleZeigen, setAlleZeigen] = useState(false);
     const [laeuft, startTransition] = useTransition();
     const aktualisieren = useVerleihAktualisieren(verleihId);
 
@@ -51,6 +53,14 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz, countdo
     // Nur ungeprüftes Material kann ausgewählt werden
     const offen = ausgewaehlt.filter((id) => material.some((m) => m.ID === id && !m.BindungGeprueft));
     const kunde = verleih.Kunde;
+    // Ohne Materialzeile (altes Etikett) oder wenn sie nicht mehr im Verleih ist: alles anzeigen
+    const gescannt = material.find((m) => m.ID === materialId);
+    const uebrige = gescannt ? material.filter((m) => m.ID !== gescannt.ID) : [];
+    const nurGescannt = !!gescannt && !alleZeigen;
+    const sichtbar = nurGescannt ? [gescannt] : material;
+    const uebrigeOffen = uebrige.filter((m) => !m.BindungGeprueft).length;
+    // Nichts zu prüfen: sagen warum, statt nur den Button zu sperren
+    const bereitsGeprueft = ausgewaehlt.length > 0 && offen.length === 0;
 
     function umschalten(m: MaterialRead) {
         if (m.BindungGeprueft) return;
@@ -102,11 +112,11 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz, countdo
 
             <section className="space-y-2">
                 <div className="flex items-baseline justify-between gap-2">
-                    <h2 className="text-lg font-semibold">Material ({material.length})</h2>
+                    <h2 className="text-lg font-semibold">{nurGescannt ? "Gescanntes Material" : `Material (${material.length})`}</h2>
                     <p className="text-sm text-muted-foreground">{offen.length > 0 ? `${offen.length} ausgewählt` : "Material antippen zum Auswählen"}</p>
                 </div>
                 <div className="space-y-2">
-                    {material.map((m) => {
+                    {sichtbar.map((m) => {
                         const gewaehlt = offen.includes(m.ID);
                         const waehlbar = !m.BindungGeprueft;
                         return (
@@ -145,10 +155,25 @@ export default function VerleihErgebnis({ verleihId, materialId, zusatz, countdo
                         );
                     })}
                 </div>
+                {/* Hinweis auf das übrige Material des Verleihs */}
+                {uebrige.length > 0 && (
+                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                        <p>
+                            Noch {uebrige.length === 1 ? "1 weitere Materialzeile" : `${uebrige.length} weitere Materialzeilen`} in diesem Verleih
+                            {uebrigeOffen === 0
+                                ? " · keine weitere Bindung zu prüfen"
+                                : ` · ${uebrigeOffen === 1 ? "1 Bindung" : `${uebrigeOffen} Bindungen`} noch zu prüfen`}
+                        </p>
+                        <Button variant="link" className="h-auto p-0" onClick={() => setAlleZeigen((alle) => !alle)}>
+                            {alleZeigen ? "Nur gescanntes Material anzeigen" : "Alle anzeigen"}
+                        </Button>
+                    </div>
+                )}
             </section>
 
             <div className="sticky bottom-0 -mx-4 space-y-2 border-t bg-background/95 px-4 py-3 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:backdrop-blur-none">
                 <ScanMeldung meldung={meldung} />
+                {bereitsGeprueft && <p className="text-sm text-muted-foreground">Bindung ist bereits geprüft.</p>}
                 {countdownSekunden !== undefined ? (
                     <CountdownAktion schluessel={offen.join(",")} text="Bindung geprüft" laeuftText="Wird gespeichert..." icon={BadgeCheck} ausfuehren={bindungGeprueft} sekunden={countdownSekunden} />
                 ) : (

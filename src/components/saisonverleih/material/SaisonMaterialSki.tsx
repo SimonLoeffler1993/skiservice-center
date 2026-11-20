@@ -15,6 +15,8 @@ interface SaisonMaterialSkiProps {
     onCheck?: (isValid: boolean) => void;
     // Belegter Ski wird bewusst übernommen
     onTrotzdem?: (trotzdem: boolean) => void;
+    // Der gefundene Ski, z.B. für Modell und Länge in der Materialliste
+    onGefunden?: (ski: Ski | undefined) => void;
     // Bisheriger Ski beim Bearbeiten, wird ohne erneute Prüfung angezeigt
     vorgabe?: Ski | null;
     error?: string;
@@ -25,6 +27,7 @@ export default function SaisonMaterialSki({
     onChange, 
     onCheck,
     onTrotzdem,
+    onGefunden,
     vorgabe,
     error 
 }: SaisonMaterialSkiProps) {
@@ -56,6 +59,10 @@ export default function SaisonMaterialSki({
     useEffect(() => {
         onTrotzdem?.(trotzdem);
     }, [trotzdem, onTrotzdem]);
+
+    useEffect(() => {
+        onGefunden?.(state?.success ? state.data?.[0] : undefined);
+    }, [state, onGefunden]);
     
     return (
         <div>

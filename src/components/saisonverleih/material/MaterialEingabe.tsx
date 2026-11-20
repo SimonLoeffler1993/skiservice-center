@@ -1,13 +1,13 @@
 "use client";
 
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useCallback, useRef, useState } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import SaisonMaterialPreise from './SaisonMaterialPreise';
 import SaisonMaterialSki from './SaisonMaterialSki';
 import SaisonMaterialSchuh from './SaisonMaterialSchuh';
 import SaisonMaterialStock from './SaisonMaterialStock';
-import { Material, MaterialEingabeWerte, MaterialRead, MaterialSchema } from '@/types/materialtypes';
+import { Material, MaterialEingabeWerte, MaterialRead, MaterialSchema, Schuh, Ski } from '@/types/materialtypes';
 import { BindungsdatenEingabe, LEERE_BINDUNGSDATEN, zuBindungsdaten, zuEingabe } from '@/types/bindungsdatentypes';
 import { Checkbox } from '@/components/ui/checkbox';
 import BindungsdatenFelder from '@/components/skiservice/bindung/BindungsdatenFelder';
@@ -59,6 +59,12 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
     // Für die Vorbelegung der Bindungsdaten: zuletzt übernommener Fahrername und Sohle des geprüften Schuhs
     const letzterName = useRef(vorgabe?.SkiFahrerName?.trim() ?? '');
     const schuhSohle = useRef<number | null>(vorgabe?.Schuh?.Sohle ?? null);
+    // Zuletzt geprüfter Ski und Schuh, für Modell und Länge/Größe in der Materialliste
+    const gefundenerSki = useRef<Ski | undefined>(undefined);
+    const gefundenerSchuh = useRef<Schuh | undefined>(undefined);
+    const skiGefunden = useCallback((ski: Ski | undefined) => {
+        gefundenerSki.current = ski;
+    }, []);
 
     const methods = useForm<MaterialEingabeWerte>({
         resolver: zodResolver(MaterialSchema),
@@ -111,9 +117,11 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
         letzterName.current = neu;
     }
 
-    function schuhGefunden(schuhId: number | undefined, sohle: number | null) {
+    function schuhGefunden(schuhId: number | undefined, schuh: Schuh | undefined) {
+        const sohle = schuh?.Sohle ?? null;
         setValue('schuhnr', schuhId, { shouldValidate: true });
         schuhSohle.current = sohle;
+        gefundenerSchuh.current = schuh;
         const eingabe = getValues('bindungsEingabe');
         if (sohle !== null && getValues('bindungAktiv') && eingabe && eingabe.Sohle.trim() === '') {
             setBindung({ ...eingabe, Sohle: String(sohle), bestaetigt: false });
@@ -151,11 +159,19 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
             if (fehler || vorgabe) return;
         } else {
             setSpeicherFehler(null);
-            setMaterialList([...materialList, material]);
+            // Nur übernehmen, was zur Eingabe passt: die Nummer kann nach dem Prüfen geändert worden sein
+            const ski = gefundenerSki.current;
+            const schuh = gefundenerSchuh.current;
+            setMaterialList([...materialList, {
+                ...material,
+                ski: ski && ski.SkiNr === material.skinr.trim() ? ski : undefined,
+                schuh: schuh && schuh.ID === material.schuhnr ? schuh : undefined,
+            }]);
         }
         reset();
         letzterName.current = '';
         schuhSohle.current = null;
+        gefundenerSchuh.current = undefined;
         setEingabeNr((nr) => nr + 1);
         setSkiValid(null);
         setSchuhValid(null);
@@ -207,6 +223,7 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
                                 onChange={(value) => setValue('skinr', value)}
                                 onCheck={setSkiValid}
                                 onTrotzdem={setSkiTrotzdem}
+                                onGefunden={skiGefunden}
                                 vorgabe={vorgabe?.Ski}
                                 error={errors.skinr?.message}
                             />
@@ -216,7 +233,7 @@ export default function MaterialEingabe({ onSpeichern, kundeId, vorgabe, preisGe
                             <SaisonMaterialSchuh
                                 value={watch('schuhAnzeige') ?? ''}
                                 onChange={(value) => setValue('schuhAnzeige', value)}
-                                onGefunden={(schuhId, schuh) => schuhGefunden(schuhId, schuh?.Sohle ?? null)}
+                                onGefunden={schuhGefunden}
                                 onCheck={setSchuhValid}
                                 onTrotzdem={setSchuhTrotzdem}
                                 vorgabe={vorgabe?.Schuh}
