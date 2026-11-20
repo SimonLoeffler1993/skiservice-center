@@ -95,6 +95,8 @@ export const QuittungListeEintragSchema = z.object({
     BuchhaltungSync: z.boolean(),
     Storniert: z.boolean().default(false),
     Storniert_Am: z.string().nullish(),
+    KassiertVonName: z.string().nullish(),
+    StorniertVonName: z.string().nullish(),
     artikelgruppen: z.array(QuittungGruppeSchema),
 })
 export const QuittungListeSchema = z.array(QuittungListeEintragSchema)

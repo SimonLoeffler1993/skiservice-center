@@ -114,7 +114,7 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
         const antwort = await storniereQuittung(quittung.ID);
         if (!antwort.success) return antwort.error;
         // Aufträge und Verleihe der Quittung sind wieder offen und ohne Quittung
-        for (const schluessel of ["quittungenListe", "quittung", "kunde", "serviceAuftragDetails", "saisonverleihDetails", "skiserviceList", "saisonverleihList", "mailProtokoll"]) {
+        for (const schluessel of ["quittungenListe", "quittung", "kunde", "serviceAuftragDetails", "saisonverleihDetails", "skiserviceList", "saisonverleihList", "mailProtokoll", "verlauf"]) {
             queryClient.invalidateQueries({ queryKey: [schluessel] });
         }
         return null;
@@ -144,12 +144,15 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                         ))}
                     </div>
                 </TableCell>
-                <TableCell>{quittung.Zahlart || "–"}</TableCell>
+                <TableCell>
+                    {quittung.Zahlart || "–"}
+                    {quittung.KassiertVonName && <div className="text-xs text-muted-foreground">kassiert von {quittung.KassiertVonName}</div>}
+                </TableCell>
                 <TableCell className={`text-right tabular-nums ${quittung.Storniert ? "text-muted-foreground line-through" : ""}`}>{euro.format(quittung.Betrag)}</TableCell>
                 <TableCell>
                     <div className="flex flex-wrap gap-1">
                         {quittung.Storniert ? (
-                            <Badge variant="secondary" className="bg-rose-100 text-rose-800" title={quittung.Storniert_Am ? `Storniert am ${datum(quittung.Storniert_Am)}` : undefined}>
+                            <Badge variant="secondary" className="bg-rose-100 text-rose-800" title={quittung.Storniert_Am ? `Storniert am ${datum(quittung.Storniert_Am)}${quittung.StorniertVonName ? ` von ${quittung.StorniertVonName}` : ""}` : undefined}>
                                 storniert
                             </Badge>
                         ) : (

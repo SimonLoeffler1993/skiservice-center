@@ -64,6 +64,10 @@ export const AuftragSchema = z.object({
     rabat_waerung: z.number().int().nullable().optional(),
     leih_versicherung: z.number().int().nullable().optional(),
     quittung_id: z.number().int().nullable().optional(),
+    // Nachvollziehbarkeit, bei alten Aufträgen leer
+    angelegt_von_name: z.string().nullish(),
+    geaendert_von_name: z.string().nullish(),
+    geaendert_am: z.string().nullish(),
 
     skis: z.array(SkiSchema).default([]),
 });

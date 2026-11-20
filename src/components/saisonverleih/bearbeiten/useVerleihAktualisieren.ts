@@ -12,5 +12,6 @@ export function useVerleihAktualisieren(verleihId: number) {
         queryClient.invalidateQueries({ queryKey: ["saisonverleihList"] });
         // Die Änderung kann eine Mail ausgelöst haben (Abholung, Rückgabe)
         queryClient.invalidateQueries({ queryKey: ["mailProtokoll"] });
+        queryClient.invalidateQueries({ queryKey: ["verlauf"] });
     }, [queryClient, verleihId]);
 }

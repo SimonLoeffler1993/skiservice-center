@@ -11,5 +11,6 @@ export function useAuftragAktualisieren(auftragId: number) {
         queryClient.setQueryData(auftragDetailsOptions(auftragId).queryKey, { success: true, error: null, data: auftrag });
         // Die Änderung kann eine Mail ausgelöst haben (Fertig-Mail)
         queryClient.invalidateQueries({ queryKey: ["mailProtokoll"] });
+        queryClient.invalidateQueries({ queryKey: ["verlauf"] });
     }, [queryClient, auftragId]);
 }

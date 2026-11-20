@@ -78,6 +78,10 @@ export const SaisonVerleihSchema = z.object({
     Bezeichnung: z.string().optional(),
     QuittungID: z.number().int().optional().nullable(),
     Material: z.array(MaterialReadSchema).optional().nullable(),
+    // Nachvollziehbarkeit, bei alten Verleihen leer
+    AngelegtVonName: z.string().nullish(),
+    GeaendertVonName: z.string().nullish(),
+    Geaendert_Am: z.string().nullish(),
 })
 
 export type SaisonVerleih = z.infer<typeof SaisonVerleihSchema>;

@@ -1,11 +1,12 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
-import { Info, Mail, Receipt } from "lucide-react";
+import { Info, Mail, Receipt, History } from "lucide-react";
 
 import DetailKopf, { DetailAktionsleiste, DetailKarte } from "@/components/detail/DetailKopf";
 import KundeForm from "@/components/kunde/KundeForm";
 import MailProtokollListe from "@/components/mail/MailProtokollListe";
+import VerlaufListe from "@/components/verlauf/VerlaufListe";
 import ButtonQuittungZuweisen from "@/components/quittung/ButtonQuittungZuweisen";
 import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 import { saisonverleihDetailsOptions } from "@/hooks/useSaisonverleihDetailOptions";
@@ -51,6 +52,7 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID, hervorh
                     <>
                         {kundenname}
                         {verleih.Abgeholt_Am && ` · abgeholt am ${format(parseISO(verleih.Abgeholt_Am), "dd.MM.yyyy")}`}
+                        {verleih.AngelegtVonName && ` · angelegt von ${verleih.AngelegtVonName}`}
                     </>
                 }
                 badges={
@@ -93,6 +95,9 @@ export default function SaisonVerleiAnzeigeUebersicht({ saisonverleihID, hervorh
                         </DetailKarte>
                         <DetailKarte titel="Nachrichten" icon={Mail}>
                             <MailProtokollListe bezug="verleih" id={verleih.ID} kompakt />
+                        </DetailKarte>
+                        <DetailKarte titel="Verlauf" icon={History}>
+                            <VerlaufListe bezug="verleih" id={verleih.ID} />
                         </DetailKarte>
                         {verleih.Bemerkung && (
                             <DetailKarte titel="Bemerkung" icon={Info}>
