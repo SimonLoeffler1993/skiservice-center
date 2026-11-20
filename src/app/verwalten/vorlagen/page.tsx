@@ -1,8 +1,10 @@
 import { Mail } from "lucide-react";
 
 import VorlagenSeite from "@/components/vorlagen/VorlagenSeite";
+import { nurAdminSeite } from "@/lib/seitenschutz";
 
-export default function VorlagenPage() {
+export default async function VorlagenPage() {
+    await nurAdminSeite();
     return (
         <section className="space-y-4">
             <div className="flex items-center gap-2">

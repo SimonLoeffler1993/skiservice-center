@@ -45,6 +45,8 @@ export const ScannerGeraetSchema = z.object({
     update_fehler: z.string().nullish(),
     // Im Center angestoßen, der Scanner hat noch nicht reagiert
     update_angefordert: z.string().nullish(),
+    // Name des Geräteschlüssels, mit dem er sich meldet; leer = ohne Schlüssel
+    schluessel: z.string().nullish(),
 });
 
 // manifest.json des Webflashers (GitHub Pages), hier zählt nur die Version

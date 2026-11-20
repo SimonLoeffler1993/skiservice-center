@@ -97,6 +97,7 @@ export default function ScannerVerwaltung() {
                                 <TableHead>Status</TableHead>
                                 <TableHead>Modus</TableHead>
                                 <TableHead className="hidden md:table-cell">IP-Adresse</TableHead>
+                                <TableHead className="hidden sm:table-cell">Schlüssel</TableHead>
                                 <TableHead>Firmware</TableHead>
                                 <TableHead className="text-right">Update</TableHead>
                             </TableRow>
@@ -116,6 +117,11 @@ export default function ScannerVerwaltung() {
                                                     {geraet.ip}
                                                 </a>
                                             ) : <span className="text-muted-foreground">–</span>}
+                                        </TableCell>
+                                        <TableCell className="hidden sm:table-cell">
+                                            {geraet.schluessel
+                                                ? <StatusBadge farbe="gruen" text={geraet.schluessel} />
+                                                : <Link href="/verwalten/geraete"><StatusBadge farbe="orange" text="ohne Schlüssel" /></Link>}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-wrap items-center gap-2">

@@ -7,10 +7,12 @@ import { Home, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import BenutzerMenue from "@/components/anmeldung/BenutzerMenue";
-import { MENUE_GRUPPEN } from "./menueeintraege";
+import { useBenutzer } from "@/context/benutzer-context";
+import { sichtbareGruppen } from "./menueeintraege";
 
 export default function MobileMenue() {
     const [offen, setOffen] = useState(false);
+    const { darfAdmin } = useBenutzer();
 
     return (
         <div className="flex items-center justify-between md:hidden">
@@ -31,7 +33,7 @@ export default function MobileMenue() {
                         <SheetTitle>Menü</SheetTitle>
                     </SheetHeader>
                     <nav className="flex flex-col gap-4 px-4 pb-4">
-                        {MENUE_GRUPPEN.map((gruppe) => (
+                        {sichtbareGruppen(darfAdmin).map((gruppe) => (
                             <div key={gruppe.titel} className="flex flex-col gap-1">
                                 <span className="text-sm font-medium text-muted-foreground">{gruppe.titel}</span>
                                 {gruppe.links.map((link) => (

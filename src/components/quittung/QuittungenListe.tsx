@@ -7,6 +7,7 @@ import { format, parseISO } from "date-fns";
 import { Ban, ChevronDown, ChevronRight, FileText } from "lucide-react";
 
 import LoeschenDialog from "@/components/bearbeiten/LoeschenDialog";
+import { useBenutzer } from "@/context/benutzer-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -106,6 +107,8 @@ export function QuittungenTabelle({ quittungen: data }: { quittungen: QuittungLi
 
 function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungListeEintrag; offen: boolean; onUmschalten: () => void }) {
     const queryClient = useQueryClient();
+    // Stornieren dürfen nur Admins
+    const { darfAdmin } = useBenutzer();
 
     async function stornieren() {
         const antwort = await storniereQuittung(quittung.ID);
@@ -173,7 +176,7 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                         >
                             <FileText className="h-4 w-4" />
                         </a>
-                        {!quittung.Storniert && (
+                        {!quittung.Storniert && darfAdmin && (
                             <LoeschenDialog
                                 titel={`Quittung ${quittung.Nummer} stornieren`}
                                 beschreibung={

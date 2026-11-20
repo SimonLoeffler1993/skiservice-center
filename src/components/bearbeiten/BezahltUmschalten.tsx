@@ -6,6 +6,7 @@ import { CircleCheck, CircleX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useBenutzer } from "@/context/benutzer-context";
 import { Label } from "@/components/ui/label";
 import {
     Dialog,
@@ -38,6 +39,8 @@ export default function BezahltUmschalten({ bezahlt, hatQuittung, bezeichnung, o
     const [fehler, setFehler] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const ziel = !bezahlt;
+    // "Aus Quittung entfernen" ist eine Geld-Korrektur: nur Admins
+    const { darfAdmin } = useBenutzer();
 
     function setzen(hakenGesetzt: boolean) {
         startTransition(async () => {
@@ -93,7 +96,7 @@ export default function BezahltUmschalten({ bezahlt, hatQuittung, bezeichnung, o
                                 : ` Der ${bezeichnung} bleibt auf der Quittung und erscheint deshalb nicht wieder in der Kasse.`)}
                         </DialogDescription>
                     </DialogHeader>
-                    {hatQuittung && (
+                    {hatQuittung && (ziel || darfAdmin) && (
                         <div className="flex items-start gap-2">
                             <Checkbox
                                 id="bezahlt-mit-quittung"

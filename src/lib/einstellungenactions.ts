@@ -56,7 +56,7 @@ export async function loescheGeheimnis(schluessel: string): Promise<ApiAntwort<E
     }
 }
 
-export type TestArt = "mail" | "drucker" | "lexware";
+export type TestArt = "mail" | "drucker" | "lexware" | "oidc";
 
 export async function testeEinstellung(art: TestArt, empfaenger?: string): Promise<TestErgebnis> {
     try {

@@ -21,6 +21,7 @@ const GRUPPEN_TEST: Record<string, TestArt> = {
     mail: "mail",
     drucker: "drucker",
     lexware: "lexware",
+    oidc: "oidc",
 };
 
 function zuFormularWerten(liste: EinstellungenListe): EinstellungenWerte {

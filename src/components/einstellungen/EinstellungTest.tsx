@@ -17,6 +17,7 @@ const BESCHRIFTUNG: Record<TestArt, string> = {
     mail: "Test-Mail senden",
     drucker: "Test-Etikett drucken",
     lexware: "Verbindung testen",
+    oidc: "Verbindung zum Anbieter testen",
 };
 
 export default function EinstellungTest({ art, hatAenderungen }: EinstellungTestProps) {
