@@ -5,7 +5,30 @@ import { z } from "zod";
 
 import { config } from "./config";
 import { toApiAntwort } from "./helfer";
+import { leseTokens, loescheAlles, loescheBediener } from "./sitzung";
 import { ApiAntwort } from "@/types/actiontypes";
+
+/**
+ * fetch an die API mit der Anmeldung aus den Cookies (Bearer). Gleiche Signatur wie fetch.
+ * Ein ausdrücklich gesetzter Authorization-Header bleibt (z.B. Geräte-Token für die PIN-Anmeldung).
+ * Bei 401 werden die abgelaufenen Cookies gelöscht; die Weiterleitung zur Anmeldung übernehmen
+ * proxy.ts (nächster Seitenaufruf) und der BenutzerProvider im Browser.
+ */
+export async function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+    const kopf = new Headers(init.headers);
+    if (!kopf.has("Authorization")) {
+        const tokens = await leseTokens();
+        const token = tokens.bediener ?? tokens.geraet;
+        if (token) kopf.set("Authorization", `Bearer ${token}`);
+    }
+    const response = await fetch(url, { ...init, headers: kopf });
+    if (response.status === 401) {
+        const detail = await response.clone().json().then((d) => d?.detail).catch(() => null);
+        if (detail === "bediener_noetig") await loescheBediener();
+        else if (detail === "anmeldung_noetig") await loescheAlles();
+    }
+    return response;
+}
 
 async function fehlerText(response: Response, standard: string): Promise<string> {
     const daten = await response.json().catch(() => null);
@@ -28,7 +51,7 @@ export async function anfrage<T>(
     body?: unknown,
 ): Promise<ApiAntwort<T>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1${pfad}`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1${pfad}`, {
             method: methode,
             headers: { "Content-Type": "application/json" },
             body: body === undefined ? undefined : JSON.stringify(body),

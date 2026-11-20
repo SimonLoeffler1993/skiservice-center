@@ -1,12 +1,13 @@
 "use server"
 
+import { apiFetch } from "@/lib/apianfrage";
 import { skiServicePreiseListeSchema, SkiServicePreiseListe, CreateSkiservicePreis, skiServicePreiseSchema, SkiServicePreise } from "@/types/skiservicepreisetypes";
 import { config } from "./config";
 import { ApiAntwort } from "@/types/actiontypes";
 import { toApiAntwort } from "./helfer";
 
 export async function getSkiservicesPreise(): Promise<ApiAntwort<SkiServicePreiseListe>> {
-    const response = await fetch(`${config.backendUrl}/api/v1/skiservice/preise`);
+    const response = await apiFetch(`${config.backendUrl}/api/v1/skiservice/preise`);
     
    if (!response.ok) {
         console.error("Fehler beim Abrufen der Skiservicepreise:", response.statusText);
@@ -27,7 +28,7 @@ export async function getSkiservicesPreise(): Promise<ApiAntwort<SkiServicePreis
 }
 
 export async function createSkiservicePreis(previousState: unknown, data: CreateSkiservicePreis): Promise<ApiAntwort<SkiServicePreise>> {
-    const response = await fetch(`${config.backendUrl}/api/v1/skiservice/preise`, {
+    const response = await apiFetch(`${config.backendUrl}/api/v1/skiservice/preise`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -47,7 +48,7 @@ export async function createSkiservicePreis(previousState: unknown, data: Create
 }
 
 export async function setzeBindungsserviceAction(previousState: unknown, serviceId: number): Promise<ApiAntwort<SkiServicePreise>> {
-    const response = await fetch(`${config.backendUrl}/api/v1/skiservice/bindungsservice?bindungsserviceid=${serviceId}`, {
+    const response = await apiFetch(`${config.backendUrl}/api/v1/skiservice/bindungsservice?bindungsserviceid=${serviceId}`, {
         method: "POST",
         headers: {
             accept: "application/json",

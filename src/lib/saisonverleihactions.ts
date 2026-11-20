@@ -2,6 +2,7 @@
 
 
 
+import { apiFetch } from "@/lib/apianfrage";
 import { ApiAntwort } from "@/types/actiontypes";
 import { ListenSortierung } from "@/types/liste";
 import { config } from "./config";
@@ -17,7 +18,7 @@ import { SaisonverleihPreiseListe, saisonverleihPreiseListeSchema } from "@/type
 
 export async function getSaisonVerleihPreis(): Promise<ApiAntwort<SaisonverleihPreiseListe>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/preise`);
+        const response = await apiFetch(`${config.backendUrl}/api/v1/saisonverleih/preise`);
         if (!response.ok) {
             console.error("Fehler beim Suchen:", response);
             return { success: false, error: "Fehler beim Suchen" };
@@ -39,7 +40,7 @@ export async function getSaisonVerleihPreis(): Promise<ApiAntwort<SaisonverleihP
 
 export async function createSaisonVerleih(previousState: unknown,saisonVerleih: SaisonVerleihCreate): Promise<SaisonVerleihCreateResponse> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/neu`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/saisonverleih/neu`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -64,7 +65,7 @@ export async function createSaisonVerleih(previousState: unknown,saisonVerleih: 
 // Ein SaisonVerleih per ID laden
 export async function getSaisonVerleihById(id: number | string): Promise<SaisonverleihRead | null> {
     try {
-        const res = await fetch(`${config.backendUrl}/api/v1/saisonverleih/${id}`);
+        const res = await apiFetch(`${config.backendUrl}/api/v1/saisonverleih/${id}`);
         if (!res.ok) {
             console.error("Fehler beimLaden SaisonVerleih:", id, res.status, res.statusText);
             return null;
@@ -111,7 +112,7 @@ export async function getSaisonVerleihList(limit: number = 15, letzteID?: number
     }
 
     try {
-        const res = await fetch(url);
+        const res = await apiFetch(url);
         if (!res.ok) {
             console.error("Fehler beimLaden SaisonVerleih:", res.status, res.statusText);
             return null;
@@ -135,7 +136,7 @@ export async function getSaisonVerleihList(limit: number = 15, letzteID?: number
 // Namen Ettiket generieren
 export async function getSaisonVerleihNamenEttiket(previousState: unknown,id: number): Promise<SaisonVerleihNamenEttiketResponse | null> {
     try {
-        const res = await fetch(`${config.backendUrl}/api/v1/ettiket/saisonfahrer/${id}`);
+        const res = await apiFetch(`${config.backendUrl}/api/v1/ettiket/saisonfahrer/${id}`);
         if (!res.ok) {
             console.error("Fehler beimLaden Namen Ettiket:", id, res.status, res.statusText);
             return null;
@@ -169,7 +170,7 @@ export async function getBelegung(
     if (material.schuhnr !== undefined) parameter.set("schuhnr", String(material.schuhnr));
     if (ausserId !== undefined) parameter.set("ausser_id", String(ausserId));
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/belegung?${parameter}`, { cache: "no-store" });
+        const response = await apiFetch(`${config.backendUrl}/api/v1/saisonverleih/belegung?${parameter}`, { cache: "no-store" });
         if (!response.ok) {
             return { success: false, error: "Belegung konnte nicht geprüft werden." };
         }

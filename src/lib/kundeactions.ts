@@ -1,5 +1,6 @@
 "use server";
 
+import { apiFetch } from "@/lib/apianfrage";
 import { z } from "zod";
 
 import { Kunde, KundeErfassen, KundenListe, kundenListeRohSchema, KundenSortierung, KUNDEN_PRO_SEITE, kundeSchema, kundenArraySchema, SkiSuchKunde } from "@/types/skikundentypes";
@@ -16,7 +17,7 @@ export async function kundeSuchen(previousState: unknown,formdata: SkiSuchKunde)
         // const nachname = formdata.get("Nachname")?.toString() || "";
         const vorname = formdata.Vorname || "";
         const nachname = formdata.Nachname || "";
-        const response = await fetch(`${config.backendUrl}/api/v1/kunden/suchen?vorname=${vorname}&nachname=${nachname}`, { cache: "no-store" });
+        const response = await apiFetch(`${config.backendUrl}/api/v1/kunden/suchen?vorname=${vorname}&nachname=${nachname}`, { cache: "no-store" });
         if (!response.ok) {
             console.error("Fehler beim Suchen:", response);
             // return "error";
@@ -39,7 +40,7 @@ export async function kundeSuchen(previousState: unknown,formdata: SkiSuchKunde)
 // Orte zu einer PLZ, z.B. ["Weingarten"]. Wirft bei Fehlern, damit useQuery sie anzeigen kann
 export async function getOrte(plz: string): Promise<string[]> {
     if (!/^\d{5}$/.test(plz)) return [];
-    const response = await fetch(`${config.backendUrl}/api/v1/orte/getname?plz=${plz}`, { cache: "no-store" });
+    const response = await apiFetch(`${config.backendUrl}/api/v1/orte/getname?plz=${plz}`, { cache: "no-store" });
     if (!response.ok) {
         throw new Error("PLZ konnte nicht geprüft werden");
     }
