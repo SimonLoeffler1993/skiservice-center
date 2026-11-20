@@ -12,14 +12,14 @@ export default function BindungButtons({ auftrag, auswahl, erledigt, sekunden }:
     const offen = auswahl.filter(bindungOffen);
 
     async function bindungGeprueft() {
-        const ok = await setBindungChecked(offen.map((ski) => ski.id));
+        const { ok, mail } = await setBindungChecked(offen.map((ski) => ski.id));
         if (!ok) {
             erledigt({ ok: false, text: "Bindung konnte nicht als geprüft markiert werden" });
             return;
         }
         queryClient.invalidateQueries({ queryKey: ["skiserviceList"] });
         await queryClient.invalidateQueries({ queryKey: ["serviceAuftragDetails", auftrag.id] });
-        erledigt({ ok: true, text: `Bindung bei ${anzahlSki(offen.length)} geprüft` });
+        erledigt({ ok: true, text: `Bindung bei ${anzahlSki(offen.length)} geprüft`, mail: mail && { status: mail, art: "fertig" } });
     }
 
     // Nichts zu prüfen: sagen warum, statt nur den Button zu sperren

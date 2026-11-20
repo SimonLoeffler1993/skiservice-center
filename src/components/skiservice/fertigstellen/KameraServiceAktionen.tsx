@@ -41,13 +41,13 @@ export default function KameraServiceAktionen({ auftrag, auswahl, erledigt, zusa
 
     function bindungGeprueft() {
         startTransition(async () => {
-            const ok = await setBindungChecked(offeneBindungen.map((ski) => ski.id));
+            const { ok, mail } = await setBindungChecked(offeneBindungen.map((ski) => ski.id));
             if (!ok) {
                 erledigt({ ok: false, text: "Bindung konnte nicht als geprüft markiert werden" });
                 return;
             }
             await neuLaden();
-            erledigt({ ok: true, text: `Bindung bei ${anzahlSki(offeneBindungen.length)} geprüft` });
+            erledigt({ ok: true, text: `Bindung bei ${anzahlSki(offeneBindungen.length)} geprüft`, mail: mail && { status: mail, art: "fertig" } });
         });
     }
 

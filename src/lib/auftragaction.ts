@@ -101,7 +101,8 @@ export async function getAuftragLesen(auftragID: number) {
 
 }
 
-export async function setBindungChecked(skiIds:number[]) {
+// Ergebnis der Bindungsprüfung, mail = Fertig-Mail, falls sie dadurch fällig wurde (Einstellung "Service + Bindung")
+export async function setBindungChecked(skiIds:number[]): Promise<{ ok: boolean; mail: MailStatus | null }> {
     try{
         const body = JSON.stringify({
             ski_ids: skiIds
@@ -116,13 +117,15 @@ export async function setBindungChecked(skiIds:number[]) {
 
         if (!res.ok) {
             console.log("Fehler beim BindungsCheck Response", res)
-            return false
+            return { ok: false, mail: null }
         }
 
-        return true
+        const antwort = await res.json().catch(() => null);
+        const mail = MailStatusSchema.safeParse(antwort?.mail);
+        return { ok: true, mail: mail.success ? mail.data : null }
     } catch (error) {
         console.error("Fehler beim BindungsCheck: ", error)
-        return false
+        return { ok: false, mail: null }
     }
 }
 
