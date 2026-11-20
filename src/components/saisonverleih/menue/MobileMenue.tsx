@@ -6,6 +6,7 @@ import { Home, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import BenutzerMenue from "@/components/anmeldung/BenutzerMenue";
 import { MENUE_GRUPPEN } from "./menueeintraege";
 
 export default function MobileMenue() {
@@ -17,6 +18,8 @@ export default function MobileMenue() {
                 <Home size={18} />
                 <span className="font-semibold">Skiservice Center</span>
             </Link>
+            <div className="flex items-center gap-1">
+            <BenutzerMenue />
             <Sheet open={offen} onOpenChange={setOffen}>
                 <SheetTrigger asChild>
                     <Button variant="ghost" size="icon" aria-label="Menü öffnen">
@@ -47,6 +50,7 @@ export default function MobileMenue() {
                     </nav>
                 </SheetContent>
             </Sheet>
+            </div>
         </div>
     );
 }

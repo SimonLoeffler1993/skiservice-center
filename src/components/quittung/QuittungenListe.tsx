@@ -10,7 +10,6 @@ import LoeschenDialog from "@/components/bearbeiten/LoeschenDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useBackendUrl } from "@/context/backend-context";
 import { getQuittungenListe, storniereQuittung } from "@/lib/quittungactions";
 import { QuittungListeEintrag } from "@/types/quittungentypes";
 
@@ -106,7 +105,6 @@ export function QuittungenTabelle({ quittungen: data }: { quittungen: QuittungLi
 }
 
 function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungListeEintrag; offen: boolean; onUmschalten: () => void }) {
-    const backendUrl = useBackendUrl();
     const queryClient = useQueryClient();
 
     async function stornieren() {
@@ -167,7 +165,7 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                 <TableCell onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center gap-1">
                         <a
-                            href={`${backendUrl}/api/v1/quittungen/quittung/${quittung.ID}/pdf`}
+                            href={`/api/pdf/quittung/${quittung.ID}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="PDF öffnen"

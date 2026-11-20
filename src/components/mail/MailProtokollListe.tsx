@@ -9,7 +9,6 @@ import { FileText, MailCheck, MailWarning } from "lucide-react";
 import { ListeLeerText } from "@/components/liste/NachSaison";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useBackendUrl } from "@/context/backend-context";
 import { mailProtokollOptions } from "@/hooks/useMailProtokollOptions";
 import { cn } from "@/lib/utils";
 import { MailProtokollBezug, MailProtokollEintrag } from "@/types/mailprotokolltypes";
@@ -139,11 +138,10 @@ function MailBezuege({ mail }: { mail: MailProtokollEintrag }) {
 
 // Der Anhang wird nicht gespeichert: der Link führt zur Quittung selbst
 function QuittungAnhang({ mail }: { mail: MailProtokollEintrag }) {
-    const backendUrl = useBackendUrl();
     if (!mail.Quittung_ID) return null;
     return (
         <a
-            href={`${backendUrl}/api/v1/quittungen/quittung/${mail.Quittung_ID}/pdf`}
+            href={`/api/pdf/quittung/${mail.Quittung_ID}`}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"

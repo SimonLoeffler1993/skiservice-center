@@ -4,6 +4,8 @@ import "./globals.css";
 import { connection } from "next/server";
 import { Providers } from "./providers";
 import { getConfig } from "@/lib/config";
+import { holeIch } from "@/lib/anmeldungactions";
+import { leseTokens } from "@/lib/sitzung";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,11 +30,15 @@ export default async function RootLayout({
   // Zur Laufzeit lesen (Docker), nicht beim Build
   await connection();
   const { backendUrl } = getConfig();
+  // Angemeldeter Bediener und Gerät für Menü, Rechte und Inaktivität
+  const [ich, tokens] = await Promise.all([holeIch(), leseTokens()]);
+  // Cookies da, aber die API kennt die Sitzung nicht mehr: der Browser geht zur Anmeldung bzw. Bedienerauswahl
+  const sitzung = { geraet: Boolean(tokens.geraet), bediener: Boolean(tokens.bediener) };
 
   return (
     <html lang="de">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <Providers backendUrl={backendUrl}>
+          <Providers backendUrl={backendUrl} ich={ich} sitzung={sitzung}>
           {children}
           </Providers>
       </body>

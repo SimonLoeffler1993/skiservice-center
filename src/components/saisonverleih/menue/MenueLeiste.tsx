@@ -1,6 +1,7 @@
 import { NavigationMenu, NavigationMenuLink, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Home } from "lucide-react";
 
+import BenutzerMenue from "@/components/anmeldung/BenutzerMenue";
 import { MENUE_GRUPPEN } from "./menueeintraege";
 import MobileMenue from "./MobileMenue";
 
@@ -11,7 +12,8 @@ export default function MenueLeiste() {
             <MobileMenue />
 
             {/* Ab md */}
-            <NavigationMenu viewport={false} className="hidden md:flex">
+            <div className="hidden items-center justify-between md:flex">
+            <NavigationMenu viewport={false}>
                 <NavigationMenuList>
                     <NavigationMenuItem>
                         <NavigationMenuLink href="/">
@@ -39,6 +41,8 @@ export default function MenueLeiste() {
                     ))}
                 </NavigationMenuList>
             </NavigationMenu>
+            <BenutzerMenue />
+            </div>
         </>
     );
 }

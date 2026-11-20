@@ -6,8 +6,9 @@
 
 import { cookies, headers } from "next/headers";
 
-export const COOKIE_GERAET = "ski_geraet";
-export const COOKIE_BEDIENER = "ski_bediener";
+import { COOKIE_BEDIENER, COOKIE_GERAET } from "./sitzungnamen";
+
+export { COOKIE_BEDIENER, COOKIE_GERAET };
 
 export type Tokens = { geraet?: string; bediener?: string };
 
