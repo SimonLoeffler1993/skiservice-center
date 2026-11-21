@@ -12,7 +12,7 @@ import { sichtbareGruppen } from "./menueeintraege";
 
 export default function MobileMenue() {
     const [offen, setOffen] = useState(false);
-    const { darfAdmin } = useBenutzer();
+    const { darf } = useBenutzer();
 
     return (
         <div className="flex items-center justify-between md:hidden">
@@ -33,7 +33,7 @@ export default function MobileMenue() {
                         <SheetTitle>Menü</SheetTitle>
                     </SheetHeader>
                     <nav className="flex flex-col gap-4 px-4 pb-4">
-                        {sichtbareGruppen(darfAdmin).map((gruppe) => (
+                        {sichtbareGruppen(darf).map((gruppe) => (
                             <div key={gruppe.titel} className="flex flex-col gap-1">
                                 <span className="text-sm font-medium text-muted-foreground">{gruppe.titel}</span>
                                 {gruppe.links.map((link) => (

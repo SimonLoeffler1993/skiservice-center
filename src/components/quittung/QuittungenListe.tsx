@@ -107,8 +107,7 @@ export function QuittungenTabelle({ quittungen: data }: { quittungen: QuittungLi
 
 function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungListeEintrag; offen: boolean; onUmschalten: () => void }) {
     const queryClient = useQueryClient();
-    // Stornieren dürfen nur Admins
-    const { darfAdmin } = useBenutzer();
+    const { darf } = useBenutzer();
 
     async function stornieren() {
         const antwort = await storniereQuittung(quittung.ID);
@@ -179,7 +178,7 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                         >
                             <FileText className="h-4 w-4" />
                         </a>
-                        {!quittung.Storniert && darfAdmin && (
+                        {!quittung.Storniert && darf("quittungen.verwalten") && (
                             <LoeschenDialog
                                 titel={`Quittung ${quittung.Nummer} stornieren`}
                                 beschreibung={

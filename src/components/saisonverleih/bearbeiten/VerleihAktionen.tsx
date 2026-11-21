@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 import LoeschenDialog from "@/components/bearbeiten/LoeschenDialog";
+import { useBenutzer } from "@/context/benutzer-context";
 import BezahltUmschalten from "@/components/bearbeiten/BezahltUmschalten";
 import { loescheVerleih, setzeVerleihBezahlt } from "@/lib/bearbeitenactions";
 import { SaisonverleihRead } from "@/types/saisonverleihtypes";
@@ -25,6 +26,7 @@ export function istVerleihBezahlt(verleih: SaisonverleihRead) {
 export default function VerleihAktionen({ verleih, children }: VerleihAktionenProps) {
     const router = useRouter();
     const queryClient = useQueryClient();
+    const { darf } = useBenutzer();
     const aktualisieren = useVerleihAktualisieren(verleih.ID);
     const bezahlt = istVerleihBezahlt(verleih);
 
@@ -44,6 +46,7 @@ export default function VerleihAktionen({ verleih, children }: VerleihAktionenPr
                 }}
             />
             {children}
+            {darf("verleih.loeschen") && (
             <div className="sm:ml-auto">
                 <LoeschenDialog
                     titel={`${verleih.Name} löschen`}
@@ -60,6 +63,7 @@ export default function VerleihAktionen({ verleih, children }: VerleihAktionenPr
                     }}
                 />
             </div>
+            )}
         </>
     );
 }

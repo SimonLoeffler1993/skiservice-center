@@ -9,13 +9,13 @@ import type { Ich, IchBenutzer, IchGeraet } from "@/types/anmeldung";
 type BenutzerKontext = {
     benutzer: IchBenutzer | null;
     geraet: IchGeraet | null;
-    // Admin-Bereiche zeigen: Admin, oder ohne Anmeldung im Übergang (wie bisher alles sichtbar)
-    darfAdmin: boolean;
+    // Recht vorhanden? Ohne Anmeldung im Übergang ist alles sichtbar (die API prüft ohnehin selbst)
+    darf: (recht: string) => boolean;
     aktualisieren: () => Promise<void>;
 };
 
 const Kontext = createContext<BenutzerKontext>({
-    benutzer: null, geraet: null, darfAdmin: true, aktualisieren: async () => {},
+    benutzer: null, geraet: null, darf: () => true, aktualisieren: async () => {},
 });
 
 export function useBenutzer() {
@@ -120,7 +120,7 @@ export function BenutzerProvider({ anfang, sitzung, children }: {
     const wert: BenutzerKontext = {
         benutzer: ich.benutzer,
         geraet: ich.geraet,
-        darfAdmin: ich.benutzer ? ich.benutzer.rolle === "admin" : true,
+        darf: (recht: string) => !ich.benutzer || ich.benutzer.rechte.includes("*") || ich.benutzer.rechte.includes(recht),
         aktualisieren,
     };
     return <Kontext.Provider value={wert}>{children}</Kontext.Provider>;

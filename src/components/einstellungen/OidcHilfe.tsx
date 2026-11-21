@@ -38,6 +38,15 @@ const ANLEITUNG: Record<string, string[]> = {
     ],
 };
 
+// Woher die Gruppen kommen (Claim siehe "Claim mit den Gruppen")
+const GRUPPEN_HINWEIS: Record<string, string> = {
+    authentik: "Authentik schickt die Gruppen im Claim „groups“ (Scope profile). Als OIDC-Gruppe den Namen der Authentik-Gruppe eintragen.",
+    microsoft: "In der App-Registrierung unter Tokenkonfiguration „Gruppenanspruch hinzufügen“ (Sicherheitsgruppen). Entra ID schickt die Object-IDs: diese als OIDC-Gruppe eintragen. Alternativ App-Rollen anlegen und als Claim „roles“ einstellen.",
+    google: "Google liefert keine Gruppen; Benutzer werden manuell den Gruppen zugeordnet.",
+    keycloak: "Im Client unter Client scopes → dedicated einen Mapper „Group Membership“ mit Token Claim Name „groups“ anlegen (Full group path aus).",
+    generisch: "Der Anbieter muss die Gruppen im eingestellten Claim (ID-Token oder userinfo) liefern.",
+};
+
 /** Redirect-URI zum Kopieren und Kurzanleitung für den gewählten Anbieter (Reiter „Anmeldung mit OIDC“). */
 export default function OidcHilfe() {
     const { data } = useQuery(einstellungenOptions);
@@ -81,6 +90,14 @@ export default function OidcHilfe() {
                 <ol className="list-decimal space-y-1 pl-5 text-sm">
                     {(ANLEITUNG[anbieter] ?? ANLEITUNG.generisch).map((schritt) => <li key={schritt}>{schritt}</li>)}
                 </ol>
+                <div className="space-y-1 border-t pt-3">
+                    <p className="text-sm font-medium">Gruppen zuordnen</p>
+                    <p className="text-sm text-muted-foreground">{GRUPPEN_HINWEIS[anbieter] ?? GRUPPEN_HINWEIS.generisch}</p>
+                    <p className="text-sm text-muted-foreground">
+                        Unter Verwalten → Benutzer → Gruppen bei jeder Gruppe den Gruppennamen des Anbieters eintragen. Mitglieder werden bei
+                        jeder Anmeldung abgeglichen und automatisch freigegeben.
+                    </p>
+                </div>
             </CardContent>
         </Card>
     );

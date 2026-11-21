@@ -1,10 +1,10 @@
 import { ScanLine } from "lucide-react";
 
 import ScannerVerwaltung from "@/components/scanner/ScannerVerwaltung";
-import { nurAdminSeite } from "@/lib/seitenschutz";
+import { rechtSeite } from "@/lib/seitenschutz";
 
 export default async function ScannerSeite() {
-    await nurAdminSeite();
+    await rechtSeite("geraete.verwalten");
     return (
         <section className="space-y-4">
             <div className="flex items-center gap-2">

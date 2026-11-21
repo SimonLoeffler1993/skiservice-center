@@ -12,8 +12,8 @@ export type MenueLink = {
     beschreibung: string;
     // Auf der Startseite nicht im Schnellzugriff, sondern abgetrennt ganz unten
     startseiteUnten?: boolean;
-    // Nur für Admins sichtbar (die API prüft zusätzlich)
-    nurAdmin?: boolean;
+    // Nur mit diesem Recht sichtbar (die API prüft zusätzlich)
+    recht?: string;
 };
 
 export type MenueGruppe = {
@@ -58,21 +58,21 @@ export const MENUE_GRUPPEN: MenueGruppe[] = [
         links: [
             { titel: "Kunden", href: "/kunde", icon: Users, kachelTitel: "Kunden", beschreibung: "Kunden suchen und bearbeiten, mit allen Aufträgen, Verleihen und Quittungen." },
             { titel: "Material", href: "/material", icon: Package, kachelTitel: "Material", beschreibung: "Ski, Schuhe, Stöcke, Hersteller und Modelle." },
-            { titel: "Preise", nurAdmin: true, href: "/verwalten/preise", icon: Euro, kachelTitel: "Preise", beschreibung: "Preise für Skiservice und Saisonverleih." },
-            { titel: "Handware", nurAdmin: true, href: "/verwalten/handware", icon: ShoppingBag, kachelTitel: "Handware", beschreibung: "Artikel für den Verkauf in der Kasse." },
+            { titel: "Preise", recht: "preise.verwalten", href: "/verwalten/preise", icon: Euro, kachelTitel: "Preise", beschreibung: "Preise für Skiservice und Saisonverleih." },
+            { titel: "Handware", recht: "preise.verwalten", href: "/verwalten/handware", icon: ShoppingBag, kachelTitel: "Handware", beschreibung: "Artikel für den Verkauf in der Kasse." },
             { titel: "Quittungen", href: "/verwalten/quittungen", icon: Receipt, kachelTitel: "Quittungen", beschreibung: "Alle Quittungen einer Saison." },
-            { titel: "Vorlagen", nurAdmin: true, href: "/verwalten/vorlagen", icon: Mail, kachelTitel: "Vorlagen", beschreibung: "Texte der E-Mails an die Kunden." },
-            { titel: "Hardware-Scanner", nurAdmin: true, href: "/verwalten/scanner", icon: ScanLine, kachelTitel: "Hardware-Scanner", beschreibung: "Alle Scanner mit Firmware und Verbindungsstatus, Firmware aktualisieren." },
-            { titel: "Benutzer", nurAdmin: true, href: "/verwalten/benutzer", icon: UserCog, kachelTitel: "Benutzer", beschreibung: "Mitarbeiter anlegen, Rollen vergeben, Freigaben für die OIDC-Anmeldung." },
-            { titel: "Geräte", nurAdmin: true, href: "/verwalten/geraete", icon: KeyRound, kachelTitel: "Geräte", beschreibung: "Geräteschlüssel für Scanner und Kundenterminal, angemeldete Tablets und Kassen." },
-            { titel: "Einstellungen", nurAdmin: true, href: "/verwalten/einstellungen", icon: Settings, kachelTitel: "Einstellungen", beschreibung: "Firma, Drucker, E-Mail, Lexware und Scanner." },
+            { titel: "Vorlagen", recht: "vorlagen.verwalten", href: "/verwalten/vorlagen", icon: Mail, kachelTitel: "Vorlagen", beschreibung: "Texte der E-Mails an die Kunden." },
+            { titel: "Hardware-Scanner", recht: "geraete.verwalten", href: "/verwalten/scanner", icon: ScanLine, kachelTitel: "Hardware-Scanner", beschreibung: "Alle Scanner mit Firmware und Verbindungsstatus, Firmware aktualisieren." },
+            { titel: "Benutzer", recht: "benutzer.verwalten", href: "/verwalten/benutzer", icon: UserCog, kachelTitel: "Benutzer", beschreibung: "Benutzer, Gruppen und Rollen mit ihren Rechten, Freigaben für die OIDC-Anmeldung." },
+            { titel: "Geräte", recht: "geraete.verwalten", href: "/verwalten/geraete", icon: KeyRound, kachelTitel: "Geräte", beschreibung: "Geräteschlüssel für Scanner und Kundenterminal, angemeldete Tablets und Kassen." },
+            { titel: "Einstellungen", recht: "einstellungen.verwalten", href: "/verwalten/einstellungen", icon: Settings, kachelTitel: "Einstellungen", beschreibung: "Firma, Drucker, E-Mail, Lexware und Scanner." },
         ],
     },
 ];
 
-/** Menügruppen ohne die Admin-Einträge, wenn darfAdmin false ist. */
-export function sichtbareGruppen(darfAdmin: boolean): MenueGruppe[] {
+/** Menügruppen ohne die Einträge, für die das Recht fehlt. */
+export function sichtbareGruppen(darf: (recht: string) => boolean): MenueGruppe[] {
     return MENUE_GRUPPEN
-        .map((gruppe) => ({ ...gruppe, links: gruppe.links.filter((link) => darfAdmin || !link.nurAdmin) }))
+        .map((gruppe) => ({ ...gruppe, links: gruppe.links.filter((link) => !link.recht || darf(link.recht)) }))
         .filter((gruppe) => gruppe.links.length > 0);
 }

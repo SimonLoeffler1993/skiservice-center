@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useBenutzer } from "@/context/benutzer-context";
-import { benutzerOptions } from "@/hooks/useBenutzerOptions";
+import { benutzerOptions, gruppenOptions } from "@/hooks/useBenutzerOptions";
 import {
     aendereBenutzer, entsperreBenutzer, legeBenutzerAn, loescheBenutzer, loescheBenutzerPin, loeseBenutzerOidc,
     setzeBenutzerPasswort, uebernimmOidc,
@@ -56,6 +56,8 @@ type OffenerDialog = { art: "passwort" | "uebernehmen"; benutzer: Benutzer } | n
 
 export default function BenutzerVerwaltung() {
     const { data, isLoading, error } = useQuery(benutzerOptions);
+    const { data: gruppenDaten } = useQuery(gruppenOptions);
+    const alleGruppen = gruppenDaten?.success ? gruppenDaten.data : [];
     const queryClient = useQueryClient();
     const { benutzer: ich } = useBenutzer();
     const [dialog, setDialog] = useState<OffenerDialog>(null);
@@ -86,7 +88,7 @@ export default function BenutzerVerwaltung() {
                     <CardHeader>
                         <CardTitle>Freigabe ausstehend ({ausstehend.length})</CardTitle>
                         <CardDescription>
-                            Diese Personen haben sich über den Anmelde-Anbieter angemeldet. Freigeben legt sie als Mitarbeiter an;
+                            Diese Personen haben sich über den Anmelde-Anbieter angemeldet. Freigeben aktiviert sie (Rechte über die Gruppen);
                             gehört die Anmeldung zu einem vorhandenen Benutzer, mit „Übernehmen“ zuordnen.
                         </CardDescription>
                     </CardHeader>
@@ -118,9 +120,10 @@ export default function BenutzerVerwaltung() {
                 <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <CardTitle className="flex items-center gap-2"><Users className="size-5" /> Benutzer ({liste.length - ausstehend.length})</CardTitle>
-                        <CardDescription>Admins dürfen zusätzlich Einstellungen, Vorlagen, Preise, Benutzer und Geräte verwalten sowie stornieren.</CardDescription>
+                        <CardDescription>Die Rechte ergeben sich aus den Gruppen und deren Rollen. ⇄ = Mitgliedschaft über OIDC.</CardDescription>
                     </div>
                     <BenutzerDialog
+                        gruppen={alleGruppen}
                         trigger={<Button><Plus /> Neuer Benutzer</Button>}
                         onAnlegen={(daten) => ausfuehren(() => legeBenutzerAn(daten))}
                     />
@@ -131,7 +134,7 @@ export default function BenutzerVerwaltung() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
-                                <TableHead>Rolle</TableHead>
+                                <TableHead>Gruppen</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead className="hidden md:table-cell">Anmeldung</TableHead>
                                 <TableHead className="hidden lg:table-cell">Zuletzt angemeldet</TableHead>
@@ -145,7 +148,18 @@ export default function BenutzerVerwaltung() {
                                         <div className="font-medium">{b.anzeigename}{b.id === ich?.id && <span className="text-muted-foreground"> (du)</span>}</div>
                                         <div className="text-xs text-muted-foreground">{b.benutzername}{b.email ? ` · ${b.email}` : ""}</div>
                                     </TableCell>
-                                    <TableCell><Badge variant={b.rolle === "admin" ? "default" : "secondary"}>{b.rolle === "admin" ? "Admin" : "Mitarbeiter"}</Badge></TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-wrap gap-1">
+                                            {b.gruppen.length === 0
+                                                ? <span className="text-xs text-muted-foreground">keine (nur lesen)</span>
+                                                : b.gruppen.map((g) => (
+                                                    <Badge key={g.id} variant={b.rechte.includes("*") ? "default" : "secondary"}
+                                                        title={g.quelle === "oidc" ? "über OIDC" : undefined}>
+                                                        {g.name}{g.quelle === "oidc" ? " ⇄" : ""}
+                                                    </Badge>
+                                                ))}
+                                        </div>
+                                    </TableCell>
                                     <TableCell><StatusBadges b={b} /></TableCell>
                                     <TableCell className="hidden md:table-cell"><AnmeldeArten b={b} /></TableCell>
                                     <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">{datumZeit(b.letzte_anmeldung)}</TableCell>
@@ -156,6 +170,7 @@ export default function BenutzerVerwaltung() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <BenutzerDialog
+                                                    gruppen={alleGruppen}
                                                     benutzer={b}
                                                     trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()}><Pencil /> Bearbeiten</DropdownMenuItem>}
                                                     onAendern={(daten) => ausfuehren(() => aendereBenutzer(b.id, daten))}

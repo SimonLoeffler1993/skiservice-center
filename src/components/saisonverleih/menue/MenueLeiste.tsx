@@ -9,8 +9,8 @@ import { sichtbareGruppen } from "./menueeintraege";
 import MobileMenue from "./MobileMenue";
 
 export default function MenueLeiste() {
-    const { darfAdmin } = useBenutzer();
-    const gruppen = sichtbareGruppen(darfAdmin);
+    const { darf } = useBenutzer();
+    const gruppen = sichtbareGruppen(darf);
     return (
         <>
             {/* Handy / kleines Tablet */}

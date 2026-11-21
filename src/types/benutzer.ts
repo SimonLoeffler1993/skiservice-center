@@ -1,14 +1,15 @@
 import { z } from "zod";
 
-export const RolleSchema = z.enum(["admin", "mitarbeiter"]);
-export type Rolle = z.infer<typeof RolleSchema>;
+export const GruppeKurzSchema = z.object({ id: z.number(), name: z.string(), quelle: z.string() });
+export type GruppeKurz = z.infer<typeof GruppeKurzSchema>;
 
 export const BenutzerSchema = z.object({
     id: z.number(),
     benutzername: z.string(),
     anzeigename: z.string(),
     email: z.string().nullish(),
-    rolle: RolleSchema,
+    rechte: z.array(z.string()),
+    gruppen: z.array(GruppeKurzSchema),
     aktiv: z.boolean(),
     freigabe_ausstehend: z.boolean(),
     hat_passwort: z.boolean(),
@@ -23,8 +24,33 @@ export const BenutzerSchema = z.object({
 export type Benutzer = z.infer<typeof BenutzerSchema>;
 export const BenutzerListeSchema = z.array(BenutzerSchema);
 
-export type BenutzerAnlegen = { benutzername: string; anzeigename: string; email?: string | null; rolle: Rolle; passwort: string };
-export type BenutzerAendern = Partial<{ anzeigename: string; email: string | null; rolle: Rolle; aktiv: boolean; freigeben: boolean }>;
+export type BenutzerAnlegen = { benutzername: string; anzeigename: string; email?: string | null; gruppen_ids: number[]; passwort: string };
+export type BenutzerAendern = Partial<{ anzeigename: string; email: string | null; gruppen_ids: number[]; aktiv: boolean; freigeben: boolean }>;
+
+export const RechtInfoSchema = z.object({ recht: z.string(), bereich: z.string(), bezeichnung: z.string() });
+export type RechtInfo = z.infer<typeof RechtInfoSchema>;
+
+export const RolleSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    beschreibung: z.string().nullish(),
+    system: z.boolean(),
+    rechte: z.array(z.string()),
+    anzahl_gruppen: z.number(),
+});
+export type Rolle = z.infer<typeof RolleSchema>;
+export type RolleDaten = { name?: string; beschreibung?: string | null; rechte?: string[] };
+
+export const GruppeSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    beschreibung: z.string().nullish(),
+    oidc_gruppe: z.string().nullish(),
+    rollen: z.array(z.object({ id: z.number(), name: z.string(), system: z.boolean() })),
+    anzahl_mitglieder: z.number(),
+});
+export type Gruppe = z.infer<typeof GruppeSchema>;
+export type GruppeDaten = { name?: string; beschreibung?: string | null; oidc_gruppe?: string | null; rollen_ids?: number[] };
 
 export const GeraeteschluesselSchema = z.object({
     id: z.number(),

@@ -1,10 +1,10 @@
 import { ShoppingBag } from "lucide-react";
 
 import HandwareListe from "@/components/handware/HandwareListe";
-import { nurAdminSeite } from "@/lib/seitenschutz";
+import { rechtSeite } from "@/lib/seitenschutz";
 
 export default async function HandwareSeite() {
-    await nurAdminSeite();
+    await rechtSeite("preise.verwalten");
     return (
         <section className="space-y-4">
             <div className="flex items-center gap-2">

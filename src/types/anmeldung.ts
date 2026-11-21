@@ -20,7 +20,9 @@ export const IchBenutzerSchema = z.object({
     benutzername: z.string(),
     anzeigename: z.string(),
     email: z.string().nullish(),
-    rolle: z.enum(["admin", "mitarbeiter"]),
+    // Rechte aus Gruppen -> Rollen, "*" = alle
+    rechte: z.array(z.string()),
+    gruppen: z.array(z.object({ id: z.number(), name: z.string(), quelle: z.string() })),
     hat_passwort: z.boolean(),
     hat_pin: z.boolean(),
     passwort_aendern: z.boolean(),

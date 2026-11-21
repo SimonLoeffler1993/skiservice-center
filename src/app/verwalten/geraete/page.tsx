@@ -1,10 +1,10 @@
 import { KeyRound } from "lucide-react";
 
 import GeraeteVerwaltung from "@/components/geraete/GeraeteVerwaltung";
-import { nurAdminSeite } from "@/lib/seitenschutz";
+import { rechtSeite } from "@/lib/seitenschutz";
 
 export default async function GeraeteSeite() {
-    await nurAdminSeite();
+    await rechtSeite("geraete.verwalten");
     return (
         <section className="space-y-4">
             <div className="flex items-center gap-2">

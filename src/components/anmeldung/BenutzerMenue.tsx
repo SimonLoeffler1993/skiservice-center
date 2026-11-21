@@ -46,7 +46,7 @@ export default function BenutzerMenue() {
                 <DropdownMenuLabel className="font-normal">
                     <div className="font-medium">{benutzer.anzeigename}</div>
                     <div className="text-xs text-muted-foreground">
-                        {benutzer.rolle === "admin" ? "Admin" : "Mitarbeiter"}{geraet ? ` · ${geraet.name}` : ""}
+                        {benutzer.gruppen.map((g) => g.name).join(", ") || "ohne Gruppe"}{geraet ? ` · ${geraet.name}` : ""}
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
