@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { apiFetch } from "@/lib/apianfrage";
 import { config } from "@/lib/config";
+import { automatischerGeraetName } from "@/lib/geraetname";
 import { leseTokens, loescheAlles, loescheBediener, setzeSitzung } from "@/lib/sitzung";
 import { ApiAntwort } from "@/types/actiontypes";
 import {
@@ -69,22 +70,22 @@ export async function holeIch(): Promise<Ich> {
     }
 }
 
-export async function anmelden(benutzername: string, passwort: string, geraetName?: string): Promise<ApiAntwort<IchBenutzer>> {
-    return passwortAnmeldung(benutzername, passwort, geraetName, true);
+export async function anmelden(benutzername: string, passwort: string): Promise<ApiAntwort<IchBenutzer>> {
+    return passwortAnmeldung(benutzername, passwort, true);
 }
 
-async function passwortAnmeldung(benutzername: string, passwort: string, geraetName: string | undefined, mitGeraet: boolean): Promise<ApiAntwort<IchBenutzer>> {
+async function passwortAnmeldung(benutzername: string, passwort: string, mitGeraet: boolean): Promise<ApiAntwort<IchBenutzer>> {
     try {
         const response = await fetch(`${API()}/anmelden`, {
             method: "POST",
             headers: { "Content-Type": "application/json", ...(mitGeraet ? await geraetKopf() : {}) },
-            body: JSON.stringify({ benutzername, passwort, geraet_name: geraetName || null, geraet_art: "center" }),
+            body: JSON.stringify({ benutzername, passwort, geraet_name: await automatischerGeraetName(), geraet_art: "center" }),
             cache: "no-store",
         });
         if (mitGeraet && response.status === 401 && (await response.clone().json().catch(() => null))?.detail === "anmeldung_noetig") {
             // Gerätesitzung ungültig (z.B. vom Admin abgemeldet): als neues Gerät anmelden
             await loescheAlles();
-            return passwortAnmeldung(benutzername, passwort, geraetName, false);
+            return passwortAnmeldung(benutzername, passwort, false);
         }
         if (!response.ok) return { success: false, error: await fehlerAus(response, "Anmeldung fehlgeschlagen.") };
         return sitzungUebernehmen(response);
@@ -93,14 +94,14 @@ async function passwortAnmeldung(benutzername: string, passwort: string, geraetN
     }
 }
 
-export async function einrichten(daten: { benutzername: string; anzeigename: string; passwort: string; email?: string; geraetName?: string }): Promise<ApiAntwort<IchBenutzer>> {
+export async function einrichten(daten: { benutzername: string; anzeigename: string; passwort: string; email?: string }): Promise<ApiAntwort<IchBenutzer>> {
     try {
         const response = await fetch(`${API()}/einrichtung`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 benutzername: daten.benutzername, anzeigename: daten.anzeigename, passwort: daten.passwort,
-                email: daten.email || null, geraet_name: daten.geraetName || null, geraet_art: "center",
+                email: daten.email || null, geraet_name: await automatischerGeraetName(), geraet_art: "center",
             }),
             cache: "no-store",
         });
@@ -141,12 +142,12 @@ export async function pinAnmelden(benutzerId: number, pin: string): Promise<ApiA
 }
 
 /** Tauscht den Einmalcode aus der OIDC-Rückleitung gegen Sitzungen (aus dem Route Handler). */
-export async function oidcEinloesen(code: string, geraetName?: string): Promise<ApiAntwort<IchBenutzer>> {
+export async function oidcEinloesen(code: string): Promise<ApiAntwort<IchBenutzer>> {
     try {
         const response = await fetch(`${API()}/oidc/einloesen`, {
             method: "POST",
             headers: { "Content-Type": "application/json", ...(await geraetKopf()) },
-            body: JSON.stringify({ code, geraet_name: geraetName || null, geraet_art: "center" }),
+            body: JSON.stringify({ code, geraet_name: await automatischerGeraetName(), geraet_art: "center" }),
             cache: "no-store",
         });
         if (!response.ok) return { success: false, error: await fehlerAus(response, "Anmeldung fehlgeschlagen.") };

@@ -79,7 +79,7 @@ export default function BedienerAuswahl({ status, kacheln, geraetName, zurueck, 
                     </div>
                 </div>
             )}
-            <AnmeldeFormular status={status} zurueck={zurueck} fehler={anfangsFehler} geraetAngemeldet />
+            <AnmeldeFormular status={status} zurueck={zurueck} fehler={anfangsFehler} />
             <div className="flex items-center justify-between border-t pt-3 text-xs text-muted-foreground">
                 <span>Gerät: {geraetName ?? "unbekannt"}</span>
                 <Button variant="ghost" size="sm" onClick={abmelden}>

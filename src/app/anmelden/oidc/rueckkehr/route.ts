@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     if (fehler || !code) {
         return NextResponse.redirect(ziel(`/anmelden?fehler=${encodeURIComponent(fehler ?? "oidc")}`));
     }
-    const antwort = await oidcEinloesen(code, parameter.get("geraet") ?? undefined);
+    const antwort = await oidcEinloesen(code);
     if (!antwort.success) {
         return NextResponse.redirect(ziel(`/anmelden?fehler=${encodeURIComponent("oidc")}`));
     }

@@ -7,12 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { einrichten } from "@/lib/anmeldungactions";
-import { merkeGeraetName, useGeraetName } from "./anmeldeziel";
 
 /** Legt den ersten Admin an (nur solange es noch keinen Benutzer gibt). */
 export default function EinrichtungFormular() {
     const [werte, setWerte] = useState({ benutzername: "", anzeigename: "", passwort: "", wiederholung: "" });
-    const [geraetName, setGeraetName] = useGeraetName();
     const [fehler, setFehler] = useState<string | null>(null);
     const [laeuft, setLaeuft] = useState(false);
 
@@ -29,13 +27,12 @@ export default function EinrichtungFormular() {
         }
         setLaeuft(true);
         setFehler(null);
-        const antwort = await einrichten({ ...werte, geraetName });
+        const antwort = await einrichten(werte);
         if (!antwort.success) {
             setFehler(antwort.error);
             setLaeuft(false);
             return;
         }
-        merkeGeraetName(geraetName);
         window.location.href = "/verwalten/benutzer";
     };
 
@@ -62,11 +59,6 @@ export default function EinrichtungFormular() {
             <div className="space-y-1">
                 <Label htmlFor="e-wiederholung">Passwort wiederholen</Label>
                 <Input id="e-wiederholung" type="password" autoComplete="new-password" required {...feld("wiederholung")} />
-            </div>
-            <div className="space-y-1">
-                <Label htmlFor="e-geraet">Name dieses Geräts</Label>
-                <Input id="e-geraet" placeholder="z.B. Büro-PC" maxLength={100} value={geraetName}
-                    onChange={(e) => setGeraetName(e.target.value)} />
             </div>
             <Button type="submit" className="w-full" disabled={laeuft}>
                 {laeuft ? "Wird eingerichtet…" : "Admin anlegen und anmelden"}
