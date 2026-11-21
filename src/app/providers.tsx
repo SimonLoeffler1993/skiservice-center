@@ -9,11 +9,12 @@ import { BackendUrlProvider } from "@/context/backend-context"
 import { BenutzerProvider } from "@/context/benutzer-context"
 import type { Ich } from "@/types/anmeldung"
 
-export function Providers({ children, backendUrl, ich, sitzung }: {
+export function Providers({ children, backendUrl, ich, sitzung, gastRechte }: {
     children: React.ReactNode;
     backendUrl: string;
     ich: Ich;
     sitzung: { geraet: boolean; bediener: boolean };
+    gastRechte: string[];
 }) {
     // Daten 1min im Cache behalten, damit nicht bei jedem Seitenwechsel neu geladen werden muss
     const [queryClient] = useState(() => new QueryClient({
@@ -26,7 +27,7 @@ export function Providers({ children, backendUrl, ich, sitzung }: {
     return (
         <QueryClientProvider client={queryClient}>
             <BackendUrlProvider backendUrl={backendUrl}>
-                <BenutzerProvider anfang={ich} sitzung={sitzung}>
+                <BenutzerProvider anfang={ich} sitzung={sitzung} gastRechte={gastRechte}>
                     {children}
                 </BenutzerProvider>
             </BackendUrlProvider>

@@ -93,7 +93,7 @@ export default function BenutzerDialog({ trigger, benutzer, onAnlegen, onAendern
                     </div>
                     <fieldset className="space-y-2 rounded-md border p-3">
                         <legend className="px-1 text-sm font-medium">Gruppen</legend>
-                        {gruppen.map((g) => (
+                        {gruppen.filter((g) => !g.gast).map((g) => (
                             <label key={g.id} className="flex items-center gap-2 text-sm">
                                 <Checkbox
                                     checked={oidcGruppen.has(g.id) || gruppenIds.has(g.id)}

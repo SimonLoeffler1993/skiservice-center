@@ -12,6 +12,8 @@ export const AuthStatusSchema = z.object({
     geraeteschluessel_erzwungen: z.boolean(),
     pin_erlaubt: z.boolean(),
     oidc: OidcStatusSchema,
+    // Was ohne Anmeldung erlaubt ist (Übergang: lesen true, rechte ["*"])
+    ohne_anmeldung: z.object({ lesen: z.boolean(), rechte: z.array(z.string()) }),
 });
 export type AuthStatus = z.infer<typeof AuthStatusSchema>;
 

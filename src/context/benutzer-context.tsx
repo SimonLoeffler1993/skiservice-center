@@ -9,7 +9,7 @@ import type { Ich, IchBenutzer, IchGeraet } from "@/types/anmeldung";
 type BenutzerKontext = {
     benutzer: IchBenutzer | null;
     geraet: IchGeraet | null;
-    // Recht vorhanden? Ohne Anmeldung im Übergang ist alles sichtbar (die API prüft ohnehin selbst)
+    // Recht vorhanden? Ohne Anmeldung zählen die Rechte der Gruppe "Ohne Anmeldung" (im Übergang alles)
     darf: (recht: string) => boolean;
     aktualisieren: () => Promise<void>;
 };
@@ -31,8 +31,10 @@ function istAnmeldeSeite(pfad: string) {
 const PRUEF_MS = 60_000;
 const AKTIVITAET = ["pointerdown", "keydown", "touchstart", "wheel"] as const;
 
-export function BenutzerProvider({ anfang, sitzung, children }: {
+export function BenutzerProvider({ anfang, sitzung, gastRechte, children }: {
     anfang: Ich;
+    // Rechte ohne Anmeldung (Gruppe "Ohne Anmeldung"), im Übergang ["*"]
+    gastRechte: string[];
     // Welche Anmelde-Cookies der Browser mitgeschickt hat
     sitzung: { geraet: boolean; bediener: boolean };
     children: React.ReactNode;
@@ -120,7 +122,10 @@ export function BenutzerProvider({ anfang, sitzung, children }: {
     const wert: BenutzerKontext = {
         benutzer: ich.benutzer,
         geraet: ich.geraet,
-        darf: (recht: string) => !ich.benutzer || ich.benutzer.rechte.includes("*") || ich.benutzer.rechte.includes(recht),
+        darf: (recht: string) => {
+            const rechte = ich.benutzer ? ich.benutzer.rechte : gastRechte;
+            return rechte.includes("*") || rechte.includes(recht);
+        },
         aktualisieren,
     };
     return <Kontext.Provider value={wert}>{children}</Kontext.Provider>;

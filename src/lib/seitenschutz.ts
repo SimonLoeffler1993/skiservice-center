@@ -1,11 +1,18 @@
-// Für Server Components: Seiten mit einem Recht leiten Benutzer ohne dieses Recht auf die Startseite.
-// Ohne Anmeldung (Übergang) bleiben sie wie bisher erreichbar; die API prüft jede Aktion ohnehin selbst.
+// Für Server Components: Seiten mit einem Recht leiten auf die Startseite, wenn das Recht fehlt.
+// Ohne Anmeldung zählen die Rechte der Gruppe "Ohne Anmeldung" (im Übergang alles); die API prüft ohnehin selbst.
 
 import { redirect } from "next/navigation";
 
-import { holeIch } from "./anmeldungactions";
+import { holeIch, holeStatus } from "./anmeldungactions";
 
 export async function rechtSeite(recht: string) {
     const ich = await holeIch();
-    if (ich.benutzer && !ich.benutzer.rechte.includes("*") && !ich.benutzer.rechte.includes(recht)) redirect("/");
+    let rechte: string[];
+    if (ich.benutzer) {
+        rechte = ich.benutzer.rechte;
+    } else {
+        const status = await holeStatus();
+        rechte = status.success ? status.data.ohne_anmeldung.rechte : ["*"];
+    }
+    if (!rechte.includes("*") && !rechte.includes(recht)) redirect("/");
 }

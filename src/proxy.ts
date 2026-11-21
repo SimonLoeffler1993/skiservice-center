@@ -3,13 +3,14 @@
 //
 // - mit Bediener-Cookie: durch
 // - nur Geräte-Cookie (Bediener abgemeldet oder abgelaufen): Bedienerauswahl
-// - ohne Cookies: Einrichtung (noch kein Benutzer), Anmeldung (Pflicht an) oder durch (Übergang)
+// - ohne Cookies: Einrichtung (noch kein Benutzer), Anmeldung (Pflicht an und Ansehen ohne Anmeldung nicht
+//   freigegeben) oder durch (Übergang bzw. Gruppe "Ohne Anmeldung" mit "Alles ansehen")
 
 import { NextRequest, NextResponse } from "next/server";
 
 import { COOKIE_BEDIENER, COOKIE_GERAET } from "@/lib/sitzungnamen";
 
-type Status = { einrichtung_noetig: boolean; anmeldung_erzwungen: boolean };
+type Status = { einrichtung_noetig: boolean; anmeldung_erzwungen: boolean; ohne_anmeldung?: { lesen: boolean } };
 
 // Status der API kurz merken, damit nicht jeder Seitenaufruf ihn abfragt
 let statusCache: { zeit: number; status: Status } | null = null;
@@ -49,7 +50,8 @@ export async function proxy(request: NextRequest) {
 
     const status = await holeStatus();
     if (status?.einrichtung_noetig) return weiterleiten(request, "/einrichtung");
-    if (status?.anmeldung_erzwungen) return weiterleiten(request, "/anmelden");
+    // Mit "Alles ansehen" der Gruppe "Ohne Anmeldung" bleibt das Center ohne Anmeldung nutzbar
+    if (status?.anmeldung_erzwungen && !status.ohne_anmeldung?.lesen) return weiterleiten(request, "/anmelden");
     return NextResponse.next();
 }
 

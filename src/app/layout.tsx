@@ -4,7 +4,7 @@ import "./globals.css";
 import { connection } from "next/server";
 import { Providers } from "./providers";
 import { getConfig } from "@/lib/config";
-import { holeIch } from "@/lib/anmeldungactions";
+import { holeIch, holeStatus } from "@/lib/anmeldungactions";
 import { leseTokens } from "@/lib/sitzung";
 
 const geistSans = Geist({
@@ -31,14 +31,16 @@ export default async function RootLayout({
   await connection();
   const { backendUrl } = getConfig();
   // Angemeldeter Bediener und Gerät für Menü, Rechte und Inaktivität
-  const [ich, tokens] = await Promise.all([holeIch(), leseTokens()]);
+  const [ich, tokens, status] = await Promise.all([holeIch(), leseTokens(), holeStatus()]);
+  // Rechte ohne Anmeldung (Gruppe "Ohne Anmeldung"); API nicht erreichbar: alles zeigen, die API prüft selbst
+  const gastRechte = status.success ? status.data.ohne_anmeldung.rechte : ["*"];
   // Cookies da, aber die API kennt die Sitzung nicht mehr: der Browser geht zur Anmeldung bzw. Bedienerauswahl
   const sitzung = { geraet: Boolean(tokens.geraet), bediener: Boolean(tokens.bediener) };
 
   return (
     <html lang="de">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <Providers backendUrl={backendUrl} ich={ich} sitzung={sitzung}>
+          <Providers backendUrl={backendUrl} ich={ich} sitzung={sitzung} gastRechte={gastRechte}>
           {children}
           </Providers>
       </body>

@@ -48,9 +48,12 @@ export const GruppeSchema = z.object({
     oidc_gruppe: z.string().nullish(),
     rollen: z.array(z.object({ id: z.number(), name: z.string(), system: z.boolean() })),
     anzahl_mitglieder: z.number(),
+    // Systemgruppe "Ohne Anmeldung" und ihr Schalter "Alles ansehen"
+    gast: z.boolean().default(false),
+    lesen: z.boolean().default(false),
 });
 export type Gruppe = z.infer<typeof GruppeSchema>;
-export type GruppeDaten = { name?: string; beschreibung?: string | null; oidc_gruppe?: string | null; rollen_ids?: number[] };
+export type GruppeDaten = { name?: string; beschreibung?: string | null; oidc_gruppe?: string | null; rollen_ids?: number[]; lesen?: boolean };
 
 export const GeraeteschluesselSchema = z.object({
     id: z.number(),
