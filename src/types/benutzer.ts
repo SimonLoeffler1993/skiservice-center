@@ -77,5 +77,7 @@ export const GeraetesitzungSchema = z.object({
     zuletzt_gesehen: z.string(),
     laeuft_ab: z.string(),
     bediener_timeout_minuten: z.number().nullish(),
+    // false = persönliche Anmeldung (endet mit dem Bediener)
+    dauerhaft: z.boolean().default(true),
 });
 export type Geraetesitzung = z.infer<typeof GeraetesitzungSchema>;

@@ -38,6 +38,8 @@ export const IchGeraetSchema = z.object({
     name: z.string(),
     art: z.string(),
     bediener_timeout_minuten: z.number(),
+    // false = persönliche Anmeldung (endet mit dem Bediener), true = über "Gerät anmelden"
+    dauerhaft: z.boolean().default(true),
 });
 export type IchGeraet = z.infer<typeof IchGeraetSchema>;
 
@@ -76,6 +78,12 @@ const FEHLER_TEXTE: Record<string, string> = {
     kein_passwort: "Ohne Passwort kann die Verknüpfung nicht gelöst werden: zuerst ein Passwort festlegen.",
     bereits_eingerichtet: "Die Einrichtung ist schon abgeschlossen.",
     oidc: "Die Anmeldung über den Anbieter ist fehlgeschlagen.",
+    kein_recht_geraet: "Du darfst keine Geräte anmelden (Recht „Gerät anmelden“ fehlt).",
+    bereits_dauerhaft: "Dieses Gerät ist schon angemeldet.",
+    oidc_bestaetigen: "Dein Konto hat kein Passwort: bitte über den Anbieter bestätigen.",
+    oidc_anderer_benutzer: "Beim Anbieter wurde ein anderes Konto angemeldet. Das Gerät wurde nicht angemeldet.",
+    oidc_nicht_frisch: "Der Anbieter hat nicht neu nach dem Passwort gefragt. Bitte erneut versuchen.",
+    geraet_nicht_dauerhaft: "Dieses Gerät ist nicht angemeldet: bitte mit Benutzername und Passwort anmelden.",
 };
 
 export function fehlerText(code: string | null | undefined, gesperrtBis?: string | null): string {

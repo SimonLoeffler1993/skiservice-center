@@ -199,6 +199,7 @@ function SitzungenTab() {
                                     <TableCell>
                                         <div className="font-medium">
                                             {g.name}{g.id === diesesGeraet?.id && <span className="text-muted-foreground"> (dieses Gerät)</span>}
+                                            {!g.dauerhaft && <Badge variant="secondary" className="ml-2" title="Normale Anmeldung, endet mit dem Abmelden">persönlich</Badge>}
                                         </div>
                                         <div className="text-xs text-muted-foreground">
                                             {g.art === "kasse" ? "Kasse" : "Center"} · angemeldet von {g.angemeldet_von ?? "?"} am {datumZeit(g.erstellt_am)}

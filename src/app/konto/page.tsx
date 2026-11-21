@@ -5,13 +5,15 @@ import { holeStatus } from "@/lib/anmeldungactions";
 import { fehlerText } from "@/types/anmeldung";
 
 export default async function KontoSeite({ searchParams }: {
-    searchParams: Promise<{ pflicht?: string; verknuepft?: string; fehler?: string }>;
+    searchParams: Promise<{ pflicht?: string; verknuepft?: string; geraet_angemeldet?: string; fehler?: string }>;
 }) {
-    const { pflicht, verknuepft, fehler } = await searchParams;
+    const { pflicht, verknuepft, geraet_angemeldet: geraetAngemeldet, fehler } = await searchParams;
     const status = await holeStatus();
-    // Rückkehr vom Verknüpfen beim Anbieter
+    // Rückkehr vom Anbieter (Konto verknüpfen bzw. Gerät anmelden)
     const hinweis = verknuepft
         ? { art: "ok" as const, text: "Konto verknüpft. Du kannst dich jetzt auch über den Anbieter anmelden." }
+        : geraetAngemeldet
+        ? { art: "ok" as const, text: "Dieses Gerät ist jetzt dauerhaft angemeldet. Nach dem Abmelden erscheint die Bedienerauswahl." }
         : fehler ? { art: "fehler" as const, text: fehlerText(fehler) } : null;
 
     return (

@@ -8,8 +8,8 @@ import { automatischerGeraetName } from "@/lib/geraetname";
 import { leseTokens, loescheAlles, loescheBediener, setzeSitzung } from "@/lib/sitzung";
 import { ApiAntwort } from "@/types/actiontypes";
 import {
-    AnmeldeAntwortSchema, AuthStatus, AuthStatusSchema, fehlerText, Ich, IchBenutzer, IchBenutzerSchema, IchSchema,
-    Kachel, KachelSchema,
+    AnmeldeAntwortSchema, AuthStatus, AuthStatusSchema, fehlerText, Ich, IchBenutzer, IchBenutzerSchema, IchGeraet,
+    IchGeraetSchema, IchSchema, Kachel, KachelSchema,
 } from "@/types/anmeldung";
 
 const API = () => `${config.backendUrl}/api/v1/auth`;
@@ -157,14 +157,54 @@ export async function oidcEinloesen(code: string): Promise<ApiAntwort<IchBenutze
     }
 }
 
-/** Nur den Bediener abmelden, das Gerät bleibt angemeldet. */
-export async function bedienerAbmelden(): Promise<void> {
+/**
+ * Bediener abmelden. Ein dauerhaft angemeldetes Gerät bleibt angemeldet (Bedienerauswahl); eine persönliche
+ * Anmeldung endet ganz. Gibt true zurück, wenn damit auch das Gerät abgemeldet ist (dann zu /anmelden).
+ */
+export async function bedienerAbmelden(): Promise<boolean> {
+    let geraetWeg = false;
     try {
-        await apiFetch(`${API()}/bediener/abmelden`, { method: "POST", cache: "no-store" });
+        const response = await apiFetch(`${API()}/bediener/abmelden`, { method: "POST", cache: "no-store" });
+        geraetWeg = response.ok ? Boolean((await response.json())?.geraet_abgemeldet) : response.status === 401;
     } catch (error) {
         console.error("Bediener abmelden", error);
     }
-    await loescheBediener();
+    if (geraetWeg) await loescheAlles();
+    else await loescheBediener();
+    return geraetWeg;
+}
+
+/** Macht dieses Gerät dauerhaft angemeldet (Recht „Gerät anmelden“, Passwort erneut). */
+export async function geraetDauerhaftAnmelden(passwort: string, name: string): Promise<ApiAntwort<IchGeraet>> {
+    try {
+        const response = await apiFetch(`${API()}/geraet/anmelden`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ passwort, name: name.trim() || null }),
+            cache: "no-store",
+        });
+        if (!response.ok) return { success: false, error: await fehlerAus(response, "Gerät konnte nicht angemeldet werden.") };
+        const daten = IchGeraetSchema.safeParse(await response.json());
+        return daten.success ? { success: true, data: daten.data } : { success: false, error: "Ungültige Antwort vom Server." };
+    } catch (error) {
+        return nichtErreichbar(error);
+    }
+}
+
+/** Wie geraetDauerhaftAnmelden, bestätigt über den OIDC-Anbieter: URL dorthin, zurück auf ziel. */
+export async function geraetOidcUrl(ziel: string, name: string): Promise<ApiAntwort<string>> {
+    try {
+        const response = await apiFetch(`${API()}/geraet/oidc`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ziel, name: name.trim() || null }),
+            cache: "no-store",
+        });
+        if (!response.ok) return { success: false, error: await fehlerAus(response, "Bestätigung nicht möglich.") };
+        return { success: true, data: (await response.json()).url };
+    } catch (error) {
+        return nichtErreichbar(error);
+    }
 }
 
 /** Das ganze Gerät abmelden. */

@@ -57,7 +57,7 @@ export function BenutzerProvider({ anfang, sitzung, gastRechte, children }: {
             if (!istAnmeldeSeite(pfadRef.current)) {
                 // Bediener weg (Timeout in der API, anderes Gerät, deaktiviert): zur Auswahl bzw. Anmeldung
                 if (alt.benutzer && !neu.benutzer) {
-                    if (neu.geraet) zurBedienerauswahl();
+                    if (neu.geraet?.dauerhaft) zurBedienerauswahl();
                     else window.location.href = "/anmelden";
                 }
             }
@@ -97,7 +97,7 @@ export function BenutzerProvider({ anfang, sitzung, gastRechte, children }: {
         }
     }, [ich.benutzer?.passwort_aendern, pfad]);
 
-    // Inaktivität: nach der eingestellten Zeit zurück zur Bedienerauswahl (0 = nie)
+    // Inaktivität: nach der eingestellten Zeit abmelden (0 = nie)
     const minuten = ich.benutzer && ich.geraet ? ich.geraet.bediener_timeout_minuten : 0;
     useEffect(() => {
         if (!minuten || istAnmeldeSeite(pfad)) return;
@@ -109,8 +109,9 @@ export function BenutzerProvider({ anfang, sitzung, gastRechte, children }: {
         const timer = window.setInterval(async () => {
             if (Date.now() - letzte >= minuten * 60_000) {
                 window.clearInterval(timer);
-                await bedienerAbmelden();
-                zurBedienerauswahl();
+                // Persönliche Anmeldung: wieder Benutzername und Passwort, sonst Bedienerauswahl
+                if (await bedienerAbmelden()) window.location.href = "/anmelden";
+                else zurBedienerauswahl();
             }
         }, 5_000);
         return () => {
