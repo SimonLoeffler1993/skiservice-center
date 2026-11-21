@@ -34,21 +34,21 @@ export const MENUE_GRUPPEN: MenueGruppe[] = [
     {
         titel: "Skiservice",
         links: [
-            { titel: "Neu", href: "/skiservice/erstellen", icon: Wrench, kachelTitel: "Neuer Skiservice", beschreibung: "Skiservice-Auftrag für einen Kunden erfassen." },
+            { titel: "Neu", recht: "skiservice.anlegen", href: "/skiservice/erstellen", icon: Wrench, kachelTitel: "Neuer Skiservice", beschreibung: "Skiservice-Auftrag für einen Kunden erfassen." },
             { titel: "Anzeigen", href: "/skiservice/anzeigen", icon: ClipboardList, kachelTitel: "Alle Skiservice", beschreibung: "Aufträge der Saison ansehen und bearbeiten." },
         ],
     },
     {
         titel: "Saisonverleih",
         links: [
-            { titel: "Neu", href: "/saisonverleih/erstellen", icon: Snowflake, kachelTitel: "Neuer Saisonverleih", beschreibung: "Material für die ganze Saison verleihen." },
+            { titel: "Neu", recht: "verleih.anlegen", href: "/saisonverleih/erstellen", icon: Snowflake, kachelTitel: "Neuer Saisonverleih", beschreibung: "Material für die ganze Saison verleihen." },
             { titel: "Anzeigen", href: "/saisonverleih/anzeigen?art=saison", icon: List, kachelTitel: "Saisonverleihe", beschreibung: "Saisonverleihe ansehen, bearbeiten und zurücknehmen." },
         ],
     },
     {
         titel: "Tagesverleih",
         links: [
-            { titel: "Neu", href: "/saisonverleih/erstellen?art=tag", icon: CalendarDays, kachelTitel: "Neuer Tagesverleih", beschreibung: "Material für einzelne Tage verleihen." },
+            { titel: "Neu", recht: "verleih.anlegen", href: "/saisonverleih/erstellen?art=tag", icon: CalendarDays, kachelTitel: "Neuer Tagesverleih", beschreibung: "Material für einzelne Tage verleihen." },
             { titel: "Anzeigen", href: "/saisonverleih/anzeigen?art=tag", icon: List, kachelTitel: "Tagesverleihe", beschreibung: "Tagesverleihe ansehen, bearbeiten und zurücknehmen." },
         ],
     },

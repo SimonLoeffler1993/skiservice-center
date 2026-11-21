@@ -11,8 +11,10 @@ import MenueLeiste from "@/components/saisonverleih/menue/MenueLeiste";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { skiStoeckeOptions } from "@/hooks/useSchuhMaterialOptions";
 import { saisonverleihPreiseOptions } from "@/hooks/useSaisonverleihPreiseOptions";
+import { rechtSeite } from "@/lib/seitenschutz";
 
 export default async function SaisonverleihErstellenLayout({ children }: { children: React.ReactNode }) {
+    await rechtSeite("verleih.anlegen");
 
     // const skistoeckePromise = getSkiStoecke();
 
