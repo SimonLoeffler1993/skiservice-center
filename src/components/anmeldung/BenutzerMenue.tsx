@@ -77,6 +77,16 @@ export default function BenutzerMenue() {
                             <MonitorSmartphone /> Gerät anmelden
                         </DropdownMenuItem>
                     )}
+                    {dauerhaft && (
+                        // Wie „Bediener wechseln“, aber unmissverständlich: die Person meldet sich ab, das Gerät bleibt
+                        <DropdownMenuItem onSelect={abmelden}>
+                            <LogOut />
+                            <span className="flex flex-col">
+                                Abmelden
+                                <span className="text-xs text-muted-foreground">Gerät bleibt angemeldet</span>
+                            </span>
+                        </DropdownMenuItem>
+                    )}
                     {geraet && (
                         <>
                             <DropdownMenuSeparator />
