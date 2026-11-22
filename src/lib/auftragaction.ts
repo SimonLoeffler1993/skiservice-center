@@ -1,4 +1,5 @@
 "use server";
+import { apiFetch } from "@/lib/apianfrage";
 import { config } from "./config";
 import { AuftragListe, AuftragListeSchema, AuftragSchema, ServiceListenFilter } from "@/types/skiservicetypes";
 import { ListenSortierung } from "@/types/liste";
@@ -23,7 +24,7 @@ type FertigAntwort =
 // mail = false: keine Fertig-Mail, auch wenn danach alle Ski fertig sind
 export async function auftragFertigStellen(serviceId: number, skiIds: number[], mail = true): Promise<FertigAntwort> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/skiservice/skifertig`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/skiservice/skifertig`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -52,7 +53,7 @@ export async function auftragAnlegen(kundeId: number, skiserviceEintraege: SkiAn
             skis: skiserviceEintraege,
         })
 
-        const response = await fetch(`${config.backendUrl}/api/v1/skiservice/neu`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/skiservice/neu`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -78,7 +79,7 @@ export async function auftragAnlegen(kundeId: number, skiserviceEintraege: SkiAn
 
 export async function getAuftragLesen(auftragID: number) {
     try {
-        const res = await fetch(`${config.backendUrl}/api/v1/skiservice/auftrag/${auftragID}`, {
+        const res = await apiFetch(`${config.backendUrl}/api/v1/skiservice/auftrag/${auftragID}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -107,7 +108,7 @@ export async function setBindungChecked(skiIds:number[]): Promise<{ ok: boolean;
         const body = JSON.stringify({
             ski_ids: skiIds
         })
-        const res = await fetch(`${config.backendUrl}/api/v1/skiservice/bindungfertig`, {
+        const res = await apiFetch(`${config.backendUrl}/api/v1/skiservice/bindungfertig`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -151,7 +152,7 @@ export async function getSkiserviceListe(limit: number = 25, letzteID?: number, 
     }
 
     try {
-        const res = await fetch(url);
+        const res = await apiFetch(url);
         if (!res.ok) {
             console.error("Fehler beim Laden Skiservices; ", res.status, res.statusText);
             return null;
@@ -169,7 +170,7 @@ export async function skiEttikettenDrucken(ettiketenData: FormData) {
     const skiIDs = ettiketenData.getAll("skiIds").map(id => Number(id));
     console.log("Ettiketen drucken für Skis:", skiIDs);
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/ettiket/serviceskis`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/ettiket/serviceskis`, {
             method: "POST",
             body: JSON.stringify({ ski_ids: skiIDs }),
             headers: {

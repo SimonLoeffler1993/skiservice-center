@@ -10,8 +10,10 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
+import { rechtSeite } from "@/lib/seitenschutz";
 
-export default function PreisePage() {
+export default async function PreisePage() {
+    await rechtSeite("preise.verwalten");
     return (
         <Tabs defaultValue="skiservice" className="w-full">
             <TabsList>

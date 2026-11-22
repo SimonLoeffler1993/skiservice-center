@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useBenutzer } from "@/context/benutzer-context";
 import { orteOptions } from "@/hooks/useOrteOptions";
 import { kundeAendern, kundeErfassen } from "@/lib/kundeactions";
 import { cn } from "@/lib/utils";
@@ -66,6 +67,7 @@ export default function KundeErfassenDialog({ kunde, vorname = "", nachname = ""
     const [isPending, startTransition] = useTransition();
     const formId = useId();
     const queryClient = useQueryClient();
+    const { darf } = useBenutzer();
     const bearbeiten = !!kunde;
 
     const leer = startwerte(kunde, vorname, nachname);
@@ -118,6 +120,9 @@ export default function KundeErfassenDialog({ kunde, vorname = "", nachname = ""
             onGespeichert(antwort.data);
         });
     }
+
+    // Neu anlegen bzw. ändern nur mit dem passenden Recht (die API prüft ohnehin)
+    if (!darf(bearbeiten ? "kunden.bearbeiten" : "kunden.anlegen")) return null;
 
     return (
         <Dialog

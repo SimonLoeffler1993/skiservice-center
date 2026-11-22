@@ -1,5 +1,6 @@
 "use server"
 
+import { apiFetch } from "@/lib/apianfrage";
 import { config } from "@/lib/config";
 import { ApiAntwort } from "@/types/actiontypes";
 import { SkiArraySchema, SkiCreate, SkiArray,
@@ -20,7 +21,7 @@ import { z } from "zod";
 
     // SKI
 export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/eigen?skinr=${encodeURIComponent(skiNr.trim())}`, { cache: "no-store" });
+    const response = await apiFetch(`${config.backendUrl}/api/v1/material/ski/eigen?skinr=${encodeURIComponent(skiNr.trim())}`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return { success: false, error: "Fehler beim Suchen", data: null };
@@ -49,7 +50,7 @@ export async function getSkiNrCheck(previousState: unknown,skiNr: string) {
 
 export async function getSkiList(): Promise<SkiArray> {
     // Materialverwaltung: auch ausgemusterte Ski laden, gefiltert wird im Center
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/liste?mit_ausgemustert=true`, { cache: "no-store" });
+    const response = await apiFetch(`${config.backendUrl}/api/v1/material/ski/liste?mit_ausgemustert=true`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return [];
@@ -66,7 +67,7 @@ export async function getSkiList(): Promise<SkiArray> {
 
 export async function getSchuhNrCheck(previousState: unknown, schuhNr: string) {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen?schuhnr=${encodeURIComponent(schuhNr.trim())}`, { cache: "no-store" });
+        const response = await apiFetch(`${config.backendUrl}/api/v1/material/schuh/eigen?schuhnr=${encodeURIComponent(schuhNr.trim())}`, { cache: "no-store" });
         if (response.status === 404) {
             return { success: false as const, error: "Schuh nicht gefunden", data: null };
         }
@@ -91,7 +92,7 @@ export async function getSchuhNrCheck(previousState: unknown, schuhNr: string) {
 // Ohne mitAusgemustert nur verleihbare Stöcke (Auswahl im Verleih)
 export async function getSkiStoecke(mitAusgemustert: boolean = false): Promise<ApiAntwort<SkistockArray>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/material/stock/skistocke?mit_ausgemustert=${mitAusgemustert}`, { cache: "no-store" });
+        const response = await apiFetch(`${config.backendUrl}/api/v1/material/stock/skistocke?mit_ausgemustert=${mitAusgemustert}`, { cache: "no-store" });
         if (!response.ok) {
             console.error("Fehler beim Suchen:", response);
             return { success: false, error: "Fehler beim Suchen"};
@@ -108,7 +109,7 @@ export async function getSkiStoecke(mitAusgemustert: boolean = false): Promise<A
 
 export async function createSkiStoeck(previousState: unknown, skistock: SkistockCreate): Promise<ApiAntwort<Skistock>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/material/stock`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/material/stock`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(skistock)
@@ -135,7 +136,7 @@ export async function getSkiHersteller(schuh?: boolean): Promise<SkiHerstellerAr
         ? "/api/v1/material/schuh/hersteller"
         : "/api/v1/material/ski/hersteller";
 
-    const response = await fetch(`${config.backendUrl}${herstellerEndpoint}`, { cache: "no-store" });
+    const response = await apiFetch(`${config.backendUrl}${herstellerEndpoint}`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return [];
@@ -161,7 +162,7 @@ export async function createSkiHersteller(
         : "/api/v1/material/ski/hersteller";
 
     try {
-        const response = await fetch(`${config.backendUrl}${herstellerEndpoint}`, {
+        const response = await apiFetch(`${config.backendUrl}${herstellerEndpoint}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ Name: name }),
@@ -189,7 +190,7 @@ export async function createSkiHersteller(
 
 // Ski Art
 export async function getSkiArt(): Promise<SkiArtArray> {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/art`, { cache: "no-store" });
+    const response = await apiFetch(`${config.backendUrl}/api/v1/material/ski/art`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return [];
@@ -206,7 +207,7 @@ export async function getSkiArt(): Promise<SkiArtArray> {
 
 // TODO: Implementieren in UI
 // export async function createSkiArt(previousState: unknown,name: string) {
-//     const response = await fetch(`${config.backendUrl}/api/v1/material/ski/art`, {
+//     const response = await apiFetch(`${config.backendUrl}/api/v1/material/ski/art`, {
 //         method: "POST",
 //         headers: {
 //             "Content-Type": "application/json",
@@ -230,7 +231,7 @@ export async function getSkiArt(): Promise<SkiArtArray> {
 // Ski Modell
 export async function createSkiModell(previousState: unknown, data: SkiModellCreate): Promise<ApiAntwort<z.infer<typeof ModellSchema>>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/material/ski/modell`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/material/ski/modell`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -249,7 +250,7 @@ export async function createSkiModell(previousState: unknown, data: SkiModellCre
 }   
 
 export async function getModell(): Promise<ModellArray> {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/ski/modell`, { cache: "no-store" });
+    const response = await apiFetch(`${config.backendUrl}/api/v1/material/ski/modell`, { cache: "no-store" });
     if (!response.ok) {
         console.error("Fehler beim Suchen:", response);
         return [];
@@ -267,7 +268,7 @@ export async function getModell(): Promise<ModellArray> {
 // Ski
 export async function createSki(previousState: unknown, data: SkiCreate): Promise<ApiAntwort<z.infer<typeof SkiSchema>>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/material/ski/anlegen`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/material/ski/anlegen`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -286,7 +287,7 @@ export async function createSki(previousState: unknown, data: SkiCreate): Promis
 }   
 
 export async function getSchuhModelle(): Promise<ApiAntwort<SchuhModellArray>> {
-    const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/modelle`);
+    const response = await apiFetch(`${config.backendUrl}/api/v1/material/schuh/modelle`);
     
     if (!response.ok) {
         console.error("Fehler beim Abfragen der Schumodelle:", response.status);
@@ -313,7 +314,7 @@ export async function getSchuhModelle(): Promise<ApiAntwort<SchuhModellArray>> {
 
 export async function createSchuhModell(previousState: unknown,SchuhModell: SchuhModellCreate): Promise<ApiAntwort<SchuhModell>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/modell`,{
+        const response = await apiFetch(`${config.backendUrl}/api/v1/material/schuh/modell`,{
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(SchuhModell)
@@ -338,7 +339,7 @@ export async function createSchuhModell(previousState: unknown,SchuhModell: Schu
 export async function getSkiSchuhe(): Promise<ApiAntwort<SchuhArray>> {
     try {
         // Materialverwaltung: auch ausgemusterte Schuhe laden, gefiltert wird im Center
-        const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen/liste?mit_ausgemustert=true`, { cache: "no-store" });
+        const response = await apiFetch(`${config.backendUrl}/api/v1/material/schuh/eigen/liste?mit_ausgemustert=true`, { cache: "no-store" });
 
         if (!response.ok) {
             console.error("Fehler beim Abfragen der Schuhe:", response.status);
@@ -359,7 +360,7 @@ export async function getSkiSchuhe(): Promise<ApiAntwort<SchuhArray>> {
 
 export async function createSkiSchuh(previousState: unknown, skiSchuh: CreateSkiSchuh): Promise<ApiAntwort<Schuh>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/material/schuh/eigen`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/material/schuh/eigen`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(skiSchuh)

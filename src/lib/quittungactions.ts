@@ -1,5 +1,6 @@
 "use server";
 
+import { apiFetch } from "@/lib/apianfrage";
 import { QuittungListeEintrag, QuittungListeSchema, QuittungRead, QuittungReadSchema } from "@/types/quittungentypes";
 import { config } from "./config";
 import { anfrage } from "./apianfrage";
@@ -9,7 +10,7 @@ import { LexPages } from "@/types/pagestypes";
 import { z } from "zod";
 
 export async function getQuittung(quittungID: number): Promise<QuittungRead | null> {
-    const response = await fetch(`${config.backendUrl}/api/v1/quittungen/quittung/${quittungID}?bezahlinfo=true`);
+    const response = await apiFetch(`${config.backendUrl}/api/v1/quittungen/quittung/${quittungID}?bezahlinfo=true`);
     if (!response.ok) {
         console.error("Fehler beim Abrufen der Quittung:", response);
         return null;
@@ -26,7 +27,7 @@ export async function getQuittung(quittungID: number): Promise<QuittungRead | nu
 }
 
 export async function getQuittungsBelegeListe(page: number = 0): Promise<LexPages<Beleg> | null> {
-    const response = await fetch(`${config.backendUrl}/api/v1/quittungen/lexware/belege?page=${page}`);
+    const response = await apiFetch(`${config.backendUrl}/api/v1/quittungen/lexware/belege?page=${page}`);
     if (!response.ok) {
         console.error("Fehler beim Abrufen der Belegliste:", response);
         return null;
@@ -43,7 +44,7 @@ export type QuittungZiel = { art: "verleih" | "auftrag"; id: number };
 // ersetzen: bereits von Hand zugewiesenen Beleg ändern (z.B. nach einem Vertipper)
 export async function setExQuittungBeleg(lexBelegID: string, ziel: QuittungZiel, ersetzen = false): Promise<{ success: boolean; error?: string }> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/quittungen/quittung/nurextern`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/quittungen/quittung/nurextern`, {
             method: "POST",
             body: JSON.stringify({
                 ...(ziel.art === "verleih" ? { SaisonverleihID: ziel.id } : { AuftragID: ziel.id }),

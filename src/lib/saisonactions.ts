@@ -1,6 +1,7 @@
 "use server"
 import { unstable_cache, updateTag } from "next/cache";
 
+import { apiFetch } from "@/lib/apianfrage";
 import { config } from "@/lib/config";
 import { ApiAntwort } from "@/types/actiontypes";
 import { SaisonDaten, SaisonsNamen, SaisonsNamenListeSchema, SaisonsNamenSchema } from "@/types/saison";
@@ -47,7 +48,7 @@ export async function getSaisonDaten(): Promise<ApiAntwort<SaisonDaten>> {
 
 export async function saisonAnlegen(name: string, von: string, bis: string): Promise<ApiAntwort<SaisonsNamen>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/saison/erfassen`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/saison/erfassen`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

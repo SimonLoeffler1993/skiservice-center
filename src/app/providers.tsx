@@ -6,8 +6,16 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { useState } from "react"
 
 import { BackendUrlProvider } from "@/context/backend-context"
+import { BenutzerProvider } from "@/context/benutzer-context"
+import type { Ich } from "@/types/anmeldung"
 
-export function Providers({ children, backendUrl }: { children: React.ReactNode; backendUrl: string }) {
+export function Providers({ children, backendUrl, ich, sitzung, gastRechte }: {
+    children: React.ReactNode;
+    backendUrl: string;
+    ich: Ich;
+    sitzung: { geraet: boolean; bediener: boolean };
+    gastRechte: string[];
+}) {
     // Daten 1min im Cache behalten, damit nicht bei jedem Seitenwechsel neu geladen werden muss
     const [queryClient] = useState(() => new QueryClient({
         defaultOptions: {
@@ -19,7 +27,9 @@ export function Providers({ children, backendUrl }: { children: React.ReactNode;
     return (
         <QueryClientProvider client={queryClient}>
             <BackendUrlProvider backendUrl={backendUrl}>
-                {children}
+                <BenutzerProvider anfang={ich} sitzung={sitzung} gastRechte={gastRechte}>
+                    {children}
+                </BenutzerProvider>
             </BackendUrlProvider>
             <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>

@@ -1,5 +1,6 @@
 "use server"
 
+import { apiFetch } from "@/lib/apianfrage";
 import { config } from "./config";
 import { toApiAntwort } from "./helfer";
 import { ApiAntwort } from "@/types/actiontypes";
@@ -14,7 +15,7 @@ async function fehlerText(response: Response, standard: string): Promise<string>
 
 export async function getEinstellungen(): Promise<ApiAntwort<EinstellungenListe>> {
     try {
-        const response = await fetch(`${basisUrl()}/`, { cache: "no-store" });
+        const response = await apiFetch(`${basisUrl()}/`, { cache: "no-store" });
         if (!response.ok) {
             return { success: false, error: await fehlerText(response, "Einstellungen konnten nicht geladen werden.") };
         }
@@ -27,7 +28,7 @@ export async function getEinstellungen(): Promise<ApiAntwort<EinstellungenListe>
 
 export async function speichereEinstellungen(werte: EinstellungenWerte): Promise<ApiAntwort<EinstellungenListe>> {
     try {
-        const response = await fetch(`${basisUrl()}/`, {
+        const response = await apiFetch(`${basisUrl()}/`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ werte }),
@@ -44,7 +45,7 @@ export async function speichereEinstellungen(werte: EinstellungenWerte): Promise
 
 export async function loescheGeheimnis(schluessel: string): Promise<ApiAntwort<EinstellungenListe>> {
     try {
-        const response = await fetch(`${basisUrl()}/${encodeURIComponent(schluessel)}`, { method: "DELETE" });
+        const response = await apiFetch(`${basisUrl()}/${encodeURIComponent(schluessel)}`, { method: "DELETE" });
         if (!response.ok) {
             return { success: false, error: await fehlerText(response, "Wert konnte nicht gelöscht werden.") };
         }
@@ -55,11 +56,11 @@ export async function loescheGeheimnis(schluessel: string): Promise<ApiAntwort<E
     }
 }
 
-export type TestArt = "mail" | "drucker" | "lexware";
+export type TestArt = "mail" | "drucker" | "lexware" | "oidc";
 
 export async function testeEinstellung(art: TestArt, empfaenger?: string): Promise<TestErgebnis> {
     try {
-        const response = await fetch(`${basisUrl()}/test/${art}`, {
+        const response = await apiFetch(`${basisUrl()}/test/${art}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: art === "mail" ? JSON.stringify({ empfaenger }) : undefined,

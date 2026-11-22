@@ -1,5 +1,6 @@
 "use server"
 
+import { apiFetch } from "@/lib/apianfrage";
 import { config } from "./config";
 import { toApiAntwort } from "./helfer";
 import { ApiAntwort } from "@/types/actiontypes";
@@ -8,7 +9,7 @@ import { BindungsdatenListeEintrag, BindungsdatenListeSchema, BindungsdatenReadS
 // Alle Bindungsdaten eines Kunden, neueste zuerst
 export async function getBindungsdaten(kundeId: number, mitArchiv: boolean): Promise<ApiAntwort<BindungsdatenListeEintrag[]>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/kunden/${kundeId}/bindungsdaten?archiviert=${mitArchiv}`, { cache: "no-store" });
+        const response = await apiFetch(`${config.backendUrl}/api/v1/kunden/${kundeId}/bindungsdaten?archiviert=${mitArchiv}`, { cache: "no-store" });
         if (!response.ok) {
             return { success: false, error: "Bindungsdaten konnten nicht geladen werden." };
         }
@@ -21,7 +22,7 @@ export async function getBindungsdaten(kundeId: number, mitArchiv: boolean): Pro
 
 export async function setBindungsdatenArchiviert(id: number, archiviert: boolean): Promise<ApiAntwort<BindungsdatenRead>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/bindungsdaten/${id}`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/bindungsdaten/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ Archiviert: archiviert }),

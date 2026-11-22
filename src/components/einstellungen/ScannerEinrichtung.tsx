@@ -31,7 +31,10 @@ export default function ScannerEinrichtung({ webflasherUrl: webflasher, startNam
             <CardHeader>
                 <CardTitle>Hardware-Scanner installieren</CardTitle>
                 <CardDescription>
-                    Öffnet den Webflasher, Server-Adresse, Name und Modus sind dort schon eingetragen. Nur das WLAN wird im Webflasher ergänzt.
+                    Öffnet den Webflasher, Server-Adresse, Name und Modus sind dort schon eingetragen. Nur das WLAN und der
+                    Geräteschlüssel werden im Webflasher ergänzt. Den Schlüssel unter{" "}
+                    <a href="/verwalten/geraete" className="underline underline-offset-2">Verwalten → Geräte</a>{" "}
+                    erzeugen (er wird nur einmal angezeigt und steht deshalb nicht im Link).
                     Dafür Chrome oder Edge am Computer verwenden und den Scanner über den COM-Port anschließen.
                 </CardDescription>
             </CardHeader>

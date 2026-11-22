@@ -1,9 +1,11 @@
 import SkiserviceErstellen from "@/components/skiservice/erstellen/SeiteErstellen";
 import { skiservicesPreiseOptions } from "@/hooks/useSkiservicesPreiseOptions";
+import { rechtSeite } from "@/lib/seitenschutz";
 
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 
 export default async function SkiserviceErstellenPage() {
+    await rechtSeite("skiservice.anlegen");
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery(skiservicesPreiseOptions);
 

@@ -1,5 +1,6 @@
 "use server"
 
+import { apiFetch } from "@/lib/apianfrage";
 import { config } from "./config";
 import { ApiAntwort } from "@/types/actiontypes";
 import { toApiAntwort } from "./helfer";
@@ -9,7 +10,7 @@ import { CreateSaisonverleihPreis, SaisonverleihPreise, saisonverleihPreiseSchem
 
 export async function createSaisonverleihPreis(previousState: unknown, data: CreateSaisonverleihPreis): Promise<ApiAntwort<SaisonverleihPreise>> {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/saisonverleih/preise`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/saisonverleih/preise`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -1,11 +1,12 @@
 "use server";
 
+import { apiFetch } from "@/lib/apianfrage";
 import { terminalSchema } from "@/types/skiterminaltypes";
 import { config } from "./config";
 
 export async function kundeTerminaAbfragen() {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/event/terminals`, { cache: "no-store" });
+        const response = await apiFetch(`${config.backendUrl}/api/v1/event/terminals`, { cache: "no-store" });
         if (!response.ok) {
             console.error("Fehler beim Suchen:", response);
             // return "error";
@@ -31,7 +32,7 @@ export async function kundeTerminaAbfragen() {
 
 export async function kundeTerminalSenden(terminal: string, kunde_id: number) {
     try {
-        const response = await fetch(`${config.backendUrl}/api/v1/event/zeigekunde`, {
+        const response = await apiFetch(`${config.backendUrl}/api/v1/event/zeigekunde`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

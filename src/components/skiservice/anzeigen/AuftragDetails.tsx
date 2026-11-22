@@ -1,11 +1,12 @@
 "use client"
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
-import { Mail, Receipt } from "lucide-react";
+import { Mail, Receipt, History } from "lucide-react";
 
 import DetailKopf, { DetailAktionsleiste, DetailKarte } from "@/components/detail/DetailKopf";
 import KundeForm from "@/components/kunde/KundeForm";
 import MailProtokollListe from "@/components/mail/MailProtokollListe";
+import VerlaufListe from "@/components/verlauf/VerlaufListe";
 import ButtonQuittungZuweisen from "@/components/quittung/ButtonQuittungZuweisen";
 import QuittungKurzInfo from "@/components/quittung/QuittungKurzInfo";
 import { auftragDetailsOptions } from "@/hooks/useAuftragDetailsOptions";
@@ -57,6 +58,7 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID, 
                     <>
                         {kundenname} · <AuftragFertigBis fertigBis={auftrag.abhol_date} />
                         {auftrag.abgeholt_am && ` · abgeholt am ${format(parseISO(auftrag.abgeholt_am), "dd.MM.yyyy")}`}
+                        {auftrag.angelegt_von_name && ` · angelegt von ${auftrag.angelegt_von_name}`}
                     </>
                 }
                 badges={
@@ -99,6 +101,9 @@ export default function SkiserviceAnzeigenAuftragDetails({ skiserviceAuftragID, 
                         </DetailKarte>
                         <DetailKarte titel="Nachrichten" icon={Mail}>
                             <MailProtokollListe bezug="auftrag" id={auftrag.id} kompakt />
+                        </DetailKarte>
+                        <DetailKarte titel="Verlauf" icon={History}>
+                            <VerlaufListe bezug="auftrag" id={auftrag.id} />
                         </DetailKarte>
                     </div>
                 </aside>

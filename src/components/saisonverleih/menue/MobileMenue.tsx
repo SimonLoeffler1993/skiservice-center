@@ -6,10 +6,13 @@ import { Home, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { MENUE_GRUPPEN } from "./menueeintraege";
+import BenutzerMenue from "@/components/anmeldung/BenutzerMenue";
+import { useBenutzer } from "@/context/benutzer-context";
+import { sichtbareGruppen } from "./menueeintraege";
 
 export default function MobileMenue() {
     const [offen, setOffen] = useState(false);
+    const { darf } = useBenutzer();
 
     return (
         <div className="flex items-center justify-between md:hidden">
@@ -17,6 +20,8 @@ export default function MobileMenue() {
                 <Home size={18} />
                 <span className="font-semibold">Skiservice Center</span>
             </Link>
+            <div className="flex items-center gap-1">
+            <BenutzerMenue />
             <Sheet open={offen} onOpenChange={setOffen}>
                 <SheetTrigger asChild>
                     <Button variant="ghost" size="icon" aria-label="Menü öffnen">
@@ -28,7 +33,7 @@ export default function MobileMenue() {
                         <SheetTitle>Menü</SheetTitle>
                     </SheetHeader>
                     <nav className="flex flex-col gap-4 px-4 pb-4">
-                        {MENUE_GRUPPEN.map((gruppe) => (
+                        {sichtbareGruppen(darf).map((gruppe) => (
                             <div key={gruppe.titel} className="flex flex-col gap-1">
                                 <span className="text-sm font-medium text-muted-foreground">{gruppe.titel}</span>
                                 {gruppe.links.map((link) => (
@@ -47,6 +52,7 @@ export default function MobileMenue() {
                     </nav>
                 </SheetContent>
             </Sheet>
+            </div>
         </div>
     );
 }

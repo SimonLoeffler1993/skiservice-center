@@ -1,17 +1,24 @@
+"use client";
+
 import { NavigationMenu, NavigationMenuLink, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Home } from "lucide-react";
 
-import { MENUE_GRUPPEN } from "./menueeintraege";
+import BenutzerMenue from "@/components/anmeldung/BenutzerMenue";
+import { useBenutzer } from "@/context/benutzer-context";
+import { sichtbareGruppen } from "./menueeintraege";
 import MobileMenue from "./MobileMenue";
 
 export default function MenueLeiste() {
+    const { darf } = useBenutzer();
+    const gruppen = sichtbareGruppen(darf);
     return (
         <>
             {/* Handy / kleines Tablet */}
             <MobileMenue />
 
             {/* Ab md */}
-            <NavigationMenu viewport={false} className="hidden md:flex">
+            <div className="hidden items-center justify-between md:flex">
+            <NavigationMenu viewport={false}>
                 <NavigationMenuList>
                     <NavigationMenuItem>
                         <NavigationMenuLink href="/">
@@ -19,7 +26,7 @@ export default function MenueLeiste() {
                         </NavigationMenuLink>
                     </NavigationMenuItem>
 
-                    {MENUE_GRUPPEN.map((gruppe) => (
+                    {gruppen.map((gruppe) => (
                         <NavigationMenuItem key={gruppe.titel}>
                             <NavigationMenuTrigger>{gruppe.titel}</NavigationMenuTrigger>
                             {/* z-50: sonst liegen Suchfelder und andere positionierte Elemente der Seite über dem Menü */}
@@ -39,6 +46,8 @@ export default function MenueLeiste() {
                     ))}
                 </NavigationMenuList>
             </NavigationMenu>
+            <BenutzerMenue />
+            </div>
         </>
     );
 }

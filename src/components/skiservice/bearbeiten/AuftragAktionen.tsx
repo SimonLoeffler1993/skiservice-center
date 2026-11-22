@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import LoeschenDialog from "@/components/bearbeiten/LoeschenDialog";
+import { useBenutzer } from "@/context/benutzer-context";
 import BezahltUmschalten from "@/components/bearbeiten/BezahltUmschalten";
 import { aendereAuftrag, loescheAuftrag, setzeAuftragBezahlt } from "@/lib/bearbeitenactions";
 import { Auftrag } from "@/types/skiservicetypes";
@@ -55,6 +56,7 @@ export function AlleFertigButton({ auftrag }: { auftrag: Auftrag }) {
 export default function AuftragAktionen({ auftrag, children }: AuftragAktionenProps) {
     const router = useRouter();
     const queryClient = useQueryClient();
+    const { darf } = useBenutzer();
     const aktualisieren = useAuftragAktualisieren(auftrag.id);
     const bezahlt = auftrag.bezahlt === "ja" || auftrag.quittung_id != null;
     const [datumOffen, setDatumOffen] = useState(false);
@@ -118,6 +120,7 @@ export default function AuftragAktionen({ auftrag, children }: AuftragAktionenPr
 
             {children}
 
+            {darf("skiservice.loeschen") && (
             <div className="sm:ml-auto">
                 <LoeschenDialog
                     titel={`Auftrag ${auftrag.name ?? ""} löschen`}
@@ -134,6 +137,7 @@ export default function AuftragAktionen({ auftrag, children }: AuftragAktionenPr
                     }}
                 />
             </div>
+            )}
         </>
     );
 }

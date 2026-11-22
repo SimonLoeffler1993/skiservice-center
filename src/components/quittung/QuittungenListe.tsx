@@ -7,10 +7,10 @@ import { format, parseISO } from "date-fns";
 import { Ban, ChevronDown, ChevronRight, FileText } from "lucide-react";
 
 import LoeschenDialog from "@/components/bearbeiten/LoeschenDialog";
+import { useBenutzer } from "@/context/benutzer-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useBackendUrl } from "@/context/backend-context";
 import { getQuittungenListe, storniereQuittung } from "@/lib/quittungactions";
 import { QuittungListeEintrag } from "@/types/quittungentypes";
 
@@ -106,14 +106,14 @@ export function QuittungenTabelle({ quittungen: data }: { quittungen: QuittungLi
 }
 
 function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungListeEintrag; offen: boolean; onUmschalten: () => void }) {
-    const backendUrl = useBackendUrl();
     const queryClient = useQueryClient();
+    const { darf } = useBenutzer();
 
     async function stornieren() {
         const antwort = await storniereQuittung(quittung.ID);
         if (!antwort.success) return antwort.error;
         // Aufträge und Verleihe der Quittung sind wieder offen und ohne Quittung
-        for (const schluessel of ["quittungenListe", "quittung", "kunde", "serviceAuftragDetails", "saisonverleihDetails", "skiserviceList", "saisonverleihList", "mailProtokoll"]) {
+        for (const schluessel of ["quittungenListe", "quittung", "kunde", "serviceAuftragDetails", "saisonverleihDetails", "skiserviceList", "saisonverleihList", "mailProtokoll", "verlauf"]) {
             queryClient.invalidateQueries({ queryKey: [schluessel] });
         }
         return null;
@@ -143,12 +143,15 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                         ))}
                     </div>
                 </TableCell>
-                <TableCell>{quittung.Zahlart || "–"}</TableCell>
+                <TableCell>
+                    {quittung.Zahlart || "–"}
+                    {quittung.KassiertVonName && <div className="text-xs text-muted-foreground">kassiert von {quittung.KassiertVonName}</div>}
+                </TableCell>
                 <TableCell className={`text-right tabular-nums ${quittung.Storniert ? "text-muted-foreground line-through" : ""}`}>{euro.format(quittung.Betrag)}</TableCell>
                 <TableCell>
                     <div className="flex flex-wrap gap-1">
                         {quittung.Storniert ? (
-                            <Badge variant="secondary" className="bg-rose-100 text-rose-800" title={quittung.Storniert_Am ? `Storniert am ${datum(quittung.Storniert_Am)}` : undefined}>
+                            <Badge variant="secondary" className="bg-rose-100 text-rose-800" title={quittung.Storniert_Am ? `Storniert am ${datum(quittung.Storniert_Am)}${quittung.StorniertVonName ? ` von ${quittung.StorniertVonName}` : ""}` : undefined}>
                                 storniert
                             </Badge>
                         ) : (
@@ -167,7 +170,7 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                 <TableCell onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center gap-1">
                         <a
-                            href={`${backendUrl}/api/v1/quittungen/quittung/${quittung.ID}/pdf`}
+                            href={`/api/pdf/quittung/${quittung.ID}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="PDF öffnen"
@@ -175,7 +178,7 @@ function QuittungZeile({ quittung, offen, onUmschalten }: { quittung: QuittungLi
                         >
                             <FileText className="h-4 w-4" />
                         </a>
-                        {!quittung.Storniert && (
+                        {!quittung.Storniert && darf("quittungen.verwalten") && (
                             <LoeschenDialog
                                 titel={`Quittung ${quittung.Nummer} stornieren`}
                                 beschreibung={
